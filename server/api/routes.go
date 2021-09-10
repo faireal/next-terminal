@@ -19,7 +19,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/patrickmn/go-cache"
 	"gorm.io/driver/mysql"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -405,10 +404,6 @@ func SetupDB() *gorm.DB {
 			global.Config.Mysql.Database,
 		)
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
-			Logger: logMode,
-		})
-	} else {
-		db, err = gorm.Open(sqlite.Open(global.Config.Sqlite.File), &gorm.Config{
 			Logger: logMode,
 		})
 	}

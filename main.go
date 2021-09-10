@@ -13,7 +13,7 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-const Version = "v0.5.0"
+var Version = "v0.5.0"
 
 func main() {
 	err := Run()
@@ -60,11 +60,5 @@ func Run() error {
 	propertyRepo := repository.NewPropertyRepository(db)
 	ticker := task.NewTicker(sessionRepo, propertyRepo)
 	ticker.SetupTicker()
-
-	if global.Config.Server.Cert != "" && global.Config.Server.Key != "" {
-		return e.StartTLS(global.Config.Server.Addr, global.Config.Server.Cert, global.Config.Server.Key)
-	} else {
-		return e.Start(global.Config.Server.Addr)
-	}
-
+	return e.Start(global.Config.Server.Addr)
 }

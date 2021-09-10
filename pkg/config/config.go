@@ -3,8 +3,6 @@ package config
 import (
 	"strings"
 
-	"github.com/spf13/pflag"
-
 	"github.com/spf13/viper"
 )
 
@@ -52,23 +50,6 @@ func SetupConfig() *Config {
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	pflag.String("db", "sqlite", "db mode")
-	pflag.String("sqlite.file", "next-terminal.db", "sqlite db file")
-	pflag.String("mysql.hostname", "127.0.0.1", "mysql hostname")
-	pflag.Int("mysql.port", 3306, "mysql port")
-	pflag.String("mysql.username", "mysql", "mysql username")
-	pflag.String("mysql.password", "mysql", "mysql password")
-	pflag.String("mysql.database", "next_terminal", "mysql database")
-
-	pflag.String("server.addr", "", "server listen addr")
-	pflag.String("server.cert", "", "tls cert file")
-	pflag.String("server.key", "", "tls key file")
-	pflag.String("reset-password", "", "")
-	pflag.String("encryption-key", "", "")
-	pflag.String("new-encryption-key", "", "")
-
-	pflag.Parse()
-	_ = viper.BindPFlags(pflag.CommandLine)
 	_ = viper.ReadInConfig()
 
 	var config = &Config{
