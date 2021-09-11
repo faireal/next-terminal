@@ -1,6 +1,9 @@
 package api
 
 import (
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
+	"github.com/gin-gonic/gin"
 	"strings"
 	"time"
 
@@ -8,8 +11,6 @@ import (
 	"next-terminal/pkg/totp"
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
-
-	"github.com/labstack/echo/v4"
 )
 
 const (
@@ -45,12 +46,9 @@ type Authorization struct {
 //	repository.UserRepository
 //}
 
-func LoginEndpoint(c echo.Context) error {
+func LoginEndpoint(c *gin.Context) {
 	var loginAccount LoginAccount
-	if err := c.Bind(&loginAccount); err != nil {
-		return err
-	}
-
+	exgin.Bind(c, &loginAccount)
 	user, err := userRepository.FindByUsername(loginAccount.Username)
 
 	// 存储登录失败次数信息
@@ -61,34 +59,38 @@ func LoginEndpoint(c echo.Context) error {
 	}
 	count := v.(int)
 	if count >= 5 {
-		return Fail(c, -1, "登录失败次数过多，请稍后再试")
+		Fail(c, -1, "登录失败次数过多，请稍后再试")
+		return
 	}
 
 	if err != nil {
 		count++
 		global.Cache.Set(loginFailCountKey, count, time.Minute*time.Duration(5))
-		return FailWithData(c, -1, "您输入的账号或密码不正确", count)
+		FailWithData(c, -1, "您输入的账号或密码不正确", count)
+		return
 	}
 
 	if err := utils.Encoder.Match([]byte(user.Password), []byte(loginAccount.Password)); err != nil {
 		count++
 		global.Cache.Set(loginFailCountKey, count, time.Minute*time.Duration(5))
-		return FailWithData(c, -1, "您输入的账号或密码不正确", count)
+		FailWithData(c, -1, "您输入的账号或密码不正确", count)
+		return
 	}
 
 	if user.TOTPSecret != "" && user.TOTPSecret != "-" {
-		return Fail(c, 0, "")
+		Fail(c, 0, "")
+		return
 	}
 
 	token, err := LoginSuccess(c, loginAccount, user)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-
-	return Success(c, token)
+	Success(c, token)
 }
 
-func LoginSuccess(c echo.Context, loginAccount LoginAccount, user model.User) (token string, err error) {
+func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user model.User) (token string, err error) {
 	token = strings.Join([]string{utils.UUID(), utils.UUID(), utils.UUID(), utils.UUID()}, "")
 
 	authorization := Authorization{
@@ -110,8 +112,8 @@ func LoginSuccess(c echo.Context, loginAccount LoginAccount, user model.User) (t
 	loginLog := model.LoginLog{
 		ID:              token,
 		UserId:          user.ID,
-		ClientIP:        c.RealIP(),
-		ClientUserAgent: c.Request().UserAgent(),
+		ClientIP:        c.ClientIP(),
+		ClientUserAgent: c.Request.UserAgent(),
 		LoginTime:       utils.NowJsonTime(),
 		Remember:        authorization.Remember,
 	}
@@ -136,11 +138,9 @@ func GetTokenFormCacheKey(cacheKey string) string {
 	return token
 }
 
-func loginWithTotpEndpoint(c echo.Context) error {
+func loginWithTotpEndpoint(c *gin.Context) {
 	var loginAccount LoginAccount
-	if err := c.Bind(&loginAccount); err != nil {
-		return err
-	}
+	exgin.Bind(c, &loginAccount)
 
 	// 存储登录失败次数信息
 	loginFailCountKey := loginAccount.Username
@@ -150,60 +150,66 @@ func loginWithTotpEndpoint(c echo.Context) error {
 	}
 	count := v.(int)
 	if count >= 5 {
-		return Fail(c, -1, "登录失败次数过多，请稍后再试")
+		Fail(c, -1, "登录失败次数过多，请稍后再试")
+		return
 	}
 
 	user, err := userRepository.FindByUsername(loginAccount.Username)
 	if err != nil {
 		count++
 		global.Cache.Set(loginFailCountKey, count, time.Minute*time.Duration(5))
-		return FailWithData(c, -1, "您输入的账号或密码不正确", count)
+		FailWithData(c, -1, "您输入的账号或密码不正确", count)
+		return
 	}
 
 	if err := utils.Encoder.Match([]byte(user.Password), []byte(loginAccount.Password)); err != nil {
 		count++
 		global.Cache.Set(loginFailCountKey, count, time.Minute*time.Duration(5))
-		return FailWithData(c, -1, "您输入的账号或密码不正确", count)
+		FailWithData(c, -1, "您输入的账号或密码不正确", count)
+		return
 	}
 
 	if !totp.Validate(loginAccount.TOTP, user.TOTPSecret) {
 		count++
 		global.Cache.Set(loginFailCountKey, count, time.Minute*time.Duration(5))
-		return FailWithData(c, -1, "您输入双因素认证授权码不正确", count)
+		FailWithData(c, -1, "您输入双因素认证授权码不正确", count)
+		return
 	}
 
 	token, err := LoginSuccess(c, loginAccount, user)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, token)
+	Success(c, token)
 }
 
-func LogoutEndpoint(c echo.Context) error {
+func LogoutEndpoint(c *gin.Context) {
 	token := GetToken(c)
 	cacheKey := BuildCacheKeyByToken(token)
 	global.Cache.Delete(cacheKey)
 	err := userService.Logout(token)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func ConfirmTOTPEndpoint(c echo.Context) error {
+func ConfirmTOTPEndpoint(c *gin.Context) {
 	if global.Config.Demo {
-		return Fail(c, 0, "演示模式禁止开启两步验证")
+		Fail(c, 0, "演示模式禁止开启两步验证")
+		return
 	}
 	account, _ := GetCurrentAccount(c)
 
 	var confirmTOTP ConfirmTOTP
-	if err := c.Bind(&confirmTOTP); err != nil {
-		return err
-	}
+	exgin.Bind(c, &confirmTOTP)
 
 	if !totp.Validate(confirmTOTP.TOTP, confirmTOTP.Secret) {
-		return Fail(c, -1, "TOTP 验证失败，请重试")
+		Fail(c, -1, "TOTP 验证失败，请重试")
+		return
 	}
 
 	u := &model.User{
@@ -212,69 +218,74 @@ func ConfirmTOTPEndpoint(c echo.Context) error {
 	}
 
 	if err := userRepository.Update(u); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func ReloadTOTPEndpoint(c echo.Context) error {
+func ReloadTOTPEndpoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 
 	key, err := totp.NewTOTP(totp.GenerateOpts{
-		Issuer:      c.Request().Host,
+		Issuer:      c.Request.Host,
 		AccountName: account.Username,
 	})
 	if err != nil {
-		return Fail(c, -1, err.Error())
+		Fail(c, -1, err.Error())
+		return
 	}
 
 	qrcode, err := key.Image(200, 200)
 	if err != nil {
-		return Fail(c, -1, err.Error())
+		Fail(c, -1, err.Error())
+		return
 	}
 
 	qrEncode, err := utils.ImageToBase64Encode(qrcode)
 	if err != nil {
-		return Fail(c, -1, err.Error())
+		Fail(c, -1, err.Error())
+		return
 	}
 
-	return Success(c, map[string]string{
+	Success(c, map[string]string{
 		"qr":     qrEncode,
 		"secret": key.Secret(),
 	})
 }
 
-func ResetTOTPEndpoint(c echo.Context) error {
+func ResetTOTPEndpoint(c *gin.Context)  {
 	account, _ := GetCurrentAccount(c)
 	u := &model.User{
 		TOTPSecret: "-",
 		ID:         account.ID,
 	}
 	if err := userRepository.Update(u); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, "")
+	Success(c, "")
 }
 
-func ChangePasswordEndpoint(c echo.Context) error {
+func ChangePasswordEndpoint(c *gin.Context) {
 	if global.Config.Demo {
-		return Fail(c, 0, "演示模式禁止修改密码")
+		Fail(c, 0, "演示模式禁止修改密码")
+		return
 	}
 	account, _ := GetCurrentAccount(c)
 
 	var changePassword ChangePassword
-	if err := c.Bind(&changePassword); err != nil {
-		return err
-	}
+	exgin.Bind(c, &changePassword)
 
 	if err := utils.Encoder.Match([]byte(account.Password), []byte(changePassword.OldPassword)); err != nil {
-		return Fail(c, -1, "您输入的原密码不正确")
+		Fail(c, -1, "您输入的原密码不正确")
+		return
 	}
 
 	passwd, err := utils.Encoder.Encode([]byte(changePassword.NewPassword))
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 	u := &model.User{
 		Password: string(passwd),
@@ -282,10 +293,11 @@ func ChangePasswordEndpoint(c echo.Context) error {
 	}
 
 	if err := userRepository.Update(u); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return LogoutEndpoint(c)
+	LogoutEndpoint(c)
 }
 
 type AccountInfo struct {
@@ -296,12 +308,13 @@ type AccountInfo struct {
 	EnableTotp bool   `json:"enableTotp"`
 }
 
-func InfoEndpoint(c echo.Context) error {
+func InfoEndpoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 
 	user, err := userRepository.FindById(account.ID)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	info := AccountInfo{
@@ -311,5 +324,5 @@ func InfoEndpoint(c echo.Context) error {
 		Type:       user.Type,
 		EnableTotp: user.TOTPSecret != "" && user.TOTPSecret != "-",
 	}
-	return Success(c, info)
+	Success(c, info)
 }

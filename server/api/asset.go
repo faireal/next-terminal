@@ -4,7 +4,10 @@ import (
 	"bufio"
 	"encoding/csv"
 	"encoding/json"
-	"errors"
+	"fmt"
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
+	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
 
@@ -13,19 +16,17 @@ import (
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
-	"github.com/labstack/echo/v4"
 )
 
-func AssetCreateEndpoint(c echo.Context) error {
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+func AssetCreateEndpoint(c *gin.Context) {
+	m := map[string]interface{}{}
+	exgin.Bind(c, &m)
 
 	data, _ := json.Marshal(m)
 	var item model.Asset
 	if err := json.Unmarshal(data, &item); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	account, _ := GetCurrentAccount(c)
@@ -34,11 +35,13 @@ func AssetCreateEndpoint(c echo.Context) error {
 	item.Created = utils.NowJsonTime()
 
 	if err := assetRepository.Create(&item); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	if err := assetRepository.UpdateAttributes(item.ID, item.Protocol, m); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	// 创建后自动检测资产是否存活
@@ -47,37 +50,41 @@ func AssetCreateEndpoint(c echo.Context) error {
 		_ = assetRepository.UpdateActiveById(active, item.ID)
 	}()
 
-	return Success(c, item)
+	Success(c, item)
 }
 
-func AssetImportEndpoint(c echo.Context) error {
+func AssetImportEndpoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 
 	file, err := c.FormFile("file")
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	src, err := file.Open()
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	defer src.Close()
 	reader := csv.NewReader(bufio.NewReader(src))
 	records, err := reader.ReadAll()
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	total := len(records)
 	if total == 0 {
-		return errors.New("csv数据为空")
+		errors.Dangerous("csv数据为空")
+		return
 	}
 
 	var successCount = 0
 	var errorCount = 0
-	m := echo.Map{}
+	m := map[string]interface{}{}
 
 	for i := 0; i < total; i++ {
 		record := records[i]
@@ -119,61 +126,62 @@ func AssetImportEndpoint(c echo.Context) error {
 		}
 	}
 
-	return Success(c, echo.Map{
+	Success(c,  map[string]interface{}{
 		"successCount": successCount,
 		"errorCount":   errorCount,
 		"data":         m,
 	})
 }
 
-func AssetPagingEndpoint(c echo.Context) error {
-	pageIndex, _ := strconv.Atoi(c.QueryParam("pageIndex"))
-	pageSize, _ := strconv.Atoi(c.QueryParam("pageSize"))
-	name := c.QueryParam("name")
-	protocol := c.QueryParam("protocol")
-	tags := c.QueryParam("tags")
-	owner := c.QueryParam("owner")
-	sharer := c.QueryParam("sharer")
-	userGroupId := c.QueryParam("userGroupId")
-	ip := c.QueryParam("ip")
+func AssetPagingEndpoint(c *gin.Context) {
+	pageIndex, _ := strconv.Atoi(c.Query("pageIndex"))
+	pageSize, _ := strconv.Atoi(c.Query("pageSize"))
+	name := c.Query("name")
+	protocol := c.Query("protocol")
+	tags := c.Query("tags")
+	owner := c.Query("owner")
+	sharer := c.Query("sharer")
+	userGroupId := c.Query("userGroupId")
+	ip := c.Query("ip")
 
-	order := c.QueryParam("order")
-	field := c.QueryParam("field")
+	order := c.Query("order")
+	field := c.Query("field")
 
 	account, _ := GetCurrentAccount(c)
 	items, total, err := assetRepository.Find(pageIndex, pageSize, name, protocol, tags, account, owner, sharer, userGroupId, ip, order, field)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, H{
+	Success(c, H{
 		"total": total,
 		"items": items,
 	})
 }
 
-func AssetAllEndpoint(c echo.Context) error {
-	protocol := c.QueryParam("protocol")
+func AssetAllEndpoint(c *gin.Context) {
+	protocol := c.Query("protocol")
 	account, _ := GetCurrentAccount(c)
 	items, _ := assetRepository.FindByProtocolAndUser(protocol, account)
-	return Success(c, items)
+	Success(c, items)
 }
 
-func AssetUpdateEndpoint(c echo.Context) error {
+func AssetUpdateEndpoint(c *gin.Context) {
 	id := c.Param("id")
 	if err := PreCheckAssetPermission(c, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	m := echo.Map{}
-	if err := c.Bind(&m); err != nil {
-		return err
-	}
+	m :=  map[string]interface{}{}
+	exgin.Bind(c, &m)
 
 	data, _ := json.Marshal(m)
 	var item model.Asset
 	if err := json.Unmarshal(data, &item); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	switch item.AccountType {
@@ -206,108 +214,125 @@ func AssetUpdateEndpoint(c echo.Context) error {
 	}
 
 	if err := assetRepository.Encrypt(&item, global.Config.EncryptionPassword); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 	if err := assetRepository.UpdateById(&item, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 	if err := assetRepository.UpdateAttributes(id, item.Protocol, m); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func AssetDeleteEndpoint(c echo.Context) error {
+func AssetDeleteEndpoint(c *gin.Context) {
 	id := c.Param("id")
 	split := strings.Split(id, ",")
 	for i := range split {
 		if err := PreCheckAssetPermission(c, split[i]); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 		if err := assetRepository.DeleteById(split[i]); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 		// 删除资产与用户的关系
 		if err := resourceSharerRepository.DeleteResourceSharerByResourceId(split[i]); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func AssetGetEndpoint(c echo.Context) (err error) {
+func AssetGetEndpoint(c *gin.Context) {
 	id := c.Param("id")
 	if err := PreCheckAssetPermission(c, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	var item model.Asset
+	var err error
 	if item, err = assetRepository.FindByIdAndDecrypt(id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 	attributeMap, err := assetRepository.FindAssetAttrMapByAssetId(id)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 	itemMap := utils.StructToMap(item)
 	for key := range attributeMap {
 		itemMap[key] = attributeMap[key]
 	}
 
-	return Success(c, itemMap)
+	Success(c, itemMap)
 }
 
-func AssetTcpingEndpoint(c echo.Context) (err error) {
+func AssetTcpingEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	var item model.Asset
+	var err error
 	if item, err = assetRepository.FindById(id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	active := utils.Tcping(item.IP, item.Port)
 
 	if item.Active != active {
 		if err := assetRepository.UpdateActiveById(active, item.ID); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 	}
 
-	return Success(c, active)
+	Success(c, active)
 }
 
-func AssetTagsEndpoint(c echo.Context) (err error) {
+func AssetTagsEndpoint(c *gin.Context) {
 	var items []string
+	var err error
 	if items, err = assetRepository.FindTags(); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, items)
+	Success(c, items)
 }
 
-func AssetChangeOwnerEndpoint(c echo.Context) (err error) {
+func AssetChangeOwnerEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := PreCheckAssetPermission(c, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	owner := c.QueryParam("owner")
+	owner := c.Query("owner")
 	if err := assetRepository.UpdateById(&model.Asset{Owner: owner}, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, "")
+	Success(c, "")
 }
 
-func PreCheckAssetPermission(c echo.Context, id string) error {
+func PreCheckAssetPermission(c *gin.Context, id string) error {
 	item, err := assetRepository.FindById(id)
 	if err != nil {
 		return err
 	}
 
 	if !HasPermission(c, item.Owner) {
-		return errors.New("permission denied")
+		return fmt.Errorf("permission denied")
 	}
 	return nil
 }

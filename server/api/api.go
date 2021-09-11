@@ -1,54 +1,53 @@
 package api
 
 import (
+	"github.com/gin-gonic/gin"
 	"next-terminal/pkg/constant"
 	"next-terminal/pkg/global"
 	"next-terminal/server/model"
-
-	"github.com/labstack/echo/v4"
 )
 
 type H map[string]interface{}
 
-func Fail(c echo.Context, code int, message string) error {
-	return c.JSON(200, H{
+func Fail(c *gin.Context, code int, message string) {
+	c.JSON(200, H{
 		"code":    code,
 		"message": message,
 	})
 }
 
-func FailWithData(c echo.Context, code int, message string, data interface{}) error {
-	return c.JSON(200, H{
+func FailWithData(c *gin.Context, code int, message string, data interface{}) {
+	c.JSON(200, H{
 		"code":    code,
 		"message": message,
 		"data":    data,
 	})
 }
 
-func Success(c echo.Context, data interface{}) error {
-	return c.JSON(200, H{
+func Success(c *gin.Context, data interface{}) {
+	c.JSON(200, H{
 		"code":    1,
 		"message": "success",
 		"data":    data,
 	})
 }
 
-func NotFound(c echo.Context, message string) error {
-	return c.JSON(200, H{
+func NotFound(c *gin.Context, message string) {
+	c.JSON(200, H{
 		"code":    -1,
 		"message": message,
 	})
 }
 
-func GetToken(c echo.Context) string {
-	token := c.Request().Header.Get(Token)
+func GetToken(c *gin.Context) string {
+	token := c.Request.Header.Get(Token)
 	if len(token) > 0 {
 		return token
 	}
-	return c.QueryParam(Token)
+	return c.Query(Token)
 }
 
-func GetCurrentAccount(c echo.Context) (model.User, bool) {
+func GetCurrentAccount(c *gin.Context) (model.User, bool) {
 	token := GetToken(c)
 	cacheKey := BuildCacheKeyByToken(token)
 	get, b := global.Cache.Get(cacheKey)
@@ -58,7 +57,7 @@ func GetCurrentAccount(c echo.Context) (model.User, bool) {
 	return model.User{}, false
 }
 
-func HasPermission(c echo.Context, owner string) bool {
+func HasPermission(c *gin.Context, owner string) bool {
 	// 检测是否登录
 	account, found := GetCurrentAccount(c)
 	if !found {

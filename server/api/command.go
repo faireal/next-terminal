@@ -1,127 +1,136 @@
 package api
 
 import (
-	"errors"
+	"fmt"
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
+	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
 
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
-	"github.com/labstack/echo/v4"
 )
 
-func CommandCreateEndpoint(c echo.Context) error {
+func CommandCreateEndpoint(c *gin.Context) {
 	var item model.Command
-	if err := c.Bind(&item); err != nil {
-		return err
-	}
-
+	exgin.Bind(c, &item)
 	account, _ := GetCurrentAccount(c)
 	item.Owner = account.ID
 	item.ID = utils.UUID()
 	item.Created = utils.NowJsonTime()
 
 	if err := commandRepository.Create(&item); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, item)
+	Success(c, item)
 }
 
-func CommandPagingEndpoint(c echo.Context) error {
-	pageIndex, _ := strconv.Atoi(c.QueryParam("pageIndex"))
-	pageSize, _ := strconv.Atoi(c.QueryParam("pageSize"))
-	name := c.QueryParam("name")
-	content := c.QueryParam("content")
+func CommandPagingEndpoint(c *gin.Context) {
+	pageIndex, _ := strconv.Atoi(c.Query("pageIndex"))
+	pageSize, _ := strconv.Atoi(c.Query("pageSize"))
+	name := c.Query("name")
+	content := c.Query("content")
 	account, _ := GetCurrentAccount(c)
 
-	order := c.QueryParam("order")
-	field := c.QueryParam("field")
+	order := c.Query("order")
+	field := c.Query("field")
 
 	items, total, err := commandRepository.Find(pageIndex, pageSize, name, content, order, field, account)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, H{
+	Success(c, H{
 		"total": total,
 		"items": items,
 	})
 }
 
-func CommandUpdateEndpoint(c echo.Context) error {
+func CommandUpdateEndpoint(c *gin.Context) {
 	id := c.Param("id")
 	if err := PreCheckCommandPermission(c, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	var item model.Command
-	if err := c.Bind(&item); err != nil {
-		return err
-	}
+	exgin.Bind(c, &item)
 
 	if err := commandRepository.UpdateById(&item, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func CommandDeleteEndpoint(c echo.Context) error {
+func CommandDeleteEndpoint(c *gin.Context) {
 	id := c.Param("id")
 	split := strings.Split(id, ",")
 	for i := range split {
 		if err := PreCheckCommandPermission(c, split[i]); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 		if err := commandRepository.DeleteById(split[i]); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 		// 删除资产与用户的关系
 		if err := resourceSharerRepository.DeleteResourceSharerByResourceId(split[i]); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 	}
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func CommandGetEndpoint(c echo.Context) (err error) {
+func CommandGetEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := PreCheckCommandPermission(c, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	var item model.Command
+	var err error
 	if item, err = commandRepository.FindById(id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, item)
+	Success(c, item)
 }
 
-func CommandChangeOwnerEndpoint(c echo.Context) (err error) {
+func CommandChangeOwnerEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := PreCheckCommandPermission(c, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	owner := c.QueryParam("owner")
+	owner := c.Query("owner")
 	if err := commandRepository.UpdateById(&model.Command{Owner: owner}, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, "")
+	Success(c, "")
 }
 
-func PreCheckCommandPermission(c echo.Context, id string) error {
+func PreCheckCommandPermission(c *gin.Context, id string) error {
 	item, err := commandRepository.FindById(id)
 	if err != nil {
 		return err
 	}
 
 	if !HasPermission(c, item.Owner) {
-		return errors.New("permission denied")
+		return fmt.Errorf("permission denied")
 	}
 	return nil
 }

@@ -2,7 +2,10 @@ package api
 
 import (
 	"encoding/base64"
-	"errors"
+	"fmt"
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
+	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
 
@@ -11,19 +14,16 @@ import (
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
-	"github.com/labstack/echo/v4"
 )
 
-func CredentialAllEndpoint(c echo.Context) error {
+func CredentialAllEndpoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 	items, _ := credentialRepository.FindByUser(account)
-	return Success(c, items)
+	Success(c, items)
 }
-func CredentialCreateEndpoint(c echo.Context) error {
+func CredentialCreateEndpoint(c *gin.Context)  {
 	var item model.Credential
-	if err := c.Bind(&item); err != nil {
-		return err
-	}
+	exgin.Bind(c, &item)
 
 	account, _ := GetCurrentAccount(c)
 	item.Owner = account.ID
@@ -52,48 +52,50 @@ func CredentialCreateEndpoint(c echo.Context) error {
 			item.Passphrase = "-"
 		}
 	default:
-		return Fail(c, -1, "类型错误")
+		Fail(c, -1, "类型错误")
+		return
 	}
 
 	item.Encrypted = true
 	if err := credentialRepository.Create(&item); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, item)
+	Success(c, item)
 }
 
-func CredentialPagingEndpoint(c echo.Context) error {
-	pageIndex, _ := strconv.Atoi(c.QueryParam("pageIndex"))
-	pageSize, _ := strconv.Atoi(c.QueryParam("pageSize"))
-	name := c.QueryParam("name")
+func CredentialPagingEndpoint(c *gin.Context)  {
+	pageIndex, _ := strconv.Atoi(c.Query("pageIndex"))
+	pageSize, _ := strconv.Atoi(c.Query("pageSize"))
+	name := c.Query("name")
 
-	order := c.QueryParam("order")
-	field := c.QueryParam("field")
+	order := c.Query("order")
+	field := c.Query("field")
 
 	account, _ := GetCurrentAccount(c)
 	items, total, err := credentialRepository.Find(pageIndex, pageSize, name, order, field, account)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, H{
+	Success(c, H{
 		"total": total,
 		"items": items,
 	})
 }
 
-func CredentialUpdateEndpoint(c echo.Context) error {
+func CredentialUpdateEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := PreCheckCredentialPermission(c, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	var item model.Credential
-	if err := c.Bind(&item); err != nil {
-		return err
-	}
+	exgin.Bind(c, &item)
 
 	switch item.Type {
 	case constant.Custom:
@@ -108,7 +110,8 @@ func CredentialUpdateEndpoint(c echo.Context) error {
 		if item.Password != "-" {
 			encryptedCBC, err := utils.AesEncryptCBC([]byte(item.Password), global.Config.EncryptionPassword)
 			if err != nil {
-				return err
+				errors.Dangerous(err)
+				return
 			}
 			item.Password = base64.StdEncoding.EncodeToString(encryptedCBC)
 		}
@@ -123,7 +126,8 @@ func CredentialUpdateEndpoint(c echo.Context) error {
 		if item.PrivateKey != "-" {
 			encryptedCBC, err := utils.AesEncryptCBC([]byte(item.PrivateKey), global.Config.EncryptionPassword)
 			if err != nil {
-				return err
+				errors.Dangerous(err)
+				return
 			}
 			item.PrivateKey = base64.StdEncoding.EncodeToString(encryptedCBC)
 		}
@@ -133,81 +137,92 @@ func CredentialUpdateEndpoint(c echo.Context) error {
 		if item.Passphrase != "-" {
 			encryptedCBC, err := utils.AesEncryptCBC([]byte(item.Passphrase), global.Config.EncryptionPassword)
 			if err != nil {
-				return err
+				errors.Dangerous(err)
+				return
 			}
 			item.Passphrase = base64.StdEncoding.EncodeToString(encryptedCBC)
 		}
 	default:
-		return Fail(c, -1, "类型错误")
+		Fail(c, -1, "类型错误")
+		return
 	}
 	item.Encrypted = true
 
 	if err := credentialRepository.UpdateById(&item, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func CredentialDeleteEndpoint(c echo.Context) error {
+func CredentialDeleteEndpoint(c *gin.Context)  {
 	id := c.Param("id")
 	split := strings.Split(id, ",")
 	for i := range split {
 		if err := PreCheckCredentialPermission(c, split[i]); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 		if err := credentialRepository.DeleteById(split[i]); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 		// 删除资产与用户的关系
 		if err := resourceSharerRepository.DeleteResourceSharerByResourceId(split[i]); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func CredentialGetEndpoint(c echo.Context) error {
+func CredentialGetEndpoint(c *gin.Context) {
 	id := c.Param("id")
 	if err := PreCheckCredentialPermission(c, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	item, err := credentialRepository.FindByIdAndDecrypt(id)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	if !HasPermission(c, item.Owner) {
-		return errors.New("permission denied")
+		errors.Dangerous("permission denied")
+		return
 	}
 
-	return Success(c, item)
+	Success(c, item)
 }
 
-func CredentialChangeOwnerEndpoint(c echo.Context) error {
+func CredentialChangeOwnerEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := PreCheckCredentialPermission(c, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	owner := c.QueryParam("owner")
+	owner := c.Query("owner")
 	if err := credentialRepository.UpdateById(&model.Credential{Owner: owner}, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, "")
+	Success(c, "")
 }
 
-func PreCheckCredentialPermission(c echo.Context, id string) error {
+func PreCheckCredentialPermission(c *gin.Context, id string) error {
 	item, err := credentialRepository.FindById(id)
 	if err != nil {
 		return err
 	}
 
 	if !HasPermission(c, item.Owner) {
-		return errors.New("permission denied")
+		return fmt.Errorf("permission denied")
 	}
 	return nil
 }

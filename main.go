@@ -3,22 +3,33 @@ package main
 import (
 	"crypto/md5"
 	"fmt"
+	"github.com/ergoapi/zlog"
 
 	"next-terminal/pkg/config"
 	"next-terminal/pkg/global"
 	"next-terminal/pkg/task"
 	"next-terminal/server/api"
 	"next-terminal/server/repository"
-
-	"github.com/labstack/gommon/log"
 )
 
 var Version = "v0.5.0"
 
+func init()  {
+	cfg := zlog.Config{
+		Simple:      false,
+		HookFunc:    nil,
+		WriteLog:    false,
+		WriteJSON:   false,
+		WriteConfig: zlog.WriteConfig{},
+		ServiceName: "nt",
+	}
+	zlog.InitZlog(&cfg)
+}
+
 func main() {
 	err := Run()
 	if err != nil {
-		log.Fatal(err)
+		zlog.Fatal("err: %v", err)
 	}
 }
 
@@ -60,5 +71,5 @@ func Run() error {
 	propertyRepo := repository.NewPropertyRepository(db)
 	ticker := task.NewTicker(sessionRepo, propertyRepo)
 	ticker.SetupTicker()
-	return e.Start(global.Config.Server.Addr)
+	return e.Run(global.Config.Server.Addr)
 }

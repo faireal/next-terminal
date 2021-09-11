@@ -1,8 +1,8 @@
 package service
 
 import (
+	"github.com/ergoapi/zlog"
 	"next-terminal/pkg/constant"
-	"next-terminal/pkg/log"
 	"next-terminal/server/model"
 	"next-terminal/server/repository"
 	"next-terminal/server/utils"
@@ -39,7 +39,7 @@ func (r UserService) InitUser() (err error) {
 		if err := r.userRepository.Create(&user); err != nil {
 			return err
 		}
-		log.Infof("初始用户创建成功，账号：「%v」密码：「%v」", user.Username, initPassword)
+		zlog.Info("初始用户创建成功，账号：「%v」密码：「%v」", user.Username, initPassword)
 	} else {
 		for i := range users {
 			// 修正默认用户类型为管理员
@@ -51,7 +51,7 @@ func (r UserService) InitUser() (err error) {
 				if err := r.userRepository.Update(&user); err != nil {
 					return err
 				}
-				log.Infof("自动修正用户「%v」ID「%v」类型为管理员", users[i].Nickname, users[i].ID)
+				zlog.Info("自动修正用户「%v」ID「%v」类型为管理员", users[i].Nickname, users[i].ID)
 			}
 		}
 	}
@@ -84,7 +84,7 @@ func (r UserService) Logout(token string) (err error) {
 
 	loginLog, err := r.loginLogRepository.FindById(token)
 	if err != nil {
-		log.Warnf("登录日志「%v」获取失败", token)
+		zlog.Warn("登录日志「%v」获取失败", token)
 		return
 	}
 

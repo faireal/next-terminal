@@ -10,7 +10,6 @@ import (
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
-	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
@@ -308,7 +307,7 @@ func (r AssetRepository) FindTags() (o []string, err error) {
 	return utils.Distinct(o), nil
 }
 
-func (r AssetRepository) UpdateAttributes(assetId, protocol string, m echo.Map) error {
+func (r AssetRepository) UpdateAttributes(assetId, protocol string, m map[string]interface{}) error {
 	var data []model.AssetAttribute
 	var parameterNames []string
 	switch protocol {
@@ -340,7 +339,7 @@ func (r AssetRepository) UpdateAttributes(assetId, protocol string, m echo.Map) 
 	})
 }
 
-func genAttribute(assetId, name string, m echo.Map) model.AssetAttribute {
+func genAttribute(assetId, name string, m map[string]interface{}) model.AssetAttribute {
 	value := fmt.Sprintf("%v", m[name])
 	attribute := model.AssetAttribute{
 		Id:      utils.Sign([]string{assetId, name}),

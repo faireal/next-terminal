@@ -1,122 +1,127 @@
 package api
 
 import (
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
+	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
 
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
-
-	"github.com/labstack/echo/v4"
 )
 
-func JobCreateEndpoint(c echo.Context) error {
+func JobCreateEndpoint(c *gin.Context) {
 	var item model.Job
-	if err := c.Bind(&item); err != nil {
-		return err
-	}
-
+	exgin.Bind(c, &item)
 	item.ID = utils.UUID()
 	item.Created = utils.NowJsonTime()
 
 	if err := jobService.Create(&item); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, "")
+	Success(c, "")
 }
 
-func JobPagingEndpoint(c echo.Context) error {
-	pageIndex, _ := strconv.Atoi(c.QueryParam("pageIndex"))
-	pageSize, _ := strconv.Atoi(c.QueryParam("pageSize"))
-	name := c.QueryParam("name")
-	status := c.QueryParam("status")
+func JobPagingEndpoint(c *gin.Context) {
+	pageIndex, _ := strconv.Atoi(c.Query("pageIndex"))
+	pageSize, _ := strconv.Atoi(c.Query("pageSize"))
+	name := c.Query("name")
+	status := c.Query("status")
 
-	order := c.QueryParam("order")
-	field := c.QueryParam("field")
+	order := c.Query("order")
+	field := c.Query("field")
 
 	items, total, err := jobRepository.Find(pageIndex, pageSize, name, status, order, field)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, H{
+	Success(c, H{
 		"total": total,
 		"items": items,
 	})
 }
 
-func JobUpdateEndpoint(c echo.Context) error {
+func JobUpdateEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	var item model.Job
-	if err := c.Bind(&item); err != nil {
-		return err
-	}
+	exgin.Bind(c, &item)
 	item.ID = id
 	if err := jobRepository.UpdateById(&item); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func JobChangeStatusEndpoint(c echo.Context) error {
+func JobChangeStatusEndpoint(c *gin.Context) {
 	id := c.Param("id")
-	status := c.QueryParam("status")
+	status := c.Query("status")
 	if err := jobService.ChangeStatusById(id, status); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, "")
+	Success(c, "")
 }
 
-func JobExecEndpoint(c echo.Context) error {
+func JobExecEndpoint(c *gin.Context) {
 	id := c.Param("id")
 	if err := jobService.ExecJobById(id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, "")
+	Success(c, "")
 }
 
-func JobDeleteEndpoint(c echo.Context) error {
+func JobDeleteEndpoint(c *gin.Context) {
 	ids := c.Param("id")
 
 	split := strings.Split(ids, ",")
 	for i := range split {
 		jobId := split[i]
 		if err := jobRepository.DeleteJobById(jobId); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func JobGetEndpoint(c echo.Context) error {
+func JobGetEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	item, err := jobRepository.FindById(id)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, item)
+	Success(c, item)
 }
 
-func JobGetLogsEndpoint(c echo.Context) error {
+func JobGetLogsEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	items, err := jobLogRepository.FindByJobId(id)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, items)
+	Success(c, items)
 }
 
-func JobDeleteLogsEndpoint(c echo.Context) error {
+func JobDeleteLogsEndpoint(c *gin.Context) {
 	id := c.Param("id")
 	if err := jobLogRepository.DeleteByJobId(id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, "")
+	Success(c, "")
 }

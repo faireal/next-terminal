@@ -1,7 +1,9 @@
 package api
 
 import (
-	"github.com/labstack/echo/v4"
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
+	"github.com/gin-gonic/gin"
 )
 
 type RU struct {
@@ -17,50 +19,47 @@ type UR struct {
 	UserIds      []string `json:"userIds"`
 }
 
-func RSGetSharersEndPoint(c echo.Context) error {
-	resourceId := c.QueryParam("resourceId")
+func RSGetSharersEndPoint(c *gin.Context) {
+	resourceId := c.Query("resourceId")
 	userIds, err := resourceSharerRepository.FindUserIdsByResourceId(resourceId)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, userIds)
+	Success(c, userIds)
 }
 
-func RSOverwriteSharersEndPoint(c echo.Context) error {
+func RSOverwriteSharersEndPoint(c *gin.Context) {
 	var ur UR
-	if err := c.Bind(&ur); err != nil {
-		return err
-	}
+	exgin.Bind(c, &ur)
 
 	if err := resourceSharerRepository.OverwriteUserIdsByResourceId(ur.ResourceId, ur.ResourceType, ur.UserIds); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, "")
+	Success(c, "")
 }
 
-func ResourceRemoveByUserIdAssignEndPoint(c echo.Context) error {
+func ResourceRemoveByUserIdAssignEndPoint(c *gin.Context) {
 	var ru RU
-	if err := c.Bind(&ru); err != nil {
-		return err
-	}
+	exgin.Bind(c, &ru)
 
 	if err := resourceSharerRepository.DeleteByUserIdAndResourceTypeAndResourceIdIn(ru.UserGroupId, ru.UserId, ru.ResourceType, ru.ResourceIds); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, "")
+	Success(c, "")
 }
 
-func ResourceAddByUserIdAssignEndPoint(c echo.Context) error {
+func ResourceAddByUserIdAssignEndPoint(c *gin.Context) {
 	var ru RU
-	if err := c.Bind(&ru); err != nil {
-		return err
-	}
+	exgin.Bind(c, &ru)
 
 	if err := resourceSharerRepository.AddSharerResources(ru.UserGroupId, ru.UserId, ru.ResourceType, ru.ResourceIds); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-
-	return Success(c, "")
+	Success(c, "")
 }

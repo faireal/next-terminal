@@ -1,10 +1,10 @@
 package repository
 
 import (
+	"fmt"
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
-	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
@@ -47,12 +47,12 @@ func (r *ResourceSharerRepository) OverwriteUserIdsByResourceId(resourceId, reso
 	}
 
 	if err == gorm.ErrRecordNotFound {
-		return echo.NewHTTPError(404, "资源「"+resourceId+"」不存在")
+		return fmt.Errorf("资源「%v」不存在", resourceId)
 	}
 
 	for i := range userIds {
 		if owner == userIds[i] {
-			return echo.NewHTTPError(400, "参数错误")
+			return fmt.Errorf("参数错误")
 		}
 	}
 
@@ -135,7 +135,7 @@ func (r *ResourceSharerRepository) AddSharerResources(userGroupId, userId, resou
 			}
 
 			if owner == userId {
-				return echo.NewHTTPError(400, "参数错误")
+				return fmt.Errorf("参数错误")
 			}
 
 			id := utils.Sign([]string{resourceId, resourceType, userId, userGroupId})

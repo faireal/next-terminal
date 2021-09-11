@@ -1,10 +1,10 @@
 package service
 
 import (
+	"github.com/ergoapi/zlog"
 	"net/smtp"
 
 	"next-terminal/pkg/constant"
-	"next-terminal/pkg/log"
 	"next-terminal/server/repository"
 
 	"github.com/jordan-wright/email"
@@ -26,7 +26,7 @@ func (r MailService) SendMail(to, subject, text string) {
 	password := propertiesMap[constant.MailPassword]
 
 	if host == "" || port == "" || username == "" || password == "" {
-		log.Debugf("邮箱信息不完整，跳过发送邮件。")
+		zlog.Debug("邮箱信息不完整，跳过发送邮件。")
 		return
 	}
 
@@ -37,6 +37,6 @@ func (r MailService) SendMail(to, subject, text string) {
 	e.Text = []byte(text)
 	err := e.Send(host+":"+port, smtp.PlainAuth("", username, password, host))
 	if err != nil {
-		log.Errorf("邮件发送失败: %v", err.Error())
+		zlog.Error("邮件发送失败: %v", err.Error())
 	}
 }

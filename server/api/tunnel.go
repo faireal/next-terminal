@@ -1,18 +1,18 @@
 package api
 
 import (
-	"errors"
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/zlog"
+	"github.com/gin-gonic/gin"
 	"path"
 	"strconv"
 
 	"next-terminal/pkg/constant"
 	"next-terminal/pkg/global"
 	"next-terminal/pkg/guacd"
-	"next-terminal/pkg/log"
 	"next-terminal/server/model"
 
 	"github.com/gorilla/websocket"
-	"github.com/labstack/echo/v4"
 )
 
 const (
@@ -23,19 +23,20 @@ const (
 	ForcedDisconnect int = 802
 )
 
-func TunEndpoint(c echo.Context) error {
+func TunEndpoint(c *gin.Context) {
 
-	ws, err := UpGrader.Upgrade(c.Response().Writer, c.Request(), nil)
+	ws, err := UpGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Errorf("升级为WebSocket协议失败：%v", err.Error())
-		return err
+		zlog.Error("升级为WebSocket协议失败：%v", err.Error())
+		errors.Dangerous(err)
+		return
 	}
 
-	width := c.QueryParam("width")
-	height := c.QueryParam("height")
-	dpi := c.QueryParam("dpi")
-	sessionId := c.QueryParam("sessionId")
-	connectionId := c.QueryParam("connectionId")
+	width := c.Query("width")
+	height := c.Query("height")
+	dpi := c.Query("dpi")
+	sessionId := c.Query("sessionId")
+	connectionId := c.Query("connectionId")
 
 	intWidth, _ := strconv.Atoi(width)
 	intHeight, _ := strconv.Atoi(height)
@@ -49,12 +50,14 @@ func TunEndpoint(c echo.Context) error {
 	if len(connectionId) > 0 {
 		session, err = sessionRepository.FindByConnectionId(connectionId)
 		if err != nil {
-			log.Warnf("会话不存在")
-			return err
+			zlog.Warn("会话不存在")
+			errors.Dangerous(err)
+			return
 		}
 		if session.Status != constant.Connected {
-			log.Warnf("会话未在线")
-			return errors.New("会话未在线")
+			zlog.Warn("会话未在线")
+			errors.Dangerous("会话未在线")
+			return
 		}
 		configuration.ConnectionID = connectionId
 		sessionId = session.ID
@@ -68,7 +71,8 @@ func TunEndpoint(c echo.Context) error {
 		session, err = sessionRepository.FindByIdAndDecrypt(sessionId)
 		if err != nil {
 			CloseSessionById(sessionId, NotFoundSession, "会话不存在")
-			return err
+			errors.Dangerous("会话不存在")
+			return
 		}
 
 		if propertyMap[guacd.EnableRecording] == "true" {
@@ -135,8 +139,9 @@ func TunEndpoint(c echo.Context) error {
 			configuration.SetParameter(guacd.Backspace, propertyMap[guacd.Backspace])
 			configuration.SetParameter(guacd.TerminalType, propertyMap[guacd.TerminalType])
 		default:
-			log.WithField("configuration.Protocol", configuration.Protocol).Error("UnSupport Protocol")
-			return Fail(c, 400, "不支持的协议")
+			zlog.Error("UnSupport Protocol: %v", configuration.Protocol)
+			Fail(c, 400, "不支持的协议")
+			return
 		}
 
 		configuration.SetParameter("hostname", session.IP)
@@ -165,8 +170,9 @@ func TunEndpoint(c echo.Context) error {
 		if connectionId == "" {
 			CloseSessionById(sessionId, NewTunnelError, err.Error())
 		}
-		log.Printf("建立连接失败: %v", err.Error())
-		return err
+		zlog.Error("建立连接失败: %v", err.Error())
+		errors.Dangerous(err)
+		return
 	}
 
 	tun := global.Tun{
@@ -194,9 +200,10 @@ func TunEndpoint(c echo.Context) error {
 			Recording:    configuration.GetParameter(guacd.RecordingPath),
 		}
 		// 创建新会话
-		log.Debugf("创建新会话 %v", sess.ConnectionId)
+		zlog.Debug("创建新会话 %v", sess.ConnectionId)
 		if err := sessionRepository.UpdateById(&sess, sessionId); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 	} else {
 		// 监控会话
@@ -205,7 +212,7 @@ func TunEndpoint(c echo.Context) error {
 			observers := append(observable.Observers, tun)
 			observable.Observers = observers
 			global.Store.Set(sessionId, observable)
-			log.Debugf("加入会话%v,当前观察者数量为：%v", session.ConnectionId, len(observers))
+			zlog.Debug("加入会话%v,当前观察者数量为：%v", session.ConnectionId, len(observers))
 		}
 	}
 
@@ -247,5 +254,5 @@ func TunEndpoint(c echo.Context) error {
 			break
 		}
 	}
-	return err
+	errors.Dangerous(err)
 }

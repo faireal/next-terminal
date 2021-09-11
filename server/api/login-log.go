@@ -1,46 +1,48 @@
 package api
 
 import (
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/zlog"
+	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
 
 	"next-terminal/pkg/global"
-	"next-terminal/pkg/log"
-
-	"github.com/labstack/echo/v4"
 )
 
-func LoginLogPagingEndpoint(c echo.Context) error {
-	pageIndex, _ := strconv.Atoi(c.QueryParam("pageIndex"))
-	pageSize, _ := strconv.Atoi(c.QueryParam("pageSize"))
-	userId := c.QueryParam("userId")
-	clientIp := c.QueryParam("clientIp")
+func LoginLogPagingEndpoint(c *gin.Context) {
+	pageIndex, _ := strconv.Atoi(c.Query("pageIndex"))
+	pageSize, _ := strconv.Atoi(c.Query("pageSize"))
+	userId := c.Query("userId")
+	clientIp := c.Query("clientIp")
 
 	items, total, err := loginLogRepository.Find(pageIndex, pageSize, userId, clientIp)
 
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, H{
+	Success(c, H{
 		"total": total,
 		"items": items,
 	})
 }
 
-func LoginLogDeleteEndpoint(c echo.Context) error {
+func LoginLogDeleteEndpoint(c *gin.Context) {
 	ids := c.Param("id")
 	split := strings.Split(ids, ",")
 	for i := range split {
 		token := split[i]
 		global.Cache.Delete(token)
 		if err := userService.Logout(token); err != nil {
-			log.WithError(err).Error("Cache Delete Failed")
+			zlog.Error("Cache Delete Failed")
 		}
 	}
 	if err := loginLogRepository.DeleteByIdIn(split); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }

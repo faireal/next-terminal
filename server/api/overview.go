@@ -1,10 +1,10 @@
 package api
 
 import (
+	"github.com/ergoapi/errors"
+	"github.com/gin-gonic/gin"
 	"next-terminal/pkg/constant"
 	"next-terminal/server/repository"
-
-	"github.com/labstack/echo/v4"
 )
 
 type Counter struct {
@@ -14,7 +14,7 @@ type Counter struct {
 	OnlineSession int64 `json:"onlineSession"`
 }
 
-func OverviewCounterEndPoint(c echo.Context) error {
+func OverviewCounterEndPoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 
 	var (
@@ -41,19 +41,21 @@ func OverviewCounterEndPoint(c echo.Context) error {
 		Asset:         asset,
 	}
 
-	return Success(c, counter)
+	Success(c, counter)
 }
 
-func OverviewSessionPoint(c echo.Context) (err error) {
-	d := c.QueryParam("d")
+func OverviewSessionPoint(c *gin.Context) {
+	d := c.Query("d")
 	var results []repository.D
+	var err error
 	if d == "m" {
 		results, err = sessionRepository.CountSessionByDay(30)
 	} else {
 		results, err = sessionRepository.CountSessionByDay(7)
 	}
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, results)
+	Success(c, results)
 }

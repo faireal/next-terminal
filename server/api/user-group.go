@@ -1,13 +1,14 @@
 package api
 
 import (
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
+	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
 
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
-
-	"github.com/labstack/echo/v4"
 )
 
 type UserGroup struct {
@@ -16,11 +17,9 @@ type UserGroup struct {
 	Members []string `json:"members"`
 }
 
-func UserGroupCreateEndpoint(c echo.Context) error {
+func UserGroupCreateEndpoint(c *gin.Context) {
 	var item UserGroup
-	if err := c.Bind(&item); err != nil {
-		return err
-	}
+	exgin.Bind(c, &item)
 
 	userGroup := model.UserGroup{
 		ID:      utils.UUID(),
@@ -29,73 +28,76 @@ func UserGroupCreateEndpoint(c echo.Context) error {
 	}
 
 	if err := userGroupRepository.Create(&userGroup, item.Members); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-
-	return Success(c, item)
+	Success(c, item)
 }
 
-func UserGroupPagingEndpoint(c echo.Context) error {
-	pageIndex, _ := strconv.Atoi(c.QueryParam("pageIndex"))
-	pageSize, _ := strconv.Atoi(c.QueryParam("pageSize"))
-	name := c.QueryParam("name")
+func UserGroupPagingEndpoint(c *gin.Context) {
+	pageIndex, _ := strconv.Atoi(c.Query("pageIndex"))
+	pageSize, _ := strconv.Atoi(c.Query("pageSize"))
+	name := c.Query("name")
 
-	order := c.QueryParam("order")
-	field := c.QueryParam("field")
+	order := c.Query("order")
+	field := c.Query("field")
 
 	items, total, err := userGroupRepository.Find(pageIndex, pageSize, name, order, field)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, H{
+	Success(c, H{
 		"total": total,
 		"items": items,
 	})
 }
 
-func UserGroupUpdateEndpoint(c echo.Context) error {
+func UserGroupUpdateEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	var item UserGroup
-	if err := c.Bind(&item); err != nil {
-		return err
-	}
+	exgin.Bind(c, &item)
 	userGroup := model.UserGroup{
 		Name: item.Name,
 	}
 
 	if err := userGroupRepository.Update(&userGroup, item.Members, id); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func UserGroupDeleteEndpoint(c echo.Context) error {
+func UserGroupDeleteEndpoint(c *gin.Context) {
 	ids := c.Param("id")
 	split := strings.Split(ids, ",")
 	for i := range split {
 		userId := split[i]
 		if err := userGroupRepository.DeleteById(userId); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func UserGroupGetEndpoint(c echo.Context) error {
+func UserGroupGetEndpoint(c *gin.Context) {
 	id := c.Param("id")
 
 	item, err := userGroupRepository.FindById(id)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	members, err := userGroupRepository.FindMembersById(id)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	userGroup := UserGroup{
@@ -104,5 +106,5 @@ func UserGroupGetEndpoint(c echo.Context) error {
 		Members: members,
 	}
 
-	return Success(c, userGroup)
+	Success(c, userGroup)
 }

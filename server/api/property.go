@@ -1,25 +1,24 @@
 package api
 
 import (
-	"errors"
 	"fmt"
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
+	"github.com/gin-gonic/gin"
 
 	"next-terminal/server/model"
 
-	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
-func PropertyGetEndpoint(c echo.Context) error {
+func PropertyGetEndpoint(c *gin.Context) {
 	properties := propertyRepository.FindAllMap()
-	return Success(c, properties)
+	Success(c, properties)
 }
 
-func PropertyUpdateEndpoint(c echo.Context) error {
+func PropertyUpdateEndpoint(c *gin.Context) {
 	var item map[string]interface{}
-	if err := c.Bind(&item); err != nil {
-		return err
-	}
+	exgin.Bind(c, &item)
 
 	for key := range item {
 		value := fmt.Sprintf("%v", item[key])
@@ -33,15 +32,17 @@ func PropertyUpdateEndpoint(c echo.Context) error {
 		}
 
 		_, err := propertyRepository.FindByName(key)
-		if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		if err != nil && err == gorm.ErrRecordNotFound {
 			if err := propertyRepository.Create(&property); err != nil {
-				return err
+				errors.Dangerous(err)
+				return
 			}
 		} else {
 			if err := propertyRepository.UpdateByName(&property, key); err != nil {
-				return err
+				errors.Dangerous(err)
+				return
 			}
 		}
 	}
-	return Success(c, nil)
+	Success(c, nil)
 }

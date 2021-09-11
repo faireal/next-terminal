@@ -1,11 +1,11 @@
 package task
 
 import (
+	"github.com/ergoapi/zlog"
 	"strconv"
 	"time"
 
 	"next-terminal/pkg/constant"
-	"next-terminal/pkg/log"
 	"next-terminal/server/repository"
 )
 
@@ -31,7 +31,7 @@ func (t *Ticker) SetupTicker() {
 					if now.Sub(sessions[i].ConnectedTime.Time) > time.Hour*1 {
 						_ = t.sessionRepository.DeleteById(sessions[i].ID)
 						s := sessions[i].Username + "@" + sessions[i].IP + ":" + strconv.Itoa(sessions[i].Port)
-						log.Infof("会话「%v」ID「%v」超过1小时未打开，已删除。", s, sessions[i].ID)
+						zlog.Info("会话「%v」ID「%v」超过1小时未打开，已删除。", s, sessions[i].ID)
 					}
 				}
 			}
@@ -65,7 +65,7 @@ func (t *Ticker) SetupTicker() {
 				}
 				err := t.sessionRepository.DeleteByIds(sessionIds)
 				if err != nil {
-					log.Errorf("删除离线会话失败 %v", err)
+					zlog.Error("删除离线会话失败 %v", err)
 				}
 			}
 		}

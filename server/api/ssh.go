@@ -2,6 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/zlog"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"path"
 	"strconv"
@@ -10,13 +13,11 @@ import (
 	"next-terminal/pkg/constant"
 	"next-terminal/pkg/global"
 	"next-terminal/pkg/guacd"
-	"next-terminal/pkg/log"
 	"next-terminal/pkg/term"
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
 	"github.com/gorilla/websocket"
-	"github.com/labstack/echo/v4"
 )
 
 var UpGrader = websocket.Upgrader{
@@ -43,16 +44,17 @@ type WindowSize struct {
 	Rows int `json:"rows"`
 }
 
-func SSHEndpoint(c echo.Context) (err error) {
-	ws, err := UpGrader.Upgrade(c.Response().Writer, c.Request(), nil)
+func SSHEndpoint(c *gin.Context) {
+	ws, err := UpGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Errorf("升级为WebSocket协议失败：%v", err.Error())
-		return err
+		zlog.Error("升级为WebSocket协议失败：%v", err.Error())
+		errors.Dangerous(err)
+		return
 	}
 
-	sessionId := c.QueryParam("sessionId")
-	cols, _ := strconv.Atoi(c.QueryParam("cols"))
-	rows, _ := strconv.Atoi(c.QueryParam("rows"))
+	sessionId := c.Query("sessionId")
+	cols, _ := strconv.Atoi(c.Query("cols"))
+	rows, _ := strconv.Atoi(c.Query("rows"))
 
 	session, err := sessionRepository.FindByIdAndDecrypt(sessionId)
 	if err != nil {
@@ -61,7 +63,8 @@ func SSHEndpoint(c echo.Context) (err error) {
 			Content: "get sshSession error." + err.Error(),
 		}
 		_ = WriteMessage(ws, msg)
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	user, _ := GetCurrentAccount(c)
@@ -69,7 +72,8 @@ func SSHEndpoint(c echo.Context) (err error) {
 		// 检测是否有访问权限
 		assetIds, err := resourceSharerRepository.FindAssetIdsByUserId(user.ID)
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		if !utils.Contains(assetIds, session.AssetId) {
@@ -77,7 +81,8 @@ func SSHEndpoint(c echo.Context) (err error) {
 				Type:    Closed,
 				Content: "您没有权限访问此资产",
 			}
-			return WriteMessage(ws, msg)
+			errors.Dangerous(WriteMessage(ws, msg))
+			return
 		}
 	}
 
@@ -109,22 +114,22 @@ func SSHEndpoint(c echo.Context) (err error) {
 			observers := append(observable.Observers, tun)
 			observable.Observers = observers
 			global.Store.Set(sessionId, observable)
-			log.Debugf("加入会话%v,当前观察者数量为：%v", session.ConnectionId, len(observers))
+			zlog.Debug("加入会话%v,当前观察者数量为：%v", session.ConnectionId, len(observers))
 		}
-
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	nextTerminal, err := term.NewNextTerminal(ip, port, username, password, privateKey, passphrase, rows, cols, recording)
 
 	if err != nil {
-		log.Errorf("创建SSH客户端失败：%v", err.Error())
+		zlog.Error("创建SSH客户端失败：%v", err.Error())
 		msg := Message{
 			Type:    Closed,
 			Content: err.Error(),
 		}
-		err := WriteMessage(ws, msg)
-		return err
+		errors.Dangerous(WriteMessage(ws, msg))
+		return
 	}
 	tun.NextTerminal = nextTerminal
 
@@ -144,9 +149,10 @@ func SSHEndpoint(c echo.Context) (err error) {
 		Recording:    recording,
 	}
 	// 创建新会话
-	log.Debugf("创建新会话 %v", sess.ConnectionId)
+	zlog.Debug("创建新会话 %v", sess.ConnectionId)
 	if err := sessionRepository.UpdateById(&sess, sessionId); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	msg := Message{
@@ -172,7 +178,7 @@ func SSHEndpoint(c echo.Context) (err error) {
 		var msg Message
 		err = json.Unmarshal(message, &msg)
 		if err != nil {
-			log.Warnf("解析Json失败: %v, 原始字符串：%v", err, string(message))
+			zlog.Warn("解析Json失败: %v, 原始字符串：%v", err, string(message))
 			continue
 		}
 
@@ -181,17 +187,17 @@ func SSHEndpoint(c echo.Context) (err error) {
 			var winSize WindowSize
 			err = json.Unmarshal([]byte(msg.Content), &winSize)
 			if err != nil {
-				log.Warnf("解析SSH会话窗口大小失败: %v", err)
+				zlog.Warn("解析SSH会话窗口大小失败: %v", err)
 				continue
 			}
 			if err := nextTerminal.WindowChange(winSize.Rows, winSize.Cols); err != nil {
-				log.Warnf("更改SSH会话窗口大小失败: %v", err)
+				zlog.Warn("更改SSH会话窗口大小失败: %v", err)
 				continue
 			}
 		case Data:
 			_, err = nextTerminal.Write([]byte(msg.Content))
 			if err != nil {
-				log.Debugf("SSH会话写入失败: %v", err)
+				zlog.Debug("SSH会话写入失败: %v", err)
 				msg := Message{
 					Type:    Closed,
 					Content: "the remote connection is closed.",
@@ -201,7 +207,7 @@ func SSHEndpoint(c echo.Context) (err error) {
 		}
 
 	}
-	return err
+	errors.Dangerous(err)
 }
 
 func ReadMessage(nextTerminal *term.NextTerminal, quitChan chan bool, ws *websocket.Conn) {
@@ -247,7 +253,7 @@ func WriteMessage(ws *websocket.Conn, msg Message) error {
 func WriteByteMessage(ws *websocket.Conn, p []byte) {
 	err := ws.WriteMessage(websocket.TextMessage, p)
 	if err != nil {
-		log.Debugf("write: %v", err)
+		zlog.Debug("write: %v", err)
 	}
 }
 

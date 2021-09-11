@@ -2,8 +2,10 @@ package api
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
+	"github.com/ergoapi/errors"
+	"github.com/ergoapi/zlog"
+	"github.com/gin-gonic/gin"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -15,27 +17,30 @@ import (
 
 	"next-terminal/pkg/constant"
 	"next-terminal/pkg/global"
-	"next-terminal/pkg/log"
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
-	"github.com/labstack/echo/v4"
 	"github.com/pkg/sftp"
 )
 
-func SessionPagingEndpoint(c echo.Context) error {
-	pageIndex, _ := strconv.Atoi(c.QueryParam("pageIndex"))
-	pageSize, _ := strconv.Atoi(c.QueryParam("pageSize"))
-	status := c.QueryParam("status")
-	userId := c.QueryParam("userId")
-	clientIp := c.QueryParam("clientIp")
-	assetId := c.QueryParam("assetId")
-	protocol := c.QueryParam("protocol")
+var (
+	MIMEOctetStream                      = "application/octet-stream"
+)
+
+func SessionPagingEndpoint(c *gin.Context) {
+	pageIndex, _ := strconv.Atoi(c.Query("pageIndex"))
+	pageSize, _ := strconv.Atoi(c.Query("pageSize"))
+	status := c.Query("status")
+	userId := c.Query("userId")
+	clientIp := c.Query("clientIp")
+	assetId := c.Query("assetId")
+	protocol := c.Query("protocol")
 
 	items, total, err := sessionRepository.Find(pageIndex, pageSize, status, userId, clientIp, assetId, protocol)
 
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	for i := 0; i < len(items); i++ {
@@ -58,24 +63,25 @@ func SessionPagingEndpoint(c echo.Context) error {
 		}
 	}
 
-	return Success(c, H{
+	Success(c, H{
 		"total": total,
 		"items": items,
 	})
 }
 
-func SessionDeleteEndpoint(c echo.Context) error {
+func SessionDeleteEndpoint(c *gin.Context) {
 	sessionIds := c.Param("id")
 	split := strings.Split(sessionIds, ",")
 	err := sessionRepository.DeleteByIds(split)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func SessionConnectEndpoint(c echo.Context) error {
+func SessionConnectEndpoint(c *gin.Context) {
 	sessionId := c.Param("id")
 
 	session := model.Session{}
@@ -84,19 +90,20 @@ func SessionConnectEndpoint(c echo.Context) error {
 	session.ConnectedTime = utils.NowJsonTime()
 
 	if err := sessionRepository.UpdateById(&session, sessionId); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, nil)
+	Success(c, nil)
 }
 
-func SessionDisconnectEndpoint(c echo.Context) error {
+func SessionDisconnectEndpoint(c *gin.Context) {
 	sessionIds := c.Param("id")
 
 	split := strings.Split(sessionIds, ",")
 	for i := range split {
 		CloseSessionById(split[i], ForcedDisconnect, "管理员强制关闭了此会话")
 	}
-	return Success(c, nil)
+	Success(c, nil)
 }
 
 var mutex sync.Mutex
@@ -106,12 +113,12 @@ func CloseSessionById(sessionId string, code int, reason string) {
 	defer mutex.Unlock()
 	observable, _ := global.Store.Get(sessionId)
 	if observable != nil {
-		log.Debugf("会话%v创建者退出，原因：%v", sessionId, reason)
+		zlog.Debug("会话%v创建者退出，原因：%v", sessionId, reason)
 		observable.Subject.Close(code, reason)
 
 		for i := 0; i < len(observable.Observers); i++ {
 			observable.Observers[i].Close(code, reason)
-			log.Debugf("强制踢出会话%v的观察者", sessionId)
+			zlog.Debug("强制踢出会话%v的观察者", sessionId)
 		}
 	}
 	global.Store.Del(sessionId)
@@ -144,9 +151,9 @@ func CloseSessionById(sessionId string, code int, reason string) {
 	_ = sessionRepository.UpdateById(&session, sessionId)
 }
 
-func SessionResizeEndpoint(c echo.Context) error {
-	width := c.QueryParam("width")
-	height := c.QueryParam("height")
+func SessionResizeEndpoint(c *gin.Context)  {
+	width := c.Query("width")
+	height := c.Query("height")
 	sessionId := c.Param("id")
 
 	if len(width) == 0 || len(height) == 0 {
@@ -158,14 +165,15 @@ func SessionResizeEndpoint(c echo.Context) error {
 	intHeight, _ := strconv.Atoi(height)
 
 	if err := sessionRepository.UpdateWindowSizeById(intWidth, intHeight, sessionId); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	return Success(c, "")
+	Success(c, "")
 }
 
-func SessionCreateEndpoint(c echo.Context) error {
-	assetId := c.QueryParam("assetId")
-	mode := c.QueryParam("mode")
+func SessionCreateEndpoint(c *gin.Context) {
+	assetId := c.Query("assetId")
+	mode := c.Query("mode")
 
 	if mode == constant.Naive {
 		mode = constant.Naive
@@ -179,17 +187,20 @@ func SessionCreateEndpoint(c echo.Context) error {
 		// 检测是否有访问权限
 		assetIds, err := resourceSharerRepository.FindAssetIdsByUserId(user.ID)
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		if !utils.Contains(assetIds, assetId) {
-			return errors.New("您没有权限访问此资产")
+			errors.Dangerous("您没有权限访问此资产")
+			return
 		}
 	}
 
 	asset, err := assetRepository.FindById(assetId)
 	if err != nil {
-		return err
+		errors.Dangerous("您没有权限访问此资产")
+		return
 	}
 
 	session := &model.Session{
@@ -204,14 +215,15 @@ func SessionCreateEndpoint(c echo.Context) error {
 		Port:       asset.Port,
 		Status:     constant.NoConnect,
 		Creator:    user.ID,
-		ClientIP:   c.RealIP(),
+		ClientIP:   c.ClientIP(),
 		Mode:       mode,
 	}
 
 	if asset.AccountType == "credential" {
 		credential, err := credentialRepository.FindById(asset.CredentialId)
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		if credential.Type == constant.Custom {
@@ -225,41 +237,47 @@ func SessionCreateEndpoint(c echo.Context) error {
 	}
 
 	if err := sessionRepository.Create(session); err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	return Success(c, echo.Map{"id": session.ID})
+	Success(c,  map[string]interface{}{"id": session.ID})
 }
 
-func SessionUploadEndpoint(c echo.Context) error {
+func SessionUploadEndpoint(c *gin.Context) {
 	sessionId := c.Param("id")
 	session, err := sessionRepository.FindById(sessionId)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 	file, err := c.FormFile("file")
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	filename := file.Filename
 	src, err := file.Open()
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
-	remoteDir := c.QueryParam("dir")
+	remoteDir := c.Query("dir")
 	remoteFile := path.Join(remoteDir, filename)
 
 	if "ssh" == session.Protocol {
 		tun, ok := global.Store.Get(sessionId)
 		if !ok {
-			return errors.New("获取sftp客户端失败")
+			errors.Dangerous("获取sftp客户端失败")
+			return
 		}
 
 		dstFile, err := tun.Subject.NextTerminal.SftpClient.Create(remoteFile)
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 		defer dstFile.Close()
 
@@ -268,86 +286,98 @@ func SessionUploadEndpoint(c echo.Context) error {
 			n, err := src.Read(buf)
 			if err != nil {
 				if err != io.EOF {
-					log.Warnf("文件上传错误 %v", err)
+					zlog.Warn("文件上传错误 %v", err)
 				} else {
 					break
 				}
 			}
 			_, _ = dstFile.Write(buf[:n])
 		}
-		return Success(c, nil)
+		Success(c, nil)
+		return
 	} else if "rdp" == session.Protocol {
 
 		if strings.Contains(remoteFile, "../") {
 			SafetyRuleTrigger(c)
-			return Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			return
 		}
 
 		drivePath, err := propertyRepository.GetDrivePath()
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		// Destination
 		dst, err := os.Create(path.Join(drivePath, remoteFile))
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 		defer dst.Close()
 
 		// Copy
 		if _, err = io.Copy(dst, src); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
-		return Success(c, nil)
+		Success(c, nil)
+		return
 	}
 
-	return err
+	errors.Dangerous(err)
 }
 
-func SessionDownloadEndpoint(c echo.Context) error {
+func SessionDownloadEndpoint(c *gin.Context) {
 	sessionId := c.Param("id")
 	session, err := sessionRepository.FindById(sessionId)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 	//remoteDir := c.Query("dir")
-	remoteFile := c.QueryParam("file")
+	remoteFile := c.Query("file")
 	// 获取带后缀的文件名称
 	filenameWithSuffix := path.Base(remoteFile)
 	if "ssh" == session.Protocol {
 		tun, ok := global.Store.Get(sessionId)
 		if !ok {
-			return errors.New("获取sftp客户端失败")
+			errors.Dangerous("获取sftp客户端失败")
+			return
 		}
 
 		dstFile, err := tun.Subject.NextTerminal.SftpClient.Open(remoteFile)
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		defer dstFile.Close()
-		c.Response().Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filenameWithSuffix))
+		c.Writer.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", filenameWithSuffix))
 
 		var buff bytes.Buffer
 		if _, err := dstFile.WriteTo(&buff); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
-
-		return c.Stream(http.StatusOK, echo.MIMEOctetStream, bytes.NewReader(buff.Bytes()))
+		c.Data(http.StatusOK, MIMEOctetStream, buff.Bytes())
 	} else if "rdp" == session.Protocol {
 		if strings.Contains(remoteFile, "../") {
 			SafetyRuleTrigger(c)
-			return Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			return
 		}
 		drivePath, err := propertyRepository.GetDrivePath()
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
-		return c.Attachment(path.Join(drivePath, remoteFile), filenameWithSuffix)
+		c.FileAttachment(path.Join(drivePath, remoteFile), filenameWithSuffix)
+		return
 	}
 
-	return err
+	errors.Dangerous(err)
 }
 
 type File struct {
@@ -360,23 +390,26 @@ type File struct {
 	Size    int64          `json:"size"`
 }
 
-func SessionLsEndpoint(c echo.Context) error {
+func SessionLsEndpoint(c *gin.Context) {
 	sessionId := c.Param("id")
 	session, err := sessionRepository.FindByIdAndDecrypt(sessionId)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	remoteDir := c.QueryParam("dir")
+	remoteDir := c.Query("dir")
 	if "ssh" == session.Protocol {
 		tun, ok := global.Store.Get(sessionId)
 		if !ok {
-			return errors.New("获取sftp客户端失败")
+			errors.Dangerous("获取sftp客户端失败")
+			return
 		}
 
 		if tun.Subject.NextTerminal == nil {
 			nextTerminal, err := CreateNextTerminalBySession(session)
 			if err != nil {
-				return err
+				errors.Dangerous(err)
+				return
 			}
 			tun.Subject.NextTerminal = nextTerminal
 		}
@@ -384,15 +417,17 @@ func SessionLsEndpoint(c echo.Context) error {
 		if tun.Subject.NextTerminal.SftpClient == nil {
 			sftpClient, err := sftp.NewClient(tun.Subject.NextTerminal.SshClient)
 			if err != nil {
-				log.Errorf("创建sftp客户端失败：%v", err.Error())
-				return err
+				zlog.Error("创建sftp客户端失败：%v", err.Error())
+				errors.Dangerous(err)
+				return
 			}
 			tun.Subject.NextTerminal.SftpClient = sftpClient
 		}
 
 		fileInfos, err := tun.Subject.NextTerminal.SftpClient.ReadDir(remoteDir)
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		var files = make([]File, 0)
@@ -416,19 +451,23 @@ func SessionLsEndpoint(c echo.Context) error {
 			files = append(files, file)
 		}
 
-		return Success(c, files)
+		Success(c, files)
+		return
 	} else if "rdp" == session.Protocol {
 		if strings.Contains(remoteDir, "../") {
 			SafetyRuleTrigger(c)
-			return Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			return
 		}
 		drivePath, err := propertyRepository.GetDrivePath()
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 		fileInfos, err := ioutil.ReadDir(path.Join(drivePath, remoteDir))
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		var files = make([]File, 0)
@@ -446,166 +485,195 @@ func SessionLsEndpoint(c echo.Context) error {
 			files = append(files, file)
 		}
 
-		return Success(c, files)
+		Success(c, files)
+		return
 	}
-
-	return errors.New("当前协议不支持此操作")
+	errors.Dangerous("当前协议不支持此操作")
 }
 
-func SafetyRuleTrigger(c echo.Context) {
-	log.Warnf("IP %v 尝试进行攻击，请ban掉此IP", c.RealIP())
+func SafetyRuleTrigger(c *gin.Context) {
+	zlog.Warn("IP %v 尝试进行攻击，请ban掉此IP", c.ClientIP())
 	security := model.AccessSecurity{
 		ID:     utils.UUID(),
 		Source: "安全规则触发",
-		IP:     c.RealIP(),
+		IP:     c.ClientIP(),
 		Rule:   constant.AccessRuleReject,
 	}
 
 	_ = accessSecurityRepository.Create(&security)
 }
 
-func SessionMkDirEndpoint(c echo.Context) error {
+func SessionMkDirEndpoint(c *gin.Context) {
 	sessionId := c.Param("id")
 	session, err := sessionRepository.FindById(sessionId)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	remoteDir := c.QueryParam("dir")
+	remoteDir := c.Query("dir")
 	if "ssh" == session.Protocol {
 		tun, ok := global.Store.Get(sessionId)
 		if !ok {
-			return errors.New("获取sftp客户端失败")
+			errors.Dangerous("获取sftp客户端失败")
+			return
 		}
 		if err := tun.Subject.NextTerminal.SftpClient.Mkdir(remoteDir); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
-		return Success(c, nil)
+		Success(c, nil)
+		return
 	} else if "rdp" == session.Protocol {
 		if strings.Contains(remoteDir, "../") {
 			SafetyRuleTrigger(c)
-			return Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			return
 		}
 		drivePath, err := propertyRepository.GetDrivePath()
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		if err := os.MkdirAll(path.Join(drivePath, remoteDir), os.ModePerm); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
-		return Success(c, nil)
+		Success(c, nil)
+		return
 	}
 
-	return errors.New("当前协议不支持此操作")
+	errors.Dangerous("当前协议不支持此操作")
 }
 
-func SessionRmEndpoint(c echo.Context) error {
+func SessionRmEndpoint(c *gin.Context) {
 	sessionId := c.Param("id")
 	session, err := sessionRepository.FindById(sessionId)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	key := c.QueryParam("key")
+	key := c.Query("key")
 	if "ssh" == session.Protocol {
 		tun, ok := global.Store.Get(sessionId)
 		if !ok {
-			return errors.New("获取sftp客户端失败")
+			errors.Dangerous("获取sftp客户端失败")
+			return
 		}
 
 		sftpClient := tun.Subject.NextTerminal.SftpClient
 
 		stat, err := sftpClient.Stat(key)
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		if stat.IsDir() {
 			fileInfos, err := sftpClient.ReadDir(key)
 			if err != nil {
-				return err
+				errors.Dangerous(err)
+				return
 			}
 
 			for i := range fileInfos {
 				if err := sftpClient.Remove(path.Join(key, fileInfos[i].Name())); err != nil {
-					return err
+					errors.Dangerous(err)
+					return
 				}
 			}
 
 			if err := sftpClient.RemoveDirectory(key); err != nil {
-				return err
+				errors.Dangerous(err)
+				return
 			}
 		} else {
 			if err := sftpClient.Remove(key); err != nil {
-				return err
+				errors.Dangerous(err)
+				return
 			}
 		}
 
-		return Success(c, nil)
+		Success(c, nil)
+		return
 	} else if "rdp" == session.Protocol {
 		if strings.Contains(key, "../") {
 			SafetyRuleTrigger(c)
-			return Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			return
 		}
 		drivePath, err := propertyRepository.GetDrivePath()
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		if err := os.RemoveAll(path.Join(drivePath, key)); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
-		return Success(c, nil)
+		Success(c, nil)
+		return
 	}
 
-	return errors.New("当前协议不支持此操作")
+	errors.Dangerous("当前协议不支持此操作")
 }
 
-func SessionRenameEndpoint(c echo.Context) error {
+func SessionRenameEndpoint(c *gin.Context) {
 	sessionId := c.Param("id")
 	session, err := sessionRepository.FindById(sessionId)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
-	oldName := c.QueryParam("oldName")
-	newName := c.QueryParam("newName")
+	oldName := c.Query("oldName")
+	newName := c.Query("newName")
 	if "ssh" == session.Protocol {
 		tun, ok := global.Store.Get(sessionId)
 		if !ok {
-			return errors.New("获取sftp客户端失败")
+			errors.Dangerous("获取sftp客户端失败")
+			return
 		}
 
 		sftpClient := tun.Subject.NextTerminal.SftpClient
 
 		if err := sftpClient.Rename(oldName, newName); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
-		return Success(c, nil)
+		Success(c, nil)
+		return
 	} else if "rdp" == session.Protocol {
 		if strings.Contains(oldName, "../") {
 			SafetyRuleTrigger(c)
-			return Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
+			return
 		}
 		drivePath, err := propertyRepository.GetDrivePath()
 		if err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
 		if err := os.Rename(path.Join(drivePath, oldName), path.Join(drivePath, newName)); err != nil {
-			return err
+			errors.Dangerous(err)
+			return
 		}
 
-		return Success(c, nil)
+		Success(c, nil)
+		return
 	}
-	return errors.New("当前协议不支持此操作")
+	errors.Dangerous("当前协议不支持此操作")
 }
 
-func SessionRecordingEndpoint(c echo.Context) error {
+func SessionRecordingEndpoint(c *gin.Context) {
 	sessionId := c.Param("id")
 	session, err := sessionRepository.FindById(sessionId)
 	if err != nil {
-		return err
+		errors.Dangerous(err)
+		return
 	}
 
 	var recording string
@@ -615,6 +683,6 @@ func SessionRecordingEndpoint(c echo.Context) error {
 		recording = session.Recording + "/recording"
 	}
 
-	log.Debugf("读取录屏文件：%v,是否存在: %v, 是否为文件: %v", recording, utils.FileExists(recording), utils.IsFile(recording))
-	return c.File(recording)
+	zlog.Debug("读取录屏文件：%v,是否存在: %v, 是否为文件: %v", recording, utils.FileExists(recording), utils.IsFile(recording))
+	c.File(recording)
 }
