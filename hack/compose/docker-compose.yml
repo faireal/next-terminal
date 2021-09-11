@@ -23,7 +23,7 @@ services:
         ipv4_address: 172.77.77.2
 
   guacd:
-    image: guacamole/guacd:1.3.0
+    image: ghcr.io/ysicing/guacd:1.3.0
     container_name: guacd
     ports:
       - "4822:4822"

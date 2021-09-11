@@ -18,12 +18,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14'
-
-      - run: |
-          cd web
-          npm install
-          npm run build
-
       - name: Login GHCR
         uses: docker/login-action@v1
         with:
@@ -32,5 +26,4 @@ jobs:
           password: ${{ secrets.GHCRIO }}
       - name: Build and push image
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner }}/next-terminal -f Dockerfile .
-          docker push ghcr.io/${{ github.repository_owner }}/next-terminal
+          make release
