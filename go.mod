@@ -6,7 +6,7 @@ require (
 	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/ergoapi/errors v0.0.1
-	github.com/ergoapi/exgin v1.0.2
+	github.com/ergoapi/exgin v1.0.3-0.20210912083449-5bdfadf06043
 	github.com/ergoapi/glog v0.0.1
 	github.com/ergoapi/util v0.0.6
 	github.com/ergoapi/zlog v0.0.1

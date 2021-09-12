@@ -176,7 +176,8 @@ func Auth() gin.HandlerFunc {
 		cacheKey := BuildCacheKeyByToken(token)
 		authorization, found := global.Cache.Get(cacheKey)
 		if !found {
-			Fail(c, 401, "您的登录信息已失效，请重新登录后再试。")
+			// Fail(c, 401, "您的登录信息已失效，请重新登录后再试。")
+			exgin.GinsAbortWithCode(c, 401, "您的登录信息已失效，请重新登录后再试。")
 			return
 		}
 
@@ -196,7 +197,8 @@ func Admin() gin.HandlerFunc {
 
 		account, found := GetCurrentAccount(c)
 		if !found {
-			Fail(c, 401, "您的登录信息已失效，请重新登录后再试。")
+			// Fail(c, 401, "您的登录信息已失效，请重新登录后再试。")
+			exgin.GinsAbortWithCode(c, 401, "您的登录信息已失效，请重新登录后再试。")
 			return
 		}
 

@@ -32,28 +32,28 @@ services:
       next-terminal:
         ipv4_address: 172.77.77.3
 
-  next-terminal:
-    container_name: next-terminal
-    image: ghcr.io/ysicing/next-terminal:latest
-    environment:
-      DB: "mysql"
-      MYSQL_HOSTNAME: "mysql"
-      MYSQL_PORT: 3306
-      MYSQL_USERNAME: "next-terminal"
-      MYSQL_PASSWORD: "next-terminal"
-      MYSQL_DATABASE: "next-terminal"
-    ports:
-      - "8088:8088"
-    volumes:
-      - 'terminal_drive_data:/usr/local/next-terminal/drive'
-      - 'terminal_recording_data:/usr/local/next-terminal/recording'
-    depends_on:
-      - mysql
-      - guacd
-    networks:
-      next-terminal:
-        ipv4_address: 172.77.77.4
-    restart: always
+#  next-terminal:
+#    container_name: next-terminal
+#    image: ghcr.io/ysicing/next-terminal:latest
+#    environment:
+#      DB: "mysql"
+#      MYSQL_HOSTNAME: "mysql"
+#      MYSQL_PORT: 3306
+#      MYSQL_USERNAME: "next-terminal"
+#      MYSQL_PASSWORD: "next-terminal"
+#      MYSQL_DATABASE: "next-terminal"
+#    ports:
+#      - "8088:8088"
+#    volumes:
+#      - 'terminal_drive_data:/usr/local/next-terminal/drive'
+#      - 'terminal_recording_data:/usr/local/next-terminal/recording'
+#    depends_on:
+#      - mysql
+#      - guacd
+#    networks:
+#      next-terminal:
+#        ipv4_address: 172.77.77.4
+#    restart: always
 
 networks:
   next-terminal:

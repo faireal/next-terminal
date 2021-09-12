@@ -1,5 +1,6 @@
 yarn.lock
 web/build
+web/node_modules
 *.log
 *.db
 .DS_Store
@@ -27,3 +28,4 @@ playground/drive
 playground/recording
 
 /log
+dist

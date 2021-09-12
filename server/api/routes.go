@@ -71,7 +71,6 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	e.StaticFile("/asciinema.html", "web/build/asciinema.html")
 	e.StaticFile("/asciinema-player.js", "web/build/asciinema-player.js")
 	e.StaticFile("/asciinema-player.css", "web/build/asciinema-player.css")
-	e.StaticFile("/", "web/build/index.html")
 	e.StaticFile("/logo.svg", "web/build/logo.svg")
 	e.StaticFile("/favicon.ico", "web/build/favicon.ico")
 	e.Static("/static", "web/build/static")
