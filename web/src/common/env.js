@@ -2,8 +2,8 @@ function env() {
     if (process.env.REACT_APP_ENV === 'development') {
         // 本地开发环境
         return {
-            server: '//127.0.0.1:8088',
-            wsServer: 'ws://127.0.0.1:8088',
+            server: '//127.0.0.1:8080',
+            wsServer: 'ws://127.0.0.1:8080',
             prefix: '',
         }
     } else {

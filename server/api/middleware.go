@@ -10,6 +10,7 @@ import (
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
 	"net"
+	"net/http"
 	"net/http/httputil"
 	"os"
 	"regexp"
@@ -21,6 +22,28 @@ import (
 	"next-terminal/pkg/global"
 	"next-terminal/server/utils"
 )
+
+// ExCors excors middleware
+func ExCors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		method := c.Request.Method
+		origin := c.Request.Header.Get("Origin")
+		if origin != "" {
+			c.Header("Access-Control-Allow-Origin", "*")
+			c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, UPDATE, HEAD, OPTIONS")
+			c.Header("Access-Control-Allow-Headers", "Origin, X-Requested-With, X-Auth-Token, Content-Type, Accept, Authorization")
+			c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers, Access-Control-Request-Headers, Cache-Control, Content-Language, Content-Type")
+			c.Header("Access-Control-Max-Age", "3600")
+			c.Header("Access-Control-Allow-Credentials", "true")
+			c.Set("content-type", "application/json")
+		}
+		if method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	}
+}
 
 // ExLog exlog middleware
 func ExLog() gin.HandlerFunc {

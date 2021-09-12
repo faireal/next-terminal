@@ -64,9 +64,12 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	}
 
 	e := exgin.Init(true)
-	// e.HideBanner = true
-	//e.Logger = log.GetEchoLogger()
-	e.Use(gin.Logger())
+	e.Use(ExLog())
+	e.Use(ExCors())
+	e.Use(ErrorHandler())
+	e.Use(TcpWall())
+	e.Use(Auth())
+
 	e.StaticFile("/", "web/build/index.html")
 	e.StaticFile("/asciinema.html", "web/build/asciinema.html")
 	e.StaticFile("/asciinema-player.js", "web/build/asciinema-player.js")
@@ -74,12 +77,6 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	e.StaticFile("/logo.svg", "web/build/logo.svg")
 	e.StaticFile("/favicon.ico", "web/build/favicon.ico")
 	e.Static("/static", "web/build/static")
-
-	e.Use(ExLog())
-	e.Use(exgin.ExCors())
-	e.Use(ErrorHandler())
-	e.Use(TcpWall())
-	e.Use(Auth())
 
 	e.POST("/login", LoginEndpoint)
 	e.POST("/loginWithTotp", loginWithTotpEndpoint)
