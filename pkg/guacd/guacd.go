@@ -2,7 +2,6 @@ package guacd
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"net"
 	"strings"
@@ -200,7 +199,7 @@ func NewTunnel(address string, config Configuration) (ret *Tunnel, err error) {
 	}
 
 	if len(ready.Args) == 0 {
-		return nil, errors.New("no connection id received")
+		return nil, fmt.Errorf("no connection id received")
 	}
 
 	ret.UUID = ready.Args[0]
@@ -281,7 +280,7 @@ func (opt *Tunnel) expect(opcode string) (instruction Instruction, err error) {
 
 	if opcode != instruction.Opcode {
 		msg := fmt.Sprintf(`expected "%s" instruction but instead received "%s"`, opcode, instruction.Opcode)
-		return instruction, errors.New(msg)
+		return instruction, fmt.Errorf(msg)
 	}
 	return instruction, nil
 }

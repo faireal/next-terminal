@@ -3,10 +3,10 @@ package repository
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/spf13/viper"
 	"strings"
 
 	"next-terminal/pkg/constant"
-	"next-terminal/pkg/global"
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
@@ -110,7 +110,7 @@ func (r AssetRepository) Find(pageIndex, pageSize int, name, protocol, tags stri
 	if len(tags) > 0 {
 		tagArr := strings.Split(tags, ",")
 		for i := range tagArr {
-			if global.Config.DB == "sqlite" {
+			if viper.GetString("db") == "sqlite" {
 				db = db.Where("(',' || assets.tags || ',') LIKE ?", "%,"+tagArr[i]+",%")
 				dbCounter = dbCounter.Where("(',' || assets.tags || ',') LIKE ?", "%,"+tagArr[i]+",%")
 			} else {
@@ -188,7 +188,7 @@ func (r AssetRepository) Encrypt(item *model.Asset, password []byte) error {
 }
 
 func (r AssetRepository) Create(o *model.Asset) (err error) {
-	if err := r.Encrypt(o, global.Config.EncryptionPassword); err != nil {
+	if err := r.Encrypt(o, utils.Encryption()); err != nil {
 		return err
 	}
 	if err = r.DB.Create(o).Error; err != nil {
@@ -244,7 +244,7 @@ func (r AssetRepository) Decrypt(item *model.Asset, password []byte) error {
 func (r AssetRepository) FindByIdAndDecrypt(id string) (o model.Asset, err error) {
 	err = r.DB.Where("id = ?", id).First(&o).Error
 	if err == nil {
-		err = r.Decrypt(&o, global.Config.EncryptionPassword)
+		err = r.Decrypt(&o, utils.Encryption())
 	}
 	return
 }

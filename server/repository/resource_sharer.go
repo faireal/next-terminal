@@ -5,7 +5,6 @@ import (
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
-	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )
 
@@ -116,19 +115,19 @@ func (r *ResourceSharerRepository) AddSharerResources(userGroupId, userId, resou
 			case "asset":
 				resource := model.Asset{}
 				if err = tx.Where("id = ?", resourceId).First(&resource).Error; err != nil {
-					return errors.Wrap(err, "find asset  fail")
+					return fmt.Errorf("find asset fail err: %v", err)
 				}
 				owner = resource.Owner
 			case "command":
 				resource := model.Command{}
 				if err = tx.Where("id = ?", resourceId).First(&resource).Error; err != nil {
-					return errors.Wrap(err, "find command  fail")
+					return fmt.Errorf("find command fail err: %v",err)
 				}
 				owner = resource.Owner
 			case "credential":
 				resource := model.Credential{}
 				if err = tx.Where("id = ?", resourceId).First(&resource).Error; err != nil {
-					return errors.Wrap(err, "find credential  fail")
+					return fmt.Errorf("find credential fail err: %v", err)
 
 				}
 				owner = resource.Owner

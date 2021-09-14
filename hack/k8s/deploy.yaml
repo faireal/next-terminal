@@ -94,21 +94,21 @@ spec:
     port: 4822
     targetPort: 4822    
 ---
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: nt.internal.ysicing.net
-  namespace: prod
-spec:
-  rules:
-  - host: nt.internal.ysicing.net
-    http:
-      paths:
-      - path: /
-        backend:
-          serviceName: domain
-          servicePort: 8080
-  tls:
-  - hosts:
-    - nt.internal.ysicing.net
-    secretName: ie.ysicing.net
+#apiVersion: extensions/v1beta1
+#kind: Ingress
+#metadata:
+#  name: nt.internal.ysicing.net
+#  namespace: prod
+#spec:
+#  rules:
+#  - host: nt.internal.ysicing.net
+#    http:
+#      paths:
+#      - path: /
+#        backend:
+#          serviceName: domain
+#          servicePort: 8080
+#  tls:
+#  - hosts:
+#    - nt.internal.ysicing.net
+#    secretName: ie.ysicing.net

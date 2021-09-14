@@ -7,11 +7,11 @@ import (
 	"github.com/ergoapi/glog"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"os"
 	"strings"
 	"time"
 
-	"next-terminal/pkg/global"
 	"next-terminal/pkg/service"
 	"next-terminal/server/model"
 	"next-terminal/server/repository"
@@ -376,18 +376,18 @@ func SetupCache() *cache.Cache {
 
 func SetupDB() *gorm.DB {
 
-	zlog.Debug("当前数据库模式为：%v\n", global.Config.DB)
+	zlog.Debug("当前数据库模式为：%v\n", viper.GetString("db"))
 	var err error
 	var db *gorm.DB
-	if global.Config.DB == "mysql" {
+	if viper.GetString("db") == "mysql" {
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-			global.Config.Mysql.Username,
-			global.Config.Mysql.Password,
-			global.Config.Mysql.Hostname,
-			global.Config.Mysql.Port,
-			global.Config.Mysql.Database,
+			viper.GetString("mysql.username"),
+			viper.GetString("mysql.password"),
+			viper.GetString("mysql.hostname"),
+			viper.GetInt("mysql.port"),
+			viper.GetString("mysql.database"),
 		)
-		dblog := glog.New(zlog.Zlog, global.Config.Debug)
+		dblog := glog.New(zlog.Zlog, viper.GetBool("debug"))
 
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 			Logger: dblog,

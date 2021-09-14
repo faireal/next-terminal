@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 
 	"next-terminal/pkg/constant"
-	"next-terminal/pkg/global"
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
@@ -69,7 +68,7 @@ func (r CredentialRepository) Find(pageIndex, pageSize int, name, order, field s
 }
 
 func (r CredentialRepository) Create(o *model.Credential) (err error) {
-	if err := r.Encrypt(o, global.Config.EncryptionPassword); err != nil {
+	if err := r.Encrypt(o, utils.Encryption()); err != nil {
 		return err
 	}
 	if err = r.DB.Create(o).Error; err != nil {
@@ -151,7 +150,7 @@ func (r CredentialRepository) Decrypt(item *model.Credential, password []byte) e
 func (r CredentialRepository) FindByIdAndDecrypt(id string) (o model.Credential, err error) {
 	err = r.DB.Where("id = ?", id).First(&o).Error
 	if err == nil {
-		err = r.Decrypt(&o, global.Config.EncryptionPassword)
+		err = r.Decrypt(&o, utils.Encryption())
 	}
 	return
 }

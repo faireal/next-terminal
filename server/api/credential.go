@@ -10,10 +10,8 @@ import (
 	"strings"
 
 	"next-terminal/pkg/constant"
-	"next-terminal/pkg/global"
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
-
 )
 
 func CredentialAllEndpoint(c *gin.Context) {
@@ -108,7 +106,7 @@ func CredentialUpdateEndpoint(c *gin.Context) {
 			item.Password = "-"
 		}
 		if item.Password != "-" {
-			encryptedCBC, err := utils.AesEncryptCBC([]byte(item.Password), global.Config.EncryptionPassword)
+			encryptedCBC, err := utils.AesEncryptCBC([]byte(item.Password), utils.Encryption())
 			if err != nil {
 				errors.Dangerous(err)
 				return
@@ -124,7 +122,7 @@ func CredentialUpdateEndpoint(c *gin.Context) {
 			item.PrivateKey = "-"
 		}
 		if item.PrivateKey != "-" {
-			encryptedCBC, err := utils.AesEncryptCBC([]byte(item.PrivateKey), global.Config.EncryptionPassword)
+			encryptedCBC, err := utils.AesEncryptCBC([]byte(item.PrivateKey), utils.Encryption())
 			if err != nil {
 				errors.Dangerous(err)
 				return
@@ -135,7 +133,7 @@ func CredentialUpdateEndpoint(c *gin.Context) {
 			item.Passphrase = "-"
 		}
 		if item.Passphrase != "-" {
-			encryptedCBC, err := utils.AesEncryptCBC([]byte(item.Passphrase), global.Config.EncryptionPassword)
+			encryptedCBC, err := utils.AesEncryptCBC([]byte(item.Passphrase), utils.Encryption())
 			if err != nil {
 				errors.Dangerous(err)
 				return

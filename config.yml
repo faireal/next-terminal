@@ -2,12 +2,14 @@ debug: true
 demo: false
 db: mysql
 mysql:
-  hostname: localhost
+  hostname: 192.168.30.4
   port: 3306
   username: next-terminal
-  password: next-terminal
+  password: nt12345x
   database: next-terminal
 sqlite:
   file: 'next-terminal.db'
 server:
   addr: 0.0.0.0:8080
+core:
+  encryptionkey: ""

@@ -4,6 +4,7 @@ import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"strings"
 	"time"
 
@@ -198,7 +199,7 @@ func LogoutEndpoint(c *gin.Context) {
 }
 
 func ConfirmTOTPEndpoint(c *gin.Context) {
-	if global.Config.Demo {
+	if viper.GetBool("demo") {
 		Fail(c, 0, "演示模式禁止开启两步验证")
 		return
 	}
@@ -268,7 +269,7 @@ func ResetTOTPEndpoint(c *gin.Context)  {
 }
 
 func ChangePasswordEndpoint(c *gin.Context) {
-	if global.Config.Demo {
+	if viper.GetBool("demo") {
 		Fail(c, 0, "演示模式禁止修改密码")
 		return
 	}

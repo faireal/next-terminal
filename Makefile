@@ -36,7 +36,7 @@ static: ## 构建ui
 build: ## 构建二进制
 	@echo "build bin ${RELEASEV}"
 	@CGO_ENABLED=1 GOARCH=amd64 go build -o dist/next-terminal \
-    	-ldflags   "-linkmode external -extldflags "-static" -X 'next-terminal.Version=${RELEASEV}'"
+    	-ldflags   "-extldflags "-static" -X 'main.Version=${RELEASEV}'"
 
 docker: ## 构建镜像
 	docker build -t ${IMAGE}/next-terminal:${BUILD_VERSION} -f hack/docker/next-terminal/Dockerfile .

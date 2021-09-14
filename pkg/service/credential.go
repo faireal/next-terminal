@@ -1,8 +1,8 @@
 package service
 
 import (
-	"next-terminal/pkg/global"
 	"next-terminal/server/repository"
+	"next-terminal/server/utils"
 )
 
 type CredentialService struct {
@@ -23,7 +23,7 @@ func (r CredentialService) Encrypt() error {
 		if item.Encrypted {
 			continue
 		}
-		if err := r.credentialRepository.Encrypt(&item, global.Config.EncryptionPassword); err != nil {
+		if err := r.credentialRepository.Encrypt(&item, utils.Encryption()); err != nil {
 			return err
 		}
 		if err := r.credentialRepository.UpdateById(&item, item.ID); err != nil {

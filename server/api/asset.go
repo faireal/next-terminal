@@ -12,10 +12,8 @@ import (
 	"strings"
 
 	"next-terminal/pkg/constant"
-	"next-terminal/pkg/global"
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
-
 )
 
 func AssetCreateEndpoint(c *gin.Context) {
@@ -213,7 +211,7 @@ func AssetUpdateEndpoint(c *gin.Context) {
 		item.Description = "-"
 	}
 
-	if err := assetRepository.Encrypt(&item, global.Config.EncryptionPassword); err != nil {
+	if err := assetRepository.Encrypt(&item, utils.Encryption()); err != nil {
 		errors.Dangerous(err)
 		return
 	}

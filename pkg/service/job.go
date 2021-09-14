@@ -2,14 +2,13 @@ package service
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
 
+	"github.com/ergoapi/zlog"
 	"next-terminal/pkg/constant"
 	"next-terminal/pkg/global"
-	"github.com/ergoapi/zlog"
 	"next-terminal/pkg/term"
 	"next-terminal/server/model"
 	"next-terminal/server/repository"
@@ -63,7 +62,7 @@ func getJob(j *model.Job, jobService *JobService) (job cron.Job, err error) {
 	case constant.FuncShellJob:
 		job = ShellJob{ID: j.ID, Mode: j.Mode, ResourceIds: j.ResourceIds, Metadata: j.Metadata, jobService: jobService}
 	default:
-		return nil, errors.New("未识别的任务")
+		return nil, fmt.Errorf("未识别的任务")
 	}
 	return job, err
 }

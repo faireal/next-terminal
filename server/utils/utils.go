@@ -10,6 +10,7 @@ import (
 	"database/sql/driver"
 	"encoding/base64"
 	"fmt"
+	"github.com/spf13/viper"
 	"image"
 	"image/png"
 	"net"
@@ -282,4 +283,18 @@ func Pbkdf2(password string) ([]byte, error) {
 	//生成密文
 	dk := pbkdf2.Key([]byte(password), salt, 1, 32, sha256.New)
 	return dk, nil
+}
+
+func GetEncryptionKey() string {
+	key := viper.GetString("core.encryptionkey")
+	if len(key) == 0 {
+		key = "next-terminal"
+	}
+	return key
+}
+
+func Encryption() []byte {
+	key := GetEncryptionKey()
+	md5Sum := fmt.Sprintf("%x", md5.Sum([]byte(key)))
+	return []byte(md5Sum)
 }

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"next-terminal/pkg/constant"
-	"next-terminal/pkg/global"
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
 
@@ -110,7 +109,7 @@ func (r SessionRepository) Decrypt(item *model.Session) error {
 		if err != nil {
 			return err
 		}
-		decryptedCBC, err := utils.AesDecryptCBC(origData, global.Config.EncryptionPassword)
+		decryptedCBC, err := utils.AesDecryptCBC(origData, utils.Encryption())
 		if err != nil {
 			return err
 		}
@@ -121,7 +120,7 @@ func (r SessionRepository) Decrypt(item *model.Session) error {
 		if err != nil {
 			return err
 		}
-		decryptedCBC, err := utils.AesDecryptCBC(origData, global.Config.EncryptionPassword)
+		decryptedCBC, err := utils.AesDecryptCBC(origData, utils.Encryption())
 		if err != nil {
 			return err
 		}
@@ -132,7 +131,7 @@ func (r SessionRepository) Decrypt(item *model.Session) error {
 		if err != nil {
 			return err
 		}
-		decryptedCBC, err := utils.AesDecryptCBC(origData, global.Config.EncryptionPassword)
+		decryptedCBC, err := utils.AesDecryptCBC(origData, utils.Encryption())
 		if err != nil {
 			return err
 		}
