@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"github.com/ergoapi/exgin"
 	"github.com/ergoapi/glog"
+	"github.com/ergoapi/util/ztime"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"gorm.io/gorm/schema"
+	"gorm.io/plugin/prometheus"
 	"os"
 	"strings"
 	"time"
@@ -376,26 +379,36 @@ func SetupCache() *cache.Cache {
 
 func SetupDB() *gorm.DB {
 
-	zlog.Debug("当前数据库模式为：%v\n", viper.GetString("db"))
+	zlog.Debug("当前数据库模式为：%v\n", viper.GetString("db.type"))
 	var err error
 	var db *gorm.DB
-	if viper.GetString("db") == "mysql" {
-		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-			viper.GetString("mysql.username"),
-			viper.GetString("mysql.password"),
-			viper.GetString("mysql.hostname"),
-			viper.GetInt("mysql.port"),
-			viper.GetString("mysql.database"),
-		)
-		dblog := glog.New(zlog.Zlog, viper.GetBool("debug"))
+	if viper.GetString("db.type") == "mysql" {
+		dsn := viper.GetString("db.dsn")
+		dblog := glog.New(zlog.Zlog, viper.GetBool("mode.debug"))
 
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 			Logger: dblog,
+			NamingStrategy: schema.NamingStrategy{SingularTable: true},
 		})
 	}
 
 	if err != nil {
-		zlog.Panic("连接数据库异常")
+		zlog.Panic("连接数据库异常: %v", err)
+	}
+
+	if viper.GetBool("db.metrics.enable") {
+		dbname := viper.GetString("db.metrics.name")
+		if len(dbname) == 0 {
+			dbname = "example" + ztime.GetToday()
+		}
+		db.Use(prometheus.New(prometheus.Config{
+			DBName: dbname,
+			//RefreshInterval:  0,
+			//PushAddr:         "",
+			//StartServer:      false,
+			//HTTPServerPort:   0,
+			//MetricsCollector: nil,
+		}))
 	}
 
 	if err := db.AutoMigrate(&model.User{}, &model.Asset{}, &model.AssetAttribute{}, &model.Session{}, &model.Command{},

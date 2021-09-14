@@ -25,7 +25,7 @@ func newweb() *cobra.Command {
 			propertyRepo := repository.NewPropertyRepository(db)
 			ticker := task.NewTicker(sessionRepo, propertyRepo)
 			ticker.SetupTicker()
-			addr := viper.GetString("server.addr")
+			addr := viper.GetString("core.http")
 			e.Run(addr)
 		},
 	}

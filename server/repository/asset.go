@@ -110,7 +110,7 @@ func (r AssetRepository) Find(pageIndex, pageSize int, name, protocol, tags stri
 	if len(tags) > 0 {
 		tagArr := strings.Split(tags, ",")
 		for i := range tagArr {
-			if viper.GetString("db") == "sqlite" {
+			if viper.GetString("db.type") == "sqlite" {
 				db = db.Where("(',' || assets.tags || ',') LIKE ?", "%,"+tagArr[i]+",%")
 				dbCounter = dbCounter.Where("(',' || assets.tags || ',') LIKE ?", "%,"+tagArr[i]+",%")
 			} else {

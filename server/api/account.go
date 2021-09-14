@@ -199,7 +199,7 @@ func LogoutEndpoint(c *gin.Context) {
 }
 
 func ConfirmTOTPEndpoint(c *gin.Context) {
-	if viper.GetBool("demo") {
+	if viper.GetBool("mode.demo") {
 		Fail(c, 0, "演示模式禁止开启两步验证")
 		return
 	}
@@ -269,7 +269,7 @@ func ResetTOTPEndpoint(c *gin.Context)  {
 }
 
 func ChangePasswordEndpoint(c *gin.Context) {
-	if viper.GetBool("demo") {
+	if viper.GetBool("mode.demo") {
 		Fail(c, 0, "演示模式禁止修改密码")
 		return
 	}

@@ -31,7 +31,7 @@ lint:
 default: fmt lint ## fmt code
 
 static: ## 构建ui
-	hack/build/ui.sh
+	hack/build/ui.sh ${RELEASEV}
 
 build: ## 构建二进制
 	@echo "build bin ${RELEASEV}"
@@ -42,8 +42,8 @@ docker: ## 构建镜像
 	docker build -t ${IMAGE}/next-terminal:${BUILD_VERSION} -f hack/docker/next-terminal/Dockerfile .
 	docker tag ${IMAGE}/next-terminal:${BUILD_VERSION} ${IMAGE}/next-terminal
 	docker tag ${IMAGE}/next-terminal:${BUILD_VERSION} ${IMAGE}/next-terminal:${RELEASEV}
-	docker push ${IMAGE}/next-terminal:${BUILD_VERSION}
 	docker push ${IMAGE}/next-terminal
+	docker push ${IMAGE}/next-terminal:${BUILD_VERSION}
 	docker push ${IMAGE}/next-terminal:${RELEASEV}
 	docker run --rm ghcr.io/ysicing/httpie http https://tags.external.ysicing.net/external/api/v1/tags service=next-terminal image=next-terminal tag=${RELEASEV} --ignore-stdin
 

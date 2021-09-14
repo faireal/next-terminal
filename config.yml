@@ -1,15 +1,12 @@
-debug: true
-demo: false
-db: mysql
-mysql:
-  hostname: 192.168.30.4
-  port: 3306
-  username: next-terminal
-  password: nt12345x
-  database: next-terminal
-sqlite:
-  file: 'next-terminal.db'
-server:
-  addr: 0.0.0.0:8080
+mode:
+  debug: true
+  demo: false
 core:
   encryptionkey: ""
+  http: 0.0.0.0:8080
+db:
+  type: mysql
+  dsn: next-terminal:nt12345x@tcp(192.168.30.4:3306)/next-terminal?charset=utf8mb4&parseTime=True&loc=Local
+  metrics:
+    name: nt
+    enable: true
