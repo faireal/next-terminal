@@ -15,5 +15,5 @@ var (
 
 const (
 	// Defaultcfgpath 默认配置文件
-	Defaultcfgpath = "/conf/nt.yaml"
+	Defaultcfgpath = "/conf/nt.yml"
 )

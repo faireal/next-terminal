@@ -29,6 +29,6 @@ COPY --from=builder /app/web/src/fonts/Menlo-Regular-1.ttf /usr/share/fonts/
 COPY hack/docker/next-terminal/run.sh /run.sh
 COPY config.yml /usr/local/next-terminal/config.yml
 
-RUN chmod +x /run.sh && mkdir /conf && ln -s /usr/local/next-terminal/config.yml /conf/config.yaml
+RUN chmod +x /run.sh && mkdir /conf && ln -s /usr/local/next-terminal/config.yml /conf/nt.yml
 
 ENTRYPOINT /run.sh

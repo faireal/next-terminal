@@ -44,7 +44,7 @@ func init()  {
 	}
 	zlog.InitZlog(&cfg)
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&constants.CfgFile, "config", "", "config file (default is $HOME/.ergo/config.yaml)")
+	rootCmd.PersistentFlags().StringVar(&constants.CfgFile, "config", "", "config file (default is /conf/config.yml)")
 }
 
 func initConfig() {

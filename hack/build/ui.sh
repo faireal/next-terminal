@@ -4,7 +4,8 @@ version=${1}
 
 [ -d "web" ] && (
 pushd web
-  sed -nE -i 's/(^\s*"version": ")(.*?)(",$)/\${version}\3/p' package.json
+  cat package.json  | jq '.version="'${version}'"' > package.json.new
+  mv package.json.new package.json
   [ ! -d "node_modules" ] && npm install
   npm run build
 popd
