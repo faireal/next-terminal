@@ -382,6 +382,7 @@ func (r AssetRepository) FindAssetAttrMapByAssetId(assetId string) (map[string]i
 	case "kubernetes":
 		parameterNames = constant.KubernetesParameterNames
 	}
+	// TODO nil panic
 	cfgsMap := configsRepository.FindAllMap()
 	var attributeMap = make(map[string]interface{})
 	for name := range cfgsMap {

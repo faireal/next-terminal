@@ -11,15 +11,15 @@ import (
 )
 
 type MailService struct {
-	propertyRepository *repository.ConfigsRepository
+	configsRepository *repository.ConfigsRepository
 }
 
-func NewMailService(propertyRepository *repository.ConfigsRepository) *MailService {
-	return &MailService{propertyRepository: propertyRepository}
+func NewMailService(configsRepository *repository.ConfigsRepository) *MailService {
+	return &MailService{configsRepository: configsRepository}
 }
 
 func (r MailService) SendMail(to, subject, text string) {
-	cfgsMap := r.propertyRepository.FindAllMap()
+	cfgsMap := r.configsRepository.FindAllMap()
 	host := cfgsMap[constant.MailHost]
 	port := cfgsMap[constant.MailPort]
 	username := cfgsMap[constant.MailUsername]

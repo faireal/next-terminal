@@ -33,7 +33,7 @@ var (
 	resourceSharerRepository *repository.ResourceSharerRepository
 	assetRepository          *repository.AssetRepository
 	credentialRepository     *repository.CredentialRepository
-	propertyRepository       *repository.ConfigsRepository
+	configsRepository       *repository.ConfigsRepository
 	commandRepository        *repository.CommandRepository
 	sessionRepository        *repository.SessionRepository
 	numRepository            *repository.NumRepository
@@ -231,7 +231,7 @@ func InitRepository(db *gorm.DB) {
 	resourceSharerRepository = repository.NewResourceSharerRepository(db)
 	assetRepository = repository.NewAssetRepository(db)
 	credentialRepository = repository.NewCredentialRepository(db)
-	propertyRepository = repository.NewConfigsRepository(db)
+	configsRepository = repository.NewConfigsRepository(db)
 	commandRepository = repository.NewCommandRepository(db)
 	sessionRepository = repository.NewSessionRepository(db)
 	numRepository = repository.NewNumRepository(db)
@@ -243,10 +243,10 @@ func InitRepository(db *gorm.DB) {
 
 func InitService() {
 	jobService = service.NewJobService(jobRepository, jobLogRepository, assetRepository, credentialRepository)
-	propertyService = service.NewConfigsService(propertyRepository)
+	propertyService = service.NewConfigsService(configsRepository)
 	userService = service.NewUserService(userRepository, loginLogRepository)
 	sessionService = service.NewSessionService(sessionRepository)
-	mailService = service.NewMailService(propertyRepository)
+	mailService = service.NewMailService(configsRepository)
 	numService = service.NewNumService(numRepository)
 	assetService = service.NewAssetService(assetRepository, userRepository)
 	credentialService = service.NewCredentialService(credentialRepository)

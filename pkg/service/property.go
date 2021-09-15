@@ -10,22 +10,22 @@ import (
 )
 
 type ConfigsService struct {
-	configRepository *repository.ConfigsRepository
+	configsRepository *repository.ConfigsRepository
 }
 
-func NewConfigsService(propertyRepository *repository.ConfigsRepository) *ConfigsService {
-	return &ConfigsService{configRepository: propertyRepository}
+func NewConfigsService(configsRepository *repository.ConfigsRepository) *ConfigsService {
+	return &ConfigsService{configsRepository: configsRepository}
 }
 
 func (r ConfigsService) InitConfigs() error {
-	propertyMap := r.configRepository.FindAllMap()
+	propertyMap := r.configsRepository.FindAllMap()
 
 	if len(propertyMap[guacd.Host]) == 0 {
 		property := model.Configs{
 			Ckey: guacd.Host,
 			Cval: utils.GetKeyFromYaml("terminal.guacd.host", "127.0.0.1"),
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -35,7 +35,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.Port,
 			Cval: utils.GetKeyFromYaml("terminal.guacd.port", "4822"),
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -45,7 +45,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableRecording,
 			Cval: "true",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -61,7 +61,7 @@ func (r ConfigsService) InitConfigs() error {
 				return err
 			}
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -71,7 +71,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.CreateRecordingPath,
 			Cval: "true",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -81,7 +81,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.DriveName,
 			Cval: "File-System",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -99,7 +99,7 @@ func (r ConfigsService) InitConfigs() error {
 				return err
 			}
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -109,7 +109,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.FontName,
 			Cval: "menlo",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -119,7 +119,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.FontSize,
 			Cval: "12",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -129,7 +129,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.ColorScheme,
 			Cval: "gray-black",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -139,7 +139,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableDrive,
 			Cval: "true",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -149,7 +149,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableWallpaper,
 			Cval: "false",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -159,7 +159,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableTheming,
 			Cval: "false",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -169,7 +169,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableFontSmoothing,
 			Cval: "false",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -179,7 +179,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableFullWindowDrag,
 			Cval: "false",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -189,7 +189,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableDesktopComposition,
 			Cval: "false",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -199,7 +199,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableMenuAnimations,
 			Cval: "false",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -209,7 +209,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.DisableBitmapCaching,
 			Cval: "false",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -219,7 +219,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.DisableOffscreenCaching,
 			Cval: "false",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -229,7 +229,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.DisableGlyphCaching,
 			Cval: "true",
 		}
-		if err := r.configRepository.Create(&property); err != nil {
+		if err := r.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}

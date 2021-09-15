@@ -11,11 +11,11 @@ import (
 
 type Ticker struct {
 	sessionRepository *repository.SessionRepository
-	configRepository  *repository.ConfigsRepository
+	configsRepository  *repository.ConfigsRepository
 }
 
-func NewTicker(sessionRepository *repository.SessionRepository, configRepository *repository.ConfigsRepository) *Ticker {
-	return &Ticker{sessionRepository: sessionRepository, configRepository: configRepository}
+func NewTicker(sessionRepository *repository.SessionRepository, configsRepository *repository.ConfigsRepository) *Ticker {
+	return &Ticker{sessionRepository: sessionRepository, configsRepository: configsRepository}
 }
 
 func (t *Ticker) SetupTicker() {
@@ -42,7 +42,7 @@ func (t *Ticker) SetupTicker() {
 	timeoutSessionTicker := time.NewTicker(time.Hour * 24)
 	go func() {
 		for range timeoutSessionTicker.C {
-			property, err := t.configRepository.FindByName("session-saved-limit")
+			property, err := t.configsRepository.FindByName("session-saved-limit")
 			if err != nil {
 				return
 			}

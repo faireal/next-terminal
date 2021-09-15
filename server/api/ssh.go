@@ -96,7 +96,7 @@ func SSHEndpoint(c *gin.Context) {
 	)
 
 	recording := ""
-	propertyMap := propertyRepository.FindAllMap()
+	propertyMap := configsRepository.FindAllMap()
 	if propertyMap[guacd.EnableRecording] == "true" {
 		recording = path.Join(propertyMap[guacd.RecordingPath], sessionId, "recording.cast")
 	}

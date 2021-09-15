@@ -12,7 +12,7 @@ import (
 )
 
 func PropertyGetEndpoint(c *gin.Context) {
-	properties := propertyRepository.FindAllMap()
+	properties := configsRepository.FindAllMap()
 	Success(c, properties)
 }
 
@@ -31,14 +31,14 @@ func PropertyUpdateEndpoint(c *gin.Context) {
 			Cval: value,
 		}
 
-		_, err := propertyRepository.FindByName(key)
+		_, err := configsRepository.FindByName(key)
 		if err != nil && err == gorm.ErrRecordNotFound {
-			if err := propertyRepository.Create(&property); err != nil {
+			if err := configsRepository.Create(&property); err != nil {
 				errors.Dangerous(err)
 				return
 			}
 		} else {
-			if err := propertyRepository.UpdateByName(&property, key); err != nil {
+			if err := configsRepository.UpdateByName(&property, key); err != nil {
 				errors.Dangerous(err)
 				return
 			}

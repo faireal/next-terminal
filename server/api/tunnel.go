@@ -43,7 +43,7 @@ func TunEndpoint(c *gin.Context) {
 
 	configuration := guacd.NewConfiguration()
 
-	propertyMap := propertyRepository.FindAllMap()
+	propertyMap := configsRepository.FindAllMap()
 
 	var session model.Session
 

@@ -303,7 +303,7 @@ func SessionUploadEndpoint(c *gin.Context) {
 			return
 		}
 
-		drivePath, err := propertyRepository.GetDrivePath()
+		drivePath, err := configsRepository.GetDrivePath()
 		if err != nil {
 			errors.Dangerous(err)
 			return
@@ -368,7 +368,7 @@ func SessionDownloadEndpoint(c *gin.Context) {
 			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
 			return
 		}
-		drivePath, err := propertyRepository.GetDrivePath()
+		drivePath, err := configsRepository.GetDrivePath()
 		if err != nil {
 			errors.Dangerous(err)
 			return
@@ -459,7 +459,7 @@ func SessionLsEndpoint(c *gin.Context) {
 			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
 			return
 		}
-		drivePath, err := propertyRepository.GetDrivePath()
+		drivePath, err := configsRepository.GetDrivePath()
 		if err != nil {
 			errors.Dangerous(err)
 			return
@@ -529,7 +529,7 @@ func SessionMkDirEndpoint(c *gin.Context) {
 			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
 			return
 		}
-		drivePath, err := propertyRepository.GetDrivePath()
+		drivePath, err := configsRepository.GetDrivePath()
 		if err != nil {
 			errors.Dangerous(err)
 			return
@@ -602,7 +602,7 @@ func SessionRmEndpoint(c *gin.Context) {
 			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
 			return
 		}
-		drivePath, err := propertyRepository.GetDrivePath()
+		drivePath, err := configsRepository.GetDrivePath()
 		if err != nil {
 			errors.Dangerous(err)
 			return
@@ -651,7 +651,7 @@ func SessionRenameEndpoint(c *gin.Context) {
 			Fail(c, -1, ":) 您的IP已被记录，请去向管理员自首。")
 			return
 		}
-		drivePath, err := propertyRepository.GetDrivePath()
+		drivePath, err := configsRepository.GetDrivePath()
 		if err != nil {
 			errors.Dangerous(err)
 			return
