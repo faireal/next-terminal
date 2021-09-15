@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	MIMEOctetStream                      = "application/octet-stream"
+	MIMEOctetStream = "application/octet-stream"
 )
 
 func SessionPagingEndpoint(c *gin.Context) {
@@ -151,7 +151,7 @@ func CloseSessionById(sessionId string, code int, reason string) {
 	_ = sessionRepository.UpdateById(&session, sessionId)
 }
 
-func SessionResizeEndpoint(c *gin.Context)  {
+func SessionResizeEndpoint(c *gin.Context) {
 	width := c.Query("width")
 	height := c.Query("height")
 	sessionId := c.Param("id")
@@ -241,7 +241,7 @@ func SessionCreateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c,  map[string]interface{}{"id": session.ID})
+	Success(c, map[string]interface{}{"id": session.ID})
 }
 
 func SessionUploadEndpoint(c *gin.Context) {

@@ -11,19 +11,19 @@ import (
 )
 
 type MailService struct {
-	propertyRepository *repository.PropertyRepository
+	propertyRepository *repository.ConfigsRepository
 }
 
-func NewMailService(propertyRepository *repository.PropertyRepository) *MailService {
+func NewMailService(propertyRepository *repository.ConfigsRepository) *MailService {
 	return &MailService{propertyRepository: propertyRepository}
 }
 
 func (r MailService) SendMail(to, subject, text string) {
-	propertiesMap := r.propertyRepository.FindAllMap()
-	host := propertiesMap[constant.MailHost]
-	port := propertiesMap[constant.MailPort]
-	username := propertiesMap[constant.MailUsername]
-	password := propertiesMap[constant.MailPassword]
+	cfgsMap := r.propertyRepository.FindAllMap()
+	host := cfgsMap[constant.MailHost]
+	port := cfgsMap[constant.MailPort]
+	username := cfgsMap[constant.MailUsername]
+	password := cfgsMap[constant.MailPassword]
 
 	if host == "" || port == "" || username == "" || password == "" {
 		zlog.Debug("邮箱信息不完整，跳过发送邮件。")

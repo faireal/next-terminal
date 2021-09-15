@@ -10,12 +10,12 @@ import (
 )
 
 type Ticker struct {
-	sessionRepository  *repository.SessionRepository
-	propertyRepository *repository.PropertyRepository
+	sessionRepository *repository.SessionRepository
+	configRepository  *repository.ConfigsRepository
 }
 
-func NewTicker(sessionRepository *repository.SessionRepository, propertyRepository *repository.PropertyRepository) *Ticker {
-	return &Ticker{sessionRepository: sessionRepository, propertyRepository: propertyRepository}
+func NewTicker(sessionRepository *repository.SessionRepository, configRepository *repository.ConfigsRepository) *Ticker {
+	return &Ticker{sessionRepository: sessionRepository, configRepository: configRepository}
 }
 
 func (t *Ticker) SetupTicker() {
@@ -42,14 +42,14 @@ func (t *Ticker) SetupTicker() {
 	timeoutSessionTicker := time.NewTicker(time.Hour * 24)
 	go func() {
 		for range timeoutSessionTicker.C {
-			property, err := t.propertyRepository.FindByName("session-saved-limit")
+			property, err := t.configRepository.FindByName("session-saved-limit")
 			if err != nil {
 				return
 			}
-			if property.Value == "" || property.Value == "-" {
+			if property.Cval == "" || property.Cval == "-" {
 				return
 			}
-			limit, err := strconv.Atoi(property.Value)
+			limit, err := strconv.Atoi(property.Cval)
 			if err != nil {
 				return
 			}

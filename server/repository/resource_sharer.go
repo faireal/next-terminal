@@ -121,7 +121,7 @@ func (r *ResourceSharerRepository) AddSharerResources(userGroupId, userId, resou
 			case "command":
 				resource := model.Command{}
 				if err = tx.Where("id = ?", resourceId).First(&resource).Error; err != nil {
-					return fmt.Errorf("find command fail err: %v",err)
+					return fmt.Errorf("find command fail err: %v", err)
 				}
 				owner = resource.Owner
 			case "credential":

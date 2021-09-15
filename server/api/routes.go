@@ -33,7 +33,7 @@ var (
 	resourceSharerRepository *repository.ResourceSharerRepository
 	assetRepository          *repository.AssetRepository
 	credentialRepository     *repository.CredentialRepository
-	propertyRepository       *repository.PropertyRepository
+	propertyRepository       *repository.ConfigsRepository
 	commandRepository        *repository.CommandRepository
 	sessionRepository        *repository.SessionRepository
 	numRepository            *repository.NumRepository
@@ -43,7 +43,7 @@ var (
 	loginLogRepository       *repository.LoginLogRepository
 
 	jobService        *service.JobService
-	propertyService   *service.PropertyService
+	propertyService   *service.ConfigsService
 	userService       *service.UserService
 	sessionService    *service.SessionService
 	mailService       *service.MailService
@@ -99,7 +99,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		users.POST("", UserCreateEndpoint, Admin())
 		users.GET("/paging", UserPagingEndpoint)
 		users.PUT("/:id", UserUpdateEndpoint, Admin())
-		users.DELETE("/:id", UserDeleteEndpoint,Admin())
+		users.DELETE("/:id", UserDeleteEndpoint, Admin())
 		users.GET("/:id", UserGetEndpoint, Admin())
 		users.POST("/:id/change-password", UserChangePasswordEndpoint, Admin())
 		users.POST("/:id/reset-totp", UserResetTotpEndpoint, Admin())
@@ -138,7 +138,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		commands.PUT("/:id", CommandUpdateEndpoint)
 		commands.DELETE("/:id", CommandDeleteEndpoint)
 		commands.GET("/:id", CommandGetEndpoint)
-		commands.POST("/:id/change-owner", CommandChangeOwnerEndpoint,Admin())
+		commands.POST("/:id/change-owner", CommandChangeOwnerEndpoint, Admin())
 	}
 
 	credentials := e.Group("/credentials")
@@ -149,15 +149,15 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		credentials.PUT("/:id", CredentialUpdateEndpoint)
 		credentials.DELETE("/:id", CredentialDeleteEndpoint)
 		credentials.GET("/:id", CredentialGetEndpoint)
-		credentials.POST("/:id/change-owner", CredentialChangeOwnerEndpoint,Admin())
+		credentials.POST("/:id/change-owner", CredentialChangeOwnerEndpoint, Admin())
 	}
 
 	sessions := e.Group("/sessions")
 	{
 		sessions.POST("", SessionCreateEndpoint)
-		sessions.GET("/paging", SessionPagingEndpoint,Admin())
+		sessions.GET("/paging", SessionPagingEndpoint, Admin())
 		sessions.POST("/:id/connect", SessionConnectEndpoint)
-		sessions.POST("/:id/disconnect", SessionDisconnectEndpoint,Admin())
+		sessions.POST("/:id/disconnect", SessionDisconnectEndpoint, Admin())
 		sessions.POST("/:id/resize", SessionResizeEndpoint)
 		sessions.GET("/:id/ls", SessionLsEndpoint)
 		sessions.GET("/:id/download", SessionDownloadEndpoint)
@@ -165,7 +165,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		sessions.POST("/:id/mkdir", SessionMkDirEndpoint)
 		sessions.POST("/:id/rm", SessionRmEndpoint)
 		sessions.POST("/:id/rename", SessionRenameEndpoint)
-		sessions.DELETE("/:id", SessionDeleteEndpoint,Admin())
+		sessions.DELETE("/:id", SessionDeleteEndpoint, Admin())
 		sessions.GET("/:id/recording", SessionRecordingEndpoint)
 	}
 
@@ -174,7 +174,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		resourceSharers.GET("/sharers", RSGetSharersEndPoint)
 		resourceSharers.POST("/overwrite-sharers", RSOverwriteSharersEndPoint)
 		resourceSharers.POST("/remove-resources", ResourceRemoveByUserIdAssignEndPoint, Admin())
-		resourceSharers.POST("/add-resources", ResourceAddByUserIdAssignEndPoint,Admin())
+		resourceSharers.POST("/add-resources", ResourceAddByUserIdAssignEndPoint, Admin())
 	}
 
 	loginLogs := e.Group("login-logs", Admin())
@@ -183,7 +183,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		loginLogs.DELETE("/:id", LoginLogDeleteEndpoint)
 	}
 
-	e.GET("/properties", PropertyGetEndpoint,Admin())
+	e.GET("/properties", PropertyGetEndpoint, Admin())
 	e.PUT("/properties", PropertyUpdateEndpoint, Admin())
 
 	e.GET("/overview/counter", OverviewCounterEndPoint)
@@ -231,7 +231,7 @@ func InitRepository(db *gorm.DB) {
 	resourceSharerRepository = repository.NewResourceSharerRepository(db)
 	assetRepository = repository.NewAssetRepository(db)
 	credentialRepository = repository.NewCredentialRepository(db)
-	propertyRepository = repository.NewPropertyRepository(db)
+	propertyRepository = repository.NewConfigsRepository(db)
 	commandRepository = repository.NewCommandRepository(db)
 	sessionRepository = repository.NewSessionRepository(db)
 	numRepository = repository.NewNumRepository(db)
@@ -243,7 +243,7 @@ func InitRepository(db *gorm.DB) {
 
 func InitService() {
 	jobService = service.NewJobService(jobRepository, jobLogRepository, assetRepository, credentialRepository)
-	propertyService = service.NewPropertyService(propertyRepository)
+	propertyService = service.NewConfigsService(propertyRepository)
 	userService = service.NewUserService(userRepository, loginLogRepository)
 	sessionService = service.NewSessionService(sessionRepository)
 	mailService = service.NewMailService(propertyRepository)
@@ -253,7 +253,7 @@ func InitService() {
 }
 
 func InitDBData() (err error) {
-	if err := propertyService.InitProperties(); err != nil {
+	if err := propertyService.InitConfigs(); err != nil {
 		return err
 	}
 	if err := numService.InitNums(); err != nil {
@@ -387,7 +387,7 @@ func SetupDB() *gorm.DB {
 		dblog := glog.New(zlog.Zlog, viper.GetBool("mode.debug"))
 
 		db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
-			Logger: dblog,
+			Logger:         dblog,
 			NamingStrategy: schema.NamingStrategy{SingularTable: true},
 		})
 	}
@@ -412,7 +412,7 @@ func SetupDB() *gorm.DB {
 	}
 
 	if err := db.AutoMigrate(&model.User{}, &model.Asset{}, &model.AssetAttribute{}, &model.Session{}, &model.Command{},
-		&model.Credential{}, &model.Property{}, &model.ResourceSharer{}, &model.UserGroup{}, &model.UserGroupMember{},
+		&model.Credential{}, &model.Configs{}, &model.ResourceSharer{}, &model.UserGroup{}, &model.UserGroupMember{},
 		&model.LoginLog{}, &model.Num{}, &model.Job{}, &model.JobLog{}, &model.AccessSecurity{}); err != nil {
 		zlog.Panic("初始化数据库表结构异常")
 	}

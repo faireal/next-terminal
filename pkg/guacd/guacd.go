@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	Host                = "host"
-	Port                = "port"
+	Host                = "guacd-host"
+	Port                = "guacd-port"
 	EnableRecording     = "enable-recording"
 	RecordingPath       = "recording-path"
 	CreateRecordingPath = "create-recording-path"

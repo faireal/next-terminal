@@ -124,7 +124,7 @@ func AssetImportEndpoint(c *gin.Context) {
 		}
 	}
 
-	Success(c,  map[string]interface{}{
+	Success(c, map[string]interface{}{
 		"successCount": successCount,
 		"errorCount":   errorCount,
 		"data":         m,
@@ -172,7 +172,7 @@ func AssetUpdateEndpoint(c *gin.Context) {
 		return
 	}
 
-	m :=  map[string]interface{}{}
+	m := map[string]interface{}{}
 	exgin.Bind(c, &m)
 
 	data, _ := json.Marshal(m)

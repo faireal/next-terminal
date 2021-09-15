@@ -381,11 +381,11 @@ func (r AssetRepository) FindAssetAttrMapByAssetId(assetId string) (map[string]i
 	case "kubernetes":
 		parameterNames = constant.KubernetesParameterNames
 	}
-	propertiesMap := propertyRepository.FindAllMap()
+	cfgsMap := configsRepository.FindAllMap()
 	var attributeMap = make(map[string]interface{})
-	for name := range propertiesMap {
+	for name := range cfgsMap {
 		if utils.Contains(parameterNames, name) {
-			attributeMap[name] = propertiesMap[name]
+			attributeMap[name] = cfgsMap[name]
 		}
 	}
 

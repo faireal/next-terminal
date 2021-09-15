@@ -30,3 +30,5 @@ playground/recording
 
 /log
 dist
+*.slowsql.txt
+*.dbnotfound.txt

@@ -1,6 +1,10 @@
 mode:
   debug: true
-  demo: false
+  demo: true
+terminal:
+  guacd:
+    host: 192.168.30.4
+    port: 4822
 core:
   encryptionkey: ""
   http: 0.0.0.0:8080

@@ -6,7 +6,7 @@ var (
 	resourceSharerRepository *ResourceSharerRepository
 	assetRepository          *AssetRepository
 	credentialRepository     *CredentialRepository
-	propertyRepository       *PropertyRepository
+	configsRepository        *ConfigsRepository
 	commandRepository        *CommandRepository
 	sessionRepository        *SessionRepository
 	numRepository            *NumRepository

@@ -14,7 +14,7 @@ import (
 
 func newweb() *cobra.Command {
 	reset := &cobra.Command{
-		Use: "web",
+		Use:   "web",
 		Short: "",
 		Run: func(cmd *cobra.Command, args []string) {
 			global.Cache = api.SetupCache()
@@ -22,8 +22,8 @@ func newweb() *cobra.Command {
 			e := api.SetupRoutes(db)
 
 			sessionRepo := repository.NewSessionRepository(db)
-			propertyRepo := repository.NewPropertyRepository(db)
-			ticker := task.NewTicker(sessionRepo, propertyRepo)
+			configRepo := repository.NewConfigsRepository(db)
+			ticker := task.NewTicker(sessionRepo, configRepo)
 			ticker.SetupTicker()
 			addr := viper.GetString("core.http")
 			e.Run(addr)
@@ -32,6 +32,6 @@ func newweb() *cobra.Command {
 	return reset
 }
 
-func init()  {
+func init() {
 	rootCmd.AddCommand(newweb())
 }

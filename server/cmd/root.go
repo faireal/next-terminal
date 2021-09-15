@@ -18,9 +18,9 @@ var Version = "v0.5.0"
 
 var (
 	rootCmd = &cobra.Command{
-		Use:        "nt",
-		Short:      "",
-		Long:       ``,
+		Use:   "nt",
+		Short: "",
+		Long:  ``,
 		PreRun: func(cmd *cobra.Command, args []string) {
 			fmt.Printf(`
  _______                   __    ___________                  .__              .__   
@@ -33,13 +33,12 @@ var (
 	}
 )
 
-func init()  {
+func init() {
 	cfg := zlog.Config{
 		Simple:      false,
 		HookFunc:    nil,
-		WriteLog:    false,
+		WriteLog:    true,
 		WriteJSON:   false,
-		WriteConfig: zlog.WriteConfig{},
 		ServiceName: "nt",
 	}
 	zlog.InitZlog(&cfg)

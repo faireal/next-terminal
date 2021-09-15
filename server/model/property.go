@@ -1,10 +1,11 @@
 package model
 
-type Property struct {
-	Name  string `gorm:"primary_key" json:"name"`
-	Value string `json:"value"`
+// Configs 配置
+type Configs struct {
+	Ckey string `json:"ckey"`
+	Cval string `json:"cval"`
 }
 
-func (r *Property) TableName() string {
-	return "properties"
+func (c *Configs) TableName() string {
+	return "configs"
 }

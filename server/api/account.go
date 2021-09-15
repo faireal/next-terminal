@@ -255,7 +255,7 @@ func ReloadTOTPEndpoint(c *gin.Context) {
 	})
 }
 
-func ResetTOTPEndpoint(c *gin.Context)  {
+func ResetTOTPEndpoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 	u := &model.User{
 		TOTPSecret: "-",

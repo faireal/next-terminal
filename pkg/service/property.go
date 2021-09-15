@@ -9,79 +9,79 @@ import (
 	"next-terminal/server/utils"
 )
 
-type PropertyService struct {
-	propertyRepository *repository.PropertyRepository
+type ConfigsService struct {
+	configRepository *repository.ConfigsRepository
 }
 
-func NewPropertyService(propertyRepository *repository.PropertyRepository) *PropertyService {
-	return &PropertyService{propertyRepository: propertyRepository}
+func NewConfigsService(propertyRepository *repository.ConfigsRepository) *ConfigsService {
+	return &ConfigsService{configRepository: propertyRepository}
 }
 
-func (r PropertyService) InitProperties() error {
-	propertyMap := r.propertyRepository.FindAllMap()
+func (r ConfigsService) InitConfigs() error {
+	propertyMap := r.configRepository.FindAllMap()
 
 	if len(propertyMap[guacd.Host]) == 0 {
-		property := model.Property{
-			Name:  guacd.Host,
-			Value: "127.0.0.1",
+		property := model.Configs{
+			Ckey: guacd.Host,
+			Cval: utils.GetKeyFromYaml("terminal.guacd.host", "127.0.0.1"),
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.Port]) == 0 {
-		property := model.Property{
-			Name:  guacd.Port,
-			Value: "4822",
+		property := model.Configs{
+			Ckey: guacd.Port,
+			Cval: utils.GetKeyFromYaml("terminal.guacd.port", "4822"),
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.EnableRecording]) == 0 {
-		property := model.Property{
-			Name:  guacd.EnableRecording,
-			Value: "true",
+		property := model.Configs{
+			Ckey: guacd.EnableRecording,
+			Cval: "true",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.RecordingPath]) == 0 {
 		path, _ := os.Getwd()
-		property := model.Property{
-			Name:  guacd.RecordingPath,
-			Value: path + "/recording/",
+		property := model.Configs{
+			Ckey: guacd.RecordingPath,
+			Cval: path + "/recording/",
 		}
-		if !utils.FileExists(property.Value) {
-			if err := os.Mkdir(property.Value, os.ModePerm); err != nil {
+		if !utils.FileExists(property.Cval) {
+			if err := os.Mkdir(property.Cval, os.ModePerm); err != nil {
 				return err
 			}
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.CreateRecordingPath]) == 0 {
-		property := model.Property{
-			Name:  guacd.CreateRecordingPath,
-			Value: "true",
+		property := model.Configs{
+			Ckey: guacd.CreateRecordingPath,
+			Cval: "true",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.DriveName]) == 0 {
-		property := model.Property{
-			Name:  guacd.DriveName,
-			Value: "File-System",
+		property := model.Configs{
+			Ckey: guacd.DriveName,
+			Cval: "File-System",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -90,146 +90,146 @@ func (r PropertyService) InitProperties() error {
 
 		path, _ := os.Getwd()
 
-		property := model.Property{
-			Name:  guacd.DrivePath,
-			Value: path + "/drive/",
+		property := model.Configs{
+			Ckey: guacd.DrivePath,
+			Cval: path + "/drive/",
 		}
-		if !utils.FileExists(property.Value) {
-			if err := os.Mkdir(property.Value, os.ModePerm); err != nil {
+		if !utils.FileExists(property.Cval) {
+			if err := os.Mkdir(property.Cval, os.ModePerm); err != nil {
 				return err
 			}
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.FontName]) == 0 {
-		property := model.Property{
-			Name:  guacd.FontName,
-			Value: "menlo",
+		property := model.Configs{
+			Ckey: guacd.FontName,
+			Cval: "menlo",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.FontSize]) == 0 {
-		property := model.Property{
-			Name:  guacd.FontSize,
-			Value: "12",
+		property := model.Configs{
+			Ckey: guacd.FontSize,
+			Cval: "12",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.ColorScheme]) == 0 {
-		property := model.Property{
-			Name:  guacd.ColorScheme,
-			Value: "gray-black",
+		property := model.Configs{
+			Ckey: guacd.ColorScheme,
+			Cval: "gray-black",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.EnableDrive]) == 0 {
-		property := model.Property{
-			Name:  guacd.EnableDrive,
-			Value: "true",
+		property := model.Configs{
+			Ckey: guacd.EnableDrive,
+			Cval: "true",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.EnableWallpaper]) == 0 {
-		property := model.Property{
-			Name:  guacd.EnableWallpaper,
-			Value: "false",
+		property := model.Configs{
+			Ckey: guacd.EnableWallpaper,
+			Cval: "false",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.EnableTheming]) == 0 {
-		property := model.Property{
-			Name:  guacd.EnableTheming,
-			Value: "false",
+		property := model.Configs{
+			Ckey: guacd.EnableTheming,
+			Cval: "false",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.EnableFontSmoothing]) == 0 {
-		property := model.Property{
-			Name:  guacd.EnableFontSmoothing,
-			Value: "false",
+		property := model.Configs{
+			Ckey: guacd.EnableFontSmoothing,
+			Cval: "false",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.EnableFullWindowDrag]) == 0 {
-		property := model.Property{
-			Name:  guacd.EnableFullWindowDrag,
-			Value: "false",
+		property := model.Configs{
+			Ckey: guacd.EnableFullWindowDrag,
+			Cval: "false",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.EnableDesktopComposition]) == 0 {
-		property := model.Property{
-			Name:  guacd.EnableDesktopComposition,
-			Value: "false",
+		property := model.Configs{
+			Ckey: guacd.EnableDesktopComposition,
+			Cval: "false",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.EnableMenuAnimations]) == 0 {
-		property := model.Property{
-			Name:  guacd.EnableMenuAnimations,
-			Value: "false",
+		property := model.Configs{
+			Ckey: guacd.EnableMenuAnimations,
+			Cval: "false",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.DisableBitmapCaching]) == 0 {
-		property := model.Property{
-			Name:  guacd.DisableBitmapCaching,
-			Value: "false",
+		property := model.Configs{
+			Ckey: guacd.DisableBitmapCaching,
+			Cval: "false",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.DisableOffscreenCaching]) == 0 {
-		property := model.Property{
-			Name:  guacd.DisableOffscreenCaching,
-			Value: "false",
+		property := model.Configs{
+			Ckey: guacd.DisableOffscreenCaching,
+			Cval: "false",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}
 
 	if len(propertyMap[guacd.DisableGlyphCaching]) == 0 {
-		property := model.Property{
-			Name:  guacd.DisableGlyphCaching,
-			Value: "true",
+		property := model.Configs{
+			Ckey: guacd.DisableGlyphCaching,
+			Cval: "true",
 		}
-		if err := r.propertyRepository.Create(&property); err != nil {
+		if err := r.configRepository.Create(&property); err != nil {
 			return err
 		}
 	}

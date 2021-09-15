@@ -163,7 +163,7 @@ func (r SessionRepository) DeleteById(id string) error {
 }
 
 func (r SessionRepository) DeleteByIds(sessionIds []string) error {
-	drivePath, err := propertyRepository.GetRecordingPath()
+	drivePath, err := configsRepository.GetRecordingPath()
 	if err != nil {
 		return err
 	}

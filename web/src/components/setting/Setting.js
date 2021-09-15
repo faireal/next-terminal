@@ -456,7 +456,7 @@ class Setting extends Component {
                                   layout="vertical">
                                 <Form.Item
                                     {...formItemLayout}
-                                    name="host"
+                                    name="guacd-host"
                                     label="Guacd监听地址"
                                     rules={[
                                         {
@@ -470,13 +470,13 @@ class Setting extends Component {
 
                                 <Form.Item
                                     {...formItemLayout}
-                                    name="port"
+                                    name="goacd-port"
                                     label="Guacd监听端口"
                                     rules={[
                                         {
                                             required: true,
                                             message: 'Guacd监听端口',
-                                            min: 1,
+                                            min: 1024,
                                             max: 65535
                                         },
                                     ]}

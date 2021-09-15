@@ -5,13 +5,13 @@ import (
 	"github.com/ergoapi/exgin"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 	"strconv"
 	"strings"
 
 	"next-terminal/pkg/global"
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
-
 )
 
 func UserCreateEndpoint(c *gin.Context) {
@@ -131,6 +131,10 @@ func UserGetEndpoint(c *gin.Context) {
 }
 
 func UserChangePasswordEndpoint(c *gin.Context) {
+	if viper.GetBool("mode.demo") {
+		Fail(c, 0, "演示模式禁止修改密码")
+		return
+	}
 	id := c.Param("id")
 	password := c.Query("password")
 
@@ -162,6 +166,10 @@ func UserChangePasswordEndpoint(c *gin.Context) {
 }
 
 func UserResetTotpEndpoint(c *gin.Context) {
+	if viper.GetBool("mode.demo") {
+		Fail(c, 0, "演示模式禁止启用totp")
+		return
+	}
 	id := c.Param("id")
 	u := &model.User{
 		TOTPSecret: "-",

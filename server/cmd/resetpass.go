@@ -10,7 +10,7 @@ import (
 
 func newResetPass() *cobra.Command {
 	reset := &cobra.Command{
-		Use: "reset-pass",
+		Use:   "reset-pass",
 		Short: "",
 		Run: func(cmd *cobra.Command, args []string) {
 			api.ResetPassword(username)
@@ -20,6 +20,6 @@ func newResetPass() *cobra.Command {
 	return reset
 }
 
-func init()  {
+func init() {
 	rootCmd.AddCommand(newResetPass())
 }

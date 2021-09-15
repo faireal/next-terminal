@@ -13,7 +13,7 @@ var encryptionKey string
 
 func newResetEncryptionKey() *cobra.Command {
 	reset := &cobra.Command{
-		Use: "reset-key",
+		Use:   "reset-key",
 		Short: "重制加密的key",
 		Run: func(cmd *cobra.Command, args []string) {
 			api.ChangeEncryptionKey(utils.GetEncryptionKey(), encryptionKey)
@@ -23,6 +23,6 @@ func newResetEncryptionKey() *cobra.Command {
 	return reset
 }
 
-func init()  {
+func init() {
 	rootCmd.AddCommand(newResetEncryptionKey())
 }

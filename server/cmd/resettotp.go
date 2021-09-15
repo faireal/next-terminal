@@ -14,7 +14,7 @@ var (
 
 func newResetTotp() *cobra.Command {
 	reset := &cobra.Command{
-		Use: "reset-totp",
+		Use:   "reset-totp",
 		Short: "",
 		Run: func(cmd *cobra.Command, args []string) {
 			api.ResetTotp(username)
@@ -24,6 +24,6 @@ func newResetTotp() *cobra.Command {
 	return reset
 }
 
-func init()  {
+func init() {
 	rootCmd.AddCommand(newResetTotp())
 }

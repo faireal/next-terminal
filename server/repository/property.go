@@ -7,58 +7,57 @@ import (
 	"gorm.io/gorm"
 )
 
-type PropertyRepository struct {
+type ConfigsRepository struct {
 	DB *gorm.DB
 }
 
-func NewPropertyRepository(db *gorm.DB) *PropertyRepository {
-	propertyRepository = &PropertyRepository{DB: db}
-	return propertyRepository
+func NewConfigsRepository(db *gorm.DB) *ConfigsRepository {
+	return &ConfigsRepository{DB: db}
 }
 
-func (r PropertyRepository) FindAll() (o []model.Property) {
+func (r ConfigsRepository) FindAll() (o []model.Configs) {
 	if r.DB.Find(&o).Error != nil {
 		return nil
 	}
 	return
 }
 
-func (r PropertyRepository) Create(o *model.Property) (err error) {
+func (r ConfigsRepository) Create(o *model.Configs) (err error) {
 	err = r.DB.Create(o).Error
 	return
 }
 
-func (r PropertyRepository) UpdateByName(o *model.Property, name string) error {
-	o.Name = name
+func (r ConfigsRepository) UpdateByName(o *model.Configs, ckey string) error {
+	o.Ckey = ckey
 	return r.DB.Updates(o).Error
 }
 
-func (r PropertyRepository) FindByName(name string) (o model.Property, err error) {
-	err = r.DB.Where("name = ?", name).First(&o).Error
+func (r ConfigsRepository) FindByName(ckey string) (o model.Configs, err error) {
+	err = r.DB.Where("ckey = ?", ckey).First(&o).Error
 	return
 }
 
-func (r PropertyRepository) FindAllMap() map[string]string {
-	properties := r.FindAll()
-	propertyMap := make(map[string]string)
-	for i := range properties {
-		propertyMap[properties[i].Name] = properties[i].Value
+func (r ConfigsRepository) FindAllMap() map[string]string {
+	cfgs := r.FindAll()
+	cfgMap := make(map[string]string)
+	for i := range cfgs {
+		cfgMap[cfgs[i].Ckey] = cfgs[i].Cval
 	}
-	return propertyMap
+	return cfgMap
 }
 
-func (r PropertyRepository) GetDrivePath() (string, error) {
-	property, err := r.FindByName(guacd.DrivePath)
+func (r ConfigsRepository) GetDrivePath() (string, error) {
+	cfg, err := r.FindByName(guacd.DrivePath)
 	if err != nil {
 		return "", err
 	}
-	return property.Value, nil
+	return cfg.Cval, nil
 }
 
-func (r PropertyRepository) GetRecordingPath() (string, error) {
-	property, err := r.FindByName(guacd.RecordingPath)
+func (r ConfigsRepository) GetRecordingPath() (string, error) {
+	cfg, err := r.FindByName(guacd.RecordingPath)
 	if err != nil {
 		return "", err
 	}
-	return property.Value, nil
+	return cfg.Cval, nil
 }

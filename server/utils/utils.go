@@ -298,3 +298,11 @@ func Encryption() []byte {
 	md5Sum := fmt.Sprintf("%x", md5.Sum([]byte(key)))
 	return []byte(md5Sum)
 }
+
+func GetKeyFromYaml(key, defaultvalue string) string {
+	getkey := viper.GetString(key)
+	if len(getkey) == 0 {
+		return defaultvalue
+	}
+	return getkey
+}

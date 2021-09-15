@@ -26,9 +26,9 @@ func PropertyUpdateEndpoint(c *gin.Context) {
 			value = "-"
 		}
 
-		property := model.Property{
-			Name:  key,
-			Value: value,
+		property := model.Configs{
+			Ckey: key,
+			Cval: value,
 		}
 
 		_, err := propertyRepository.FindByName(key)

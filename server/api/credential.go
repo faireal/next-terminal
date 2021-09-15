@@ -19,7 +19,7 @@ func CredentialAllEndpoint(c *gin.Context) {
 	items, _ := credentialRepository.FindByUser(account)
 	Success(c, items)
 }
-func CredentialCreateEndpoint(c *gin.Context)  {
+func CredentialCreateEndpoint(c *gin.Context) {
 	var item model.Credential
 	exgin.Bind(c, &item)
 
@@ -63,7 +63,7 @@ func CredentialCreateEndpoint(c *gin.Context)  {
 	Success(c, item)
 }
 
-func CredentialPagingEndpoint(c *gin.Context)  {
+func CredentialPagingEndpoint(c *gin.Context) {
 	pageIndex, _ := strconv.Atoi(c.Query("pageIndex"))
 	pageSize, _ := strconv.Atoi(c.Query("pageSize"))
 	name := c.Query("name")
@@ -154,7 +154,7 @@ func CredentialUpdateEndpoint(c *gin.Context) {
 	Success(c, nil)
 }
 
-func CredentialDeleteEndpoint(c *gin.Context)  {
+func CredentialDeleteEndpoint(c *gin.Context) {
 	id := c.Param("id")
 	split := strings.Split(id, ",")
 	for i := range split {

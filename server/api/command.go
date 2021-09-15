@@ -10,7 +10,6 @@ import (
 
 	"next-terminal/server/model"
 	"next-terminal/server/utils"
-
 )
 
 func CommandCreateEndpoint(c *gin.Context) {
