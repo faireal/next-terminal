@@ -3,6 +3,7 @@ package repository
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/ergoapi/zlog"
 	"github.com/spf13/viper"
 	"strings"
 
@@ -396,6 +397,12 @@ func (r AssetRepository) FindAssetAttrMapByAssetId(assetId string) (map[string]i
 }
 
 func (r AssetRepository) InitAsset(item *model.Asset, m map[string]interface{}) error {
+	// 已存在资产跳过
+	exist, _ := r.AssetGet("ip = ?", item.IP)
+	if exist != nil {
+		zlog.Info("已存在资产 %v 忽略", item.IP)
+		return nil
+	}
 	if err := r.Create(item); err != nil {
 		return err
 	}
@@ -410,4 +417,13 @@ func (r AssetRepository) InitAsset(item *model.Asset, m map[string]interface{}) 
 		_ = r.UpdateActiveById(active, item.ID)
 	}()
 	return nil
+}
+
+func (r AssetRepository) AssetGet(where string, args ...interface{}) (*model.Asset, error) {
+	var u model.Asset
+	err := r.DB.Model(model.Asset{}).Where(where, args...).Last(&u).Error
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
 }

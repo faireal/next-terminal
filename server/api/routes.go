@@ -281,7 +281,6 @@ func InitDBData() (err error) {
 		return err
 	}
 	if viper.GetBool("mode.demo") {
-
 		return assetService.InitDemoVM()
 	}
 	return nil
