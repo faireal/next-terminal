@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debian
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: debian
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: debian
+    spec:
+      containers:
+        - name: debian
+          image: takeyamajp/debian-sshd
+          imagePullPolicy: Always
+          env:
+            - name: "ROOT_PASSWORD"
+              value: "next-terminal"
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 10Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debian
+spec:
+  selector:
+    app: debian
+  type: ClusterIP
+  ports:
+    - name: http-22
+      protocol: TCP
+      port: 22
+      targetPort: 22

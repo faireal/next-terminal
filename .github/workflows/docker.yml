@@ -26,3 +26,15 @@ jobs:
       - name: Build docker
         run: |
           make docker
+      - name: Login
+        uses: okteto/login@latest
+        with:
+          token: ${{ secrets.OKTETO_TOKEN }}
+      - name: "Activate Namespace"
+        uses: okteto/namespace@latest
+        with:
+          name: ${{ github.actor }}
+      - name: "Trigger the pipeline"
+        uses: okteto/pipeline@latest
+        with:
+          name: next-terminal

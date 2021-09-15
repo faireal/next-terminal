@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: centos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: centos
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: centos
+    spec:
+      containers:
+        - name: centos
+          image: jdeathe/centos-ssh:2.6.1
+          imagePullPolicy: Always
+          env:
+            - name: "SSH_USER"
+              value: "next-terminal"
+            - name: "SSH_PASSWORD_AUTHENTICATION"
+              value: "true"
+            - name: "SSH_USER_PASSWORD"
+              value: "next-terminal"
+          resources:
+            limits:
+              cpu: 250m
+              memory: 512Mi
+            requests:
+              cpu: 10m
+              memory: 125Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: centos
+spec:
+  selector:
+    app: centos
+  type: ClusterIP
+  ports:
+    - name: http-22
+      protocol: TCP
+      port: 22
+      targetPort: 22

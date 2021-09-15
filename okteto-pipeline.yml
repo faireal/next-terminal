@@ -1,6 +1,10 @@
 deploy:
   - kubectl apply -f hack/k8s/guacd.yaml -n ysicing
   - kubectl apply -f hack/k8s/nt.yaml -n ysicing
+  - kubectl apply -f hack/k8s/debian.yaml -n ysicing
+  - kubectl apply -f hack/k8s/centos.yaml -n ysicing
 devs:
   - hack/k8s/guacd.yaml
   - hack/k8s/nt.yaml
+  - hack/k8s/debian.yaml
+  - hack/k8s/centos.yaml
