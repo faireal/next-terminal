@@ -470,7 +470,7 @@ class Setting extends Component {
 
                                 <Form.Item
                                     {...formItemLayout}
-                                    name="goacd-port"
+                                    name="guacd-port"
                                     label="Guacd监听端口"
                                     rules={[
                                         {

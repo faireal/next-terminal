@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guacd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: guacd
+  strategy:
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: guacd
+    spec:
+      containers:
+        - name: guacd
+          image: ghcr.io/ysicing/guacd
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 250m
+              memory: 512Mi
+            requests:
+              cpu: 10m
+              memory: 125Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: guacd
+spec:
+  selector:
+    app: guacd
+  type: ClusterIP
+  ports:
+    - name: http-4822
+      protocol: TCP
+      port: 4822
+      targetPort: 4822
