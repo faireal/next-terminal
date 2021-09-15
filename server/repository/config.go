@@ -12,7 +12,8 @@ type ConfigsRepository struct {
 }
 
 func NewConfigsRepository(db *gorm.DB) *ConfigsRepository {
-	return &ConfigsRepository{DB: db}
+	configsRepository = &ConfigsRepository{DB: db}
+	return configsRepository
 }
 
 func (r ConfigsRepository) FindAll() (o []model.Configs) {

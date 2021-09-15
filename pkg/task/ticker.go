@@ -11,7 +11,7 @@ import (
 
 type Ticker struct {
 	sessionRepository *repository.SessionRepository
-	configsRepository  *repository.ConfigsRepository
+	configsRepository *repository.ConfigsRepository
 }
 
 func NewTicker(sessionRepository *repository.SessionRepository, configsRepository *repository.ConfigsRepository) *Ticker {

@@ -33,7 +33,7 @@ var (
 	resourceSharerRepository *repository.ResourceSharerRepository
 	assetRepository          *repository.AssetRepository
 	credentialRepository     *repository.CredentialRepository
-	configsRepository       *repository.ConfigsRepository
+	configsRepository        *repository.ConfigsRepository
 	commandRepository        *repository.CommandRepository
 	sessionRepository        *repository.SessionRepository
 	numRepository            *repository.NumRepository
