@@ -1,16 +1,18 @@
 package service
 
 import (
+	"next-terminal/server/model"
 	"next-terminal/server/repository"
 	"next-terminal/server/utils"
 )
 
 type AssetService struct {
 	assetRepository *repository.AssetRepository
+	userRepository  *repository.UserRepository
 }
 
-func NewAssetService(assetRepository *repository.AssetRepository) *AssetService {
-	return &AssetService{assetRepository: assetRepository}
+func NewAssetService(assetRepository *repository.AssetRepository, userRepository *repository.UserRepository) *AssetService {
+	return &AssetService{assetRepository: assetRepository, userRepository: userRepository}
 }
 
 func (r AssetService) Encrypt() error {
@@ -31,4 +33,47 @@ func (r AssetService) Encrypt() error {
 		}
 	}
 	return nil
+}
+
+func (r AssetService) InitDemoVM() error {
+	u, err := r.userRepository.UserGet("username = ?", "admin")
+	if err != nil {
+		return err
+	}
+	debian := model.Asset{}
+	debian.ID = utils.UUID()
+	debian.Name = "debian"
+	debian.Protocol = "ssh"
+	debian.IP = "debian.ysicing.svc"
+	debian.Port = 22
+	debian.AccountType = "account_type"
+	debian.Username = "root"
+	debian.Password = "next-terminal"
+	debian.Description = "默认演示debian"
+	debian.Tags = "debian"
+	debian.Owner = u.ID
+	debian.Encrypted = true
+	debian.Created = utils.NowJsonTime()
+
+	m := map[string]interface{}{
+		"ssh-mode": "guacd",
+	}
+	if err := r.assetRepository.InitAsset(&debian, m); err != nil {
+		return err
+	}
+	centos := model.Asset{}
+	centos.ID = utils.UUID()
+	centos.Name = "debian"
+	centos.Protocol = "ssh"
+	centos.IP = "centos.ysicing.svc"
+	centos.Port = 22
+	centos.AccountType = "account_type"
+	centos.Username = "next-terminal"
+	centos.Password = "next-terminal"
+	centos.Description = "默认演示centos"
+	centos.Tags = "centos"
+	centos.Owner = u.ID
+	centos.Encrypted = true
+	centos.Created = utils.NowJsonTime()
+	return r.assetRepository.InitAsset(&centos, m)
 }

@@ -394,3 +394,20 @@ func (r AssetRepository) FindAssetAttrMapByAssetId(assetId string) (map[string]i
 	}
 	return attributeMap, nil
 }
+
+func (r AssetRepository) InitAsset(item *model.Asset, m map[string]interface{}) error {
+	if err := r.Create(item); err != nil {
+		return err
+	}
+
+	if err := r.UpdateAttributes(item.ID, item.Protocol, m); err != nil {
+		return err
+	}
+
+	// 创建后自动检测资产是否存活
+	go func() {
+		active := utils.Tcping(item.IP, item.Port)
+		_ = r.UpdateActiveById(active, item.ID)
+	}()
+	return nil
+}

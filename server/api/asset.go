@@ -32,21 +32,10 @@ func AssetCreateEndpoint(c *gin.Context) {
 	item.ID = utils.UUID()
 	item.Created = utils.NowJsonTime()
 
-	if err := assetRepository.Create(&item); err != nil {
+	if err := assetRepository.InitAsset(&item, m); err != nil {
 		errors.Dangerous(err)
 		return
 	}
-
-	if err := assetRepository.UpdateAttributes(item.ID, item.Protocol, m); err != nil {
-		errors.Dangerous(err)
-		return
-	}
-
-	// 创建后自动检测资产是否存活
-	go func() {
-		active := utils.Tcping(item.IP, item.Port)
-		_ = assetRepository.UpdateActiveById(active, item.ID)
-	}()
 
 	Success(c, item)
 }

@@ -1,0 +1,28 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: crondbclean
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crondbclean
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: crondbclean
+    spec:
+      containers:
+        - name: crondbclean
+          image: ysicing/crondbclean
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 10Mi

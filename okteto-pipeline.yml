@@ -1,10 +1,16 @@
 deploy:
   - kubectl apply -f hack/k8s/guacd.yaml -n ysicing
   - kubectl apply -f hack/k8s/nt.yaml -n ysicing
+  - kubectl apply -f hack/k8s/cleandb.yaml -n ysicing
+  - kubectl rollout restart deploy/next-terminal -n ysicing
   - kubectl apply -f hack/k8s/debian.yaml -n ysicing
   - kubectl apply -f hack/k8s/centos.yaml -n ysicing
+  - kubectl rollout restart deploy/debian -n ysicing
+  - kubectl rollout restart deploy/centos -n ysicing
+  -
 devs:
   - hack/k8s/guacd.yaml
   - hack/k8s/nt.yaml
   - hack/k8s/debian.yaml
   - hack/k8s/centos.yaml
+  - hack/k8s/cleandb.yaml

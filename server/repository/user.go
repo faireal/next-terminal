@@ -135,3 +135,12 @@ func (r UserRepository) CountOnlineUser() (total int64, err error) {
 	err = r.DB.Where("online = ?", true).Find(&model.User{}).Count(&total).Error
 	return
 }
+
+func (r UserRepository) UserGet(where string, args ...interface{}) (*model.User, error) {
+	var u model.User
+	err := r.DB.Model(model.User{}).Where(where, args...).Last(&u).Error
+	if err != nil {
+		return nil, err
+	}
+	return &u, nil
+}

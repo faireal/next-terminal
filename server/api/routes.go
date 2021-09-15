@@ -248,7 +248,7 @@ func InitService() {
 	sessionService = service.NewSessionService(sessionRepository)
 	mailService = service.NewMailService(propertyRepository)
 	numService = service.NewNumService(numRepository)
-	assetService = service.NewAssetService(assetRepository)
+	assetService = service.NewAssetService(assetRepository, userRepository)
 	credentialService = service.NewCredentialService(credentialRepository)
 }
 
@@ -279,6 +279,10 @@ func InitDBData() (err error) {
 	}
 	if err := assetService.Encrypt(); err != nil {
 		return err
+	}
+	if viper.GetBool("mode.demo") {
+
+		return assetService.InitDemoVM()
 	}
 	return nil
 }
