@@ -27,7 +27,7 @@ class Playback extends Component {
     }
 
     initPlayer(sessionId) {
-        var RECORDING_URL = `${server}/sessions/${sessionId}/recording`;
+        var RECORDING_URL = `${server}/apis/sessions/${sessionId}/recording`;
 
         var display = document.getElementById('display');
 

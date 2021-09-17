@@ -67,7 +67,7 @@ class LoginLog extends Component {
         };
 
         try {
-            let result = await request.get('/login-logs/paging?' + paramsStr);
+            let result = await request.get('/apis/login-logs/paging?' + paramsStr);
             if (result.code === 1) {
                 data = result.data;
             } else {
@@ -121,7 +121,7 @@ class LoginLog extends Component {
     }
 
     handleSearchByNickname = async nickname => {
-        const result = await request.get(`/users/paging?pageIndex=1&pageSize=1000&nickname=${nickname}`);
+        const result = await request.get(`/apis/users/paging?pageIndex=1&pageSize=1000&nickname=${nickname}`);
         if (result.code !== 1) {
             message.error(result.message, 10);
             return;
@@ -147,7 +147,7 @@ class LoginLog extends Component {
             delBtnLoading: true
         })
         try {
-            let result = await request.delete('/login-logs/' + this.state.selectedRowKeys.join(','));
+            let result = await request.delete('/apis/login-logs/' + this.state.selectedRowKeys.join(','));
             if (result.code === 1) {
                 message.success('操作成功', 3);
                 this.setState({
@@ -233,7 +233,7 @@ class LoginLog extends Component {
                                 });
 
                                 const del = async (id) => {
-                                    const result = await request.delete(`/login-logs/${id}`);
+                                    const result = await request.delete(`/apis/login-logs/${id}`);
                                     if (result.code === 1) {
                                         notification['success']({
                                             message: '提示',

@@ -67,7 +67,7 @@ class UserShareAsset extends Component {
         let userGroupId = this.props.userGroupId;
         this.loadTableData({sharer: sharer, userGroupId: userGroupId});
 
-        let result = await request.get('/tags');
+        let result = await request.get('/apis/tags');
         if (result['code'] === 1) {
             this.setState({
                 tags: result['data']
@@ -91,7 +91,7 @@ class UserShareAsset extends Component {
         };
 
         try {
-            let result = await request.get('/assets/paging?' + paramsStr);
+            let result = await request.get('/apis/assets/paging?' + paramsStr);
             if (result['code'] === 1) {
                 data = result['data'];
             } else {

@@ -40,7 +40,7 @@ class UserGroup extends Component {
     }
 
     async delete(id) {
-        let result = await request.delete('/user-groups/' + id);
+        let result = await request.delete('/apis/user-groups/' + id);
         if (result.code === 1) {
             message.success('操作成功', 3);
             await this.loadTableData(this.state.queryParams);
@@ -64,7 +64,7 @@ class UserGroup extends Component {
         };
 
         try {
-            let result = await request.get('/user-groups/paging?' + paramsStr);
+            let result = await request.get('/apis/user-groups/paging?' + paramsStr);
             if (result.code === 1) {
                 data = result.data;
             } else {
@@ -124,7 +124,7 @@ class UserGroup extends Component {
                 items: items
             });
 
-            let result = await request.get('/user-groups/' + id);
+            let result = await request.get('/apis/user-groups/' + id);
             if (result['code'] !== 1) {
                 message.error(result['message']);
                 items[index].updateBtnLoading = false;
@@ -163,7 +163,7 @@ class UserGroup extends Component {
 
         if (formData.id) {
             // 向后台提交数据
-            const result = await request.put('/user-groups/' + formData.id, formData);
+            const result = await request.put('/apis/user-groups/' + formData.id, formData);
             if (result.code === 1) {
                 message.success('操作成功', 3);
 
@@ -176,7 +176,7 @@ class UserGroup extends Component {
             }
         } else {
             // 向后台提交数据
-            const result = await request.post('/user-groups', formData);
+            const result = await request.post('/apis/user-groups', formData);
             if (result.code === 1) {
                 message.success('操作成功', 3);
 
@@ -210,7 +210,7 @@ class UserGroup extends Component {
             delBtnLoading: true
         })
         try {
-            let result = await request.delete('/user-groups/' + this.state.selectedRowKeys.join(','));
+            let result = await request.delete('/apis/user-groups/' + this.state.selectedRowKeys.join(','));
             if (result.code === 1) {
                 message.success('操作成功', 3);
                 this.setState({
@@ -228,7 +228,7 @@ class UserGroup extends Component {
     }
 
     handleSearchByNickname = async nickname => {
-        const result = await request.get(`/users/paging?pageIndex=1&pageSize=1000&nickname=${nickname}`);
+        const result = await request.get(`/apis/users/paging?pageIndex=1&pageSize=1000&nickname=${nickname}`);
         if (result.code !== 1) {
             message.error(result.message, 10);
             return;

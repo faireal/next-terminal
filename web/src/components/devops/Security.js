@@ -37,7 +37,7 @@ class Security extends Component {
     }
 
     async delete(id) {
-        const result = await request.delete('/securities/' + id);
+        const result = await request.delete('/apis/securities/' + id);
         if (result.code === 1) {
             message.success('删除成功');
             this.loadTableData(this.state.queryParams);
@@ -63,7 +63,7 @@ class Security extends Component {
         };
 
         try {
-            let result = await request.get('/securities/paging?' + paramsStr);
+            let result = await request.get('/apis/securities/paging?' + paramsStr);
             if (result.code === 1) {
                 data = result.data;
             } else {
@@ -144,7 +144,7 @@ class Security extends Component {
 
         if (formData.id) {
             // 向后台提交数据
-            const result = await request.put('/securities/' + formData.id, formData);
+            const result = await request.put('/apis/securities/' + formData.id, formData);
             if (result.code === 1) {
                 message.success('更新成功');
 
@@ -157,7 +157,7 @@ class Security extends Component {
             }
         } else {
             // 向后台提交数据
-            const result = await request.post('/securities', formData);
+            const result = await request.post('/apis/securities', formData);
             if (result.code === 1) {
                 message.success('新增成功');
 
@@ -180,7 +180,7 @@ class Security extends Component {
             delBtnLoading: true
         })
         try {
-            let result = await request.delete('/securities/' + this.state.selectedRowKeys.join(','));
+            let result = await request.delete('/apis/securities/' + this.state.selectedRowKeys.join(','));
             if (result.code === 1) {
                 message.success('操作成功', 3);
                 this.setState({

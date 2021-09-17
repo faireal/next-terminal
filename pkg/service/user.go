@@ -2,18 +2,18 @@ package service
 
 import (
 	"github.com/ergoapi/zlog"
+	model2 "next-terminal/models"
 	"next-terminal/pkg/constant"
-	"next-terminal/server/model"
-	"next-terminal/server/repository"
-	"next-terminal/server/utils"
+	"next-terminal/pkg/utils"
+	repository2 "next-terminal/repository"
 )
 
 type UserService struct {
-	userRepository     *repository.UserRepository
-	loginLogRepository *repository.LoginLogRepository
+	userRepository     *repository2.UserRepository
+	loginLogRepository *repository2.LoginLogRepository
 }
 
-func NewUserService(userRepository *repository.UserRepository, loginLogRepository *repository.LoginLogRepository) *UserService {
+func NewUserService(userRepository *repository2.UserRepository, loginLogRepository *repository2.LoginLogRepository) *UserService {
 	return &UserService{userRepository: userRepository, loginLogRepository: loginLogRepository}
 }
 
@@ -28,7 +28,7 @@ func (r UserService) InitUser() (err error) {
 			return err
 		}
 
-		user := model.User{
+		user := model2.User{
 			ID:       utils.UUID(),
 			Username: "admin",
 			Password: string(pass),
@@ -44,7 +44,7 @@ func (r UserService) InitUser() (err error) {
 		for i := range users {
 			// 修正默认用户类型为管理员
 			if users[i].Type == "" {
-				user := model.User{
+				user := model2.User{
 					Type: constant.TypeAdmin,
 					ID:   users[i].ID,
 				}
@@ -88,7 +88,7 @@ func (r UserService) Logout(token string) (err error) {
 		return
 	}
 
-	loginLogForUpdate := &model.LoginLog{LogoutTime: utils.NowJsonTime(), ID: token}
+	loginLogForUpdate := &model2.LoginLog{LogoutTime: utils.NowJsonTime(), ID: token}
 	err = r.loginLogRepository.Update(loginLogForUpdate)
 	if err != nil {
 		return err

@@ -1,10 +1,10 @@
 package service
 
 import (
+	"next-terminal/models"
 	"next-terminal/pkg/constant"
-	"next-terminal/server/model"
-	"next-terminal/server/repository"
-	"next-terminal/server/utils"
+	"next-terminal/pkg/utils"
+	"next-terminal/repository"
 )
 
 type SessionService struct {
@@ -23,7 +23,7 @@ func (r SessionService) FixSessionState() error {
 
 	if len(sessions) > 0 {
 		for i := range sessions {
-			session := model.Session{
+			session := models.Session{
 				Status:           constant.Disconnected,
 				DisconnectedTime: utils.NowJsonTime(),
 			}

@@ -87,7 +87,7 @@ class App extends Component {
 
     async getInfo() {
 
-        let result = await request.get('/info');
+        let result = await request.get('/apis/info');
         if (result['code'] === 1) {
             sessionStorage.setItem('user', JSON.stringify(result['data']));
             this.setState({

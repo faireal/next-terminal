@@ -65,7 +65,7 @@ class Job extends Component {
     }
 
     async delete(id) {
-        const result = await request.delete('/jobs/' + id);
+        const result = await request.delete('/apis/jobs/' + id);
         if (result.code === 1) {
             message.success('删除成功');
             this.loadTableData(this.state.queryParams);
@@ -91,7 +91,7 @@ class Job extends Component {
         };
 
         try {
-            let result = await request.get('/jobs/paging?' + paramsStr);
+            let result = await request.get('/apis/jobs/paging?' + paramsStr);
             if (result.code === 1) {
                 data = result.data;
             } else {
@@ -192,7 +192,7 @@ class Job extends Component {
 
         if (formData.id) {
             // 向后台提交数据
-            const result = await request.put('/jobs/' + formData.id, formData);
+            const result = await request.put('/apis/jobs/' + formData.id, formData);
             if (result.code === 1) {
                 message.success('更新成功');
 
@@ -205,7 +205,7 @@ class Job extends Component {
             }
         } else {
             // 向后台提交数据
-            const result = await request.post('/jobs', formData);
+            const result = await request.post('/apis/jobs', formData);
             if (result.code === 1) {
                 message.success('新增成功');
 
@@ -228,7 +228,7 @@ class Job extends Component {
             delBtnLoading: true
         })
         try {
-            let result = await request.delete('/jobs/' + this.state.selectedRowKeys.join(','));
+            let result = await request.delete('/apis/jobs/' + this.state.selectedRowKeys.join(','));
             if (result.code === 1) {
                 message.success('操作成功', 3);
                 this.setState({
@@ -288,7 +288,7 @@ class Job extends Component {
                 return <Switch checkedChildren="开启" unCheckedChildren="关闭" checked={status === 'running'}
                                onChange={async (checked) => {
                                    let jobStatus = checked ? 'running' : 'not-running';
-                                   let result = await request.post(`/jobs/${record['id']}/change-status?status=${jobStatus}`);
+                                   let result = await request.post(`/apis/jobs/${record['id']}/change-status?status=${jobStatus}`);
                                    if (result['code'] === 1) {
                                        message.success('操作成功');
                                        await this.loadTableData();
@@ -363,7 +363,7 @@ class Job extends Component {
                                             logPending: true
                                         })
 
-                                        let result = await request.get(`/jobs/${record['id']}/logs`);
+                                        let result = await request.get(`/apis/jobs/${record['id']}/logs`);
                                         if (result['code'] === 1) {
                                             this.setState({
                                                 logPending: false,
@@ -393,7 +393,7 @@ class Job extends Component {
                                         items: items
                                     });
 
-                                    let result = await request.post(`/jobs/${record['id']}/exec`);
+                                    let result = await request.post(`/apis/jobs/${record['id']}/exec`);
                                     if (result['code'] === 1) {
                                         message.success('执行成功');
                                         await this.loadTableData();
@@ -544,7 +544,7 @@ class Job extends Component {
                                 maskClosable={false}
 
                                 onOk={async () => {
-                                    let result = await request.delete(`/jobs/${this.state.selectedRow['id']}/logs`);
+                                    let result = await request.delete(`/apis/jobs/${this.state.selectedRow['id']}/logs`);
                                     if (result['code'] === 1) {
                                         this.setState({
                                             logVisible: false,

@@ -57,7 +57,7 @@ class FileSystem extends Component {
     }
 
     download = () => {
-        download(`${server}/sessions/${this.state.sessionId}/download?file=${this.state.selectedRow.key}`);
+        download(`${server}/apis/sessions/${this.state.sessionId}/download?file=${this.state.selectedRow.key}`);
     }
 
     rmdir = async () => {
@@ -83,7 +83,7 @@ class FileSystem extends Component {
                     if (rowKey === '..') {
                         continue;
                     }
-                    let result = await request.post(`/sessions/${this.state.sessionId}/rm?key=${rowKey}`);
+                    let result = await request.post(`/apis/sessions/${this.state.sessionId}/rm?key=${rowKey}`);
                     if (result['code'] !== 1) {
                         message.error(result['message']);
                     }
@@ -108,7 +108,7 @@ class FileSystem extends Component {
             if (isEmpty(key)) {
                 key = '/';
             }
-            let result = await request.get(`/sessions/${this.state.sessionId}/ls?dir=${key}`);
+            let result = await request.get(`/apis/sessions/${this.state.sessionId}/ls?dir=${key}`);
             if (result['code'] !== 1) {
                 message.error(result['message']);
                 return;
@@ -472,7 +472,7 @@ class FileSystem extends Component {
                     }}
                 >
                     <Upload
-                        action={server + '/sessions/' + this.state.sessionId + '/upload?X-Auth-Token=' + getToken() + '&dir=' + this.state.currentDirectory}>
+                        action={server + '/apis/sessions/' + this.state.sessionId + '/upload?X-Auth-Token=' + getToken() + '&dir=' + this.state.currentDirectory}>
                         <Button icon={<UploadOutlined/>}>上传文件</Button>
                     </Upload>
                 </Modal>
@@ -497,7 +497,7 @@ class FileSystem extends Component {
                                         this.setState({
                                             confirmLoading: true
                                         })
-                                        let result = await request.post(`/sessions/${this.state.sessionId}/mkdir?${paramStr}`);
+                                        let result = await request.post(`/apis/sessions/${this.state.sessionId}/mkdir?${paramStr}`);
                                         if (result.code === 1) {
                                             message.success('创建成功');
                                             this.loadFiles(this.state.currentDirectory);
@@ -562,7 +562,7 @@ class FileSystem extends Component {
                                             this.setState({
                                                 confirmLoading: true
                                             })
-                                            let result = await request.post(`/sessions/${this.state.sessionId}/rename?${paramStr}`);
+                                            let result = await request.post(`/apis/sessions/${this.state.sessionId}/rename?${paramStr}`);
                                             if (result['code'] === 1) {
                                                 message.success('重命名成功');
                                                 let files = this.state.files;

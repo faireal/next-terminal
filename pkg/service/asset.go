@@ -1,17 +1,17 @@
 package service
 
 import (
-	"next-terminal/server/model"
-	"next-terminal/server/repository"
-	"next-terminal/server/utils"
+	"next-terminal/models"
+	"next-terminal/pkg/utils"
+	repository2 "next-terminal/repository"
 )
 
 type AssetService struct {
-	assetRepository *repository.AssetRepository
-	userRepository  *repository.UserRepository
+	assetRepository *repository2.AssetRepository
+	userRepository  *repository2.UserRepository
 }
 
-func NewAssetService(assetRepository *repository.AssetRepository, userRepository *repository.UserRepository) *AssetService {
+func NewAssetService(assetRepository *repository2.AssetRepository, userRepository *repository2.UserRepository) *AssetService {
 	return &AssetService{assetRepository: assetRepository, userRepository: userRepository}
 }
 
@@ -40,7 +40,7 @@ func (r AssetService) InitDemoVM() error {
 	if err != nil {
 		return err
 	}
-	debian := model.Asset{}
+	debian := models.Asset{}
 	debian.ID = utils.UUID()
 	debian.Name = "debian"
 	debian.Protocol = "ssh"
@@ -61,7 +61,7 @@ func (r AssetService) InitDemoVM() error {
 	if err := r.assetRepository.InitAsset(&debian, m); err != nil {
 		return err
 	}
-	centos := model.Asset{}
+	centos := models.Asset{}
 	centos.ID = utils.UUID()
 	centos.Name = "debian"
 	centos.Protocol = "ssh"

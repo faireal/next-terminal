@@ -25,7 +25,7 @@ class Dashboard extends Component {
     }
 
     getCounter = async () => {
-        let result = await request.get('/overview/counter');
+        let result = await request.get('/apis/overview/counter');
         if (result['code'] === 1) {
             this.setState({
                 counter: result['data']
@@ -34,7 +34,7 @@ class Dashboard extends Component {
     }
 
     getD = async () => {
-        let result = await request.get('/overview/sessions?d=' + this.state.d);
+        let result = await request.get('/apis/overview/sessions?d=' + this.state.d);
         if (result['code'] === 1) {
             this.setState({
                 session: result['data']

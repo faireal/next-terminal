@@ -1,8 +1,8 @@
 package service
 
 import (
-	"next-terminal/server/repository"
-	"next-terminal/server/utils"
+	"next-terminal/pkg/utils"
+	"next-terminal/repository"
 )
 
 type CredentialService struct {

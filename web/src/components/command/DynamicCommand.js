@@ -81,7 +81,7 @@ class DynamicCommand extends Component {
     }
 
     async delete(id) {
-        const result = await request.delete('/commands/' + id);
+        const result = await request.delete('/apis/commands/' + id);
         if (result.code === 1) {
             message.success('删除成功');
             this.loadTableData(this.state.queryParams);
@@ -107,7 +107,7 @@ class DynamicCommand extends Component {
         };
 
         try {
-            let result = await request.get('/commands/paging?' + paramsStr);
+            let result = await request.get('/apis/commands/paging?' + paramsStr);
             if (result.code === 1) {
                 data = result.data;
             } else {
@@ -220,7 +220,7 @@ class DynamicCommand extends Component {
 
         if (formData.id) {
             // 向后台提交数据
-            const result = await request.put('/commands/' + formData.id, formData);
+            const result = await request.put('/apis/commands/' + formData.id, formData);
             if (result.code === 1) {
                 message.success('更新成功');
 
@@ -233,7 +233,7 @@ class DynamicCommand extends Component {
             }
         } else {
             // 向后台提交数据
-            const result = await request.post('/commands', formData);
+            const result = await request.post('/apis/commands', formData);
             if (result.code === 1) {
                 message.success('新增成功');
 
@@ -256,7 +256,7 @@ class DynamicCommand extends Component {
             delBtnLoading: true
         })
         try {
-            let result = await request.delete('/commands/' + this.state.selectedRowKeys.join(','));
+            let result = await request.delete('/apis/commands/' + this.state.selectedRowKeys.join(','));
             if (result.code === 1) {
                 message.success('操作成功', 3);
                 this.setState({
@@ -274,7 +274,7 @@ class DynamicCommand extends Component {
     }
 
     handleSearchByNickname = async nickname => {
-        const result = await request.get(`/users/paging?pageIndex=1&pageSize=100&nickname=${nickname}`);
+        const result = await request.get(`/apis/users/paging?pageIndex=1&pageSize=100&nickname=${nickname}`);
         if (result.code !== 1) {
             message.error(result.message, 10);
             return;
@@ -667,7 +667,7 @@ class DynamicCommand extends Component {
                                    .current
                                    .validateFields()
                                    .then(async values => {
-                                       let result = await request.post(`/commands/${this.state.selected['id']}/change-owner?owner=${values['owner']}`);
+                                       let result = await request.post(`/apis/commands/${this.state.selected['id']}/change-owner?owner=${values['owner']}`);
                                        if (result['code'] === 1) {
                                            message.success('操作成功');
                                            this.loadTableData();

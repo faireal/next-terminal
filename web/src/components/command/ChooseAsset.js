@@ -63,7 +63,7 @@ class ChooseAsset extends Component {
     async componentDidMount() {
         this.checkedAssets = this.props.setCheckedAssets;
         this.loadTableData();
-        let result = await request.get('/tags');
+        let result = await request.get('/apis/tags');
         if (result['code'] === 1) {
             this.setState({
                 tags: result['data']
@@ -87,7 +87,7 @@ class ChooseAsset extends Component {
         };
 
         try {
-            let result = await request.get('/assets/paging?' + paramsStr);
+            let result = await request.get('/apis/assets/paging?' + paramsStr);
             if (result['code'] === 1) {
                 data = result['data'];
             } else {

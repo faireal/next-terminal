@@ -3,28 +3,27 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	model2 "next-terminal/models"
+	"next-terminal/pkg/utils"
+	repository2 "next-terminal/repository"
 	"strings"
 	"time"
 
 	"github.com/ergoapi/zlog"
-	"next-terminal/pkg/constant"
-	"next-terminal/pkg/global"
-	"next-terminal/pkg/term"
-	"next-terminal/server/model"
-	"next-terminal/server/repository"
-	"next-terminal/server/utils"
-
 	"github.com/robfig/cron/v3"
+	"next-terminal/pkg/constant"
+	cronv1 "next-terminal/pkg/cron"
+	"next-terminal/pkg/term"
 )
 
 type JobService struct {
-	jobRepository        *repository.JobRepository
-	jobLogRepository     *repository.JobLogRepository
-	assetRepository      *repository.AssetRepository
-	credentialRepository *repository.CredentialRepository
+	jobRepository        *repository2.JobRepository
+	jobLogRepository     *repository2.JobLogRepository
+	assetRepository      *repository2.AssetRepository
+	credentialRepository *repository2.CredentialRepository
 }
 
-func NewJobService(jobRepository *repository.JobRepository, jobLogRepository *repository.JobLogRepository, assetRepository *repository.AssetRepository, credentialRepository *repository.CredentialRepository) *JobService {
+func NewJobService(jobRepository *repository2.JobRepository, jobLogRepository *repository2.JobLogRepository, assetRepository *repository2.AssetRepository, credentialRepository *repository2.CredentialRepository) *JobService {
 	return &JobService{jobRepository: jobRepository, jobLogRepository: jobLogRepository, assetRepository: assetRepository, credentialRepository: credentialRepository}
 }
 
@@ -38,24 +37,24 @@ func (r JobService) ChangeStatusById(id, status string) error {
 		if err != nil {
 			return err
 		}
-		entryID, err := global.Cron.AddJob(job.Cron, j)
+		entryID, err := cronv1.Cron.AddJob(job.Cron, j)
 		if err != nil {
 			return err
 		}
-		zlog.Debug("开启计划任务「%v」,运行中计划任务数量「%v」", job.Name, len(global.Cron.Entries()))
+		zlog.Debug("开启计划任务「%v」,运行中计划任务数量「%v」", job.Name, len(cronv1.Cron.Entries()))
 
-		jobForUpdate := model.Job{ID: id, Status: constant.JobStatusRunning, CronJobId: int(entryID)}
+		jobForUpdate := model2.Job{ID: id, Status: constant.JobStatusRunning, CronJobId: int(entryID)}
 
 		return r.jobRepository.UpdateById(&jobForUpdate)
 	} else {
-		global.Cron.Remove(cron.EntryID(job.CronJobId))
-		zlog.Debug("关闭计划任务「%v」,运行中计划任务数量「%v」", job.Name, len(global.Cron.Entries()))
-		jobForUpdate := model.Job{ID: id, Status: constant.JobStatusNotRunning}
+		cronv1.Cron.Remove(cron.EntryID(job.CronJobId))
+		zlog.Debug("关闭计划任务「%v」,运行中计划任务数量「%v」", job.Name, len(cronv1.Cron.Entries()))
+		jobForUpdate := model2.Job{ID: id, Status: constant.JobStatusNotRunning}
 		return r.jobRepository.UpdateById(&jobForUpdate)
 	}
 }
 
-func getJob(j *model.Job, jobService *JobService) (job cron.Job, err error) {
+func getJob(j *model2.Job, jobService *JobService) (job cron.Job, err error) {
 	switch j.Func {
 	case constant.FuncCheckAssetStatusJob:
 		job = CheckAssetStatusJob{ID: j.ID, Mode: j.Mode, ResourceIds: j.ResourceIds, Metadata: j.Metadata, jobService: jobService}
@@ -80,7 +79,7 @@ func (r CheckAssetStatusJob) Run() {
 		return
 	}
 
-	var assets []model.Asset
+	var assets []model2.Asset
 	if r.Mode == constant.JobModeAll {
 		assets, _ = r.jobService.assetRepository.FindAll()
 	} else {
@@ -112,7 +111,7 @@ func (r CheckAssetStatusJob) Run() {
 	}
 
 	_ = r.jobService.jobRepository.UpdateLastUpdatedById(r.ID)
-	jobLog := model.JobLog{
+	jobLog := model2.JobLog{
 		ID:        utils.UUID(),
 		JobId:     r.ID,
 		Timestamp: utils.NowJsonTime(),
@@ -139,7 +138,7 @@ func (r ShellJob) Run() {
 		return
 	}
 
-	var assets []model.Asset
+	var assets []model2.Asset
 	if r.Mode == constant.JobModeAll {
 		assets, _ = r.jobService.assetRepository.FindByProtocol("ssh")
 	} else {
@@ -215,7 +214,7 @@ func (r ShellJob) Run() {
 	}
 
 	_ = r.jobService.jobRepository.UpdateLastUpdatedById(r.ID)
-	jobLog := model.JobLog{
+	jobLog := model2.JobLog{
 		ID:        utils.UUID(),
 		JobId:     r.ID,
 		Timestamp: utils.NowJsonTime(),
@@ -260,7 +259,7 @@ func (r JobService) ExecJobById(id string) (err error) {
 func (r JobService) InitJob() error {
 	jobs, _ := r.jobRepository.FindByFunc(constant.FuncCheckAssetStatusJob)
 	if len(jobs) == 0 {
-		job := model.Job{
+		job := model2.Job{
 			ID:      utils.UUID(),
 			Name:    "资产状态检测",
 			Func:    constant.FuncCheckAssetStatusJob,
@@ -288,14 +287,14 @@ func (r JobService) InitJob() error {
 	return nil
 }
 
-func (r JobService) Create(o *model.Job) (err error) {
+func (r JobService) Create(o *model2.Job) (err error) {
 
 	if o.Status == constant.JobStatusRunning {
 		j, err := getJob(o, &r)
 		if err != nil {
 			return err
 		}
-		jobId, err := global.Cron.AddJob(o.Cron, j)
+		jobId, err := cronv1.Cron.AddJob(o.Cron, j)
 		if err != nil {
 			return err
 		}

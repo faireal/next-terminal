@@ -1,5 +1,25 @@
 version: '3.3'
 services:
+  debian:
+    image: takeyamajp/debian-sshd
+    container_name: debian
+    environment:
+      ROOT_PASSWORD: next-terminal
+    restart: always
+    networks:
+      next-terminal:
+        ipv4_address: 172.77.77.100
+  centos:
+    image: jdeathe/centos-ssh:2.6.1
+    container_name: centos
+    environment:
+      SSH_USER_PASSWORD: next-terminal
+      SSH_USER: next-terminal
+      SSH_PASSWORD_AUTHENTICATION: true
+    restart: always
+    networks:
+      next-terminal:
+        ipv4_address: 172.77.77.101
   mysql:
     image: ghcr.io/ysicing/mysql:8.0
     container_name: mysql

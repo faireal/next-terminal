@@ -29,7 +29,7 @@ class BatchCommand extends Component {
 
     init = async (commandId, assets) => {
 
-        let result = await request.get(`/commands/${commandId}`);
+        let result = await request.get(`/apis/commands/${commandId}`);
         if (result['code'] !== 1) {
             message.error(result['message'], 10);
             this.setState({

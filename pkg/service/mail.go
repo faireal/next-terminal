@@ -3,11 +3,10 @@ package service
 import (
 	"github.com/ergoapi/zlog"
 	"net/smtp"
-
-	"next-terminal/pkg/constant"
-	"next-terminal/server/repository"
+	"next-terminal/repository"
 
 	"github.com/jordan-wright/email"
+	"next-terminal/pkg/constant"
 )
 
 type MailService struct {

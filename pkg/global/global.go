@@ -1,17 +1,10 @@
 package global
 
-import (
-	"github.com/patrickmn/go-cache"
-	"github.com/robfig/cron/v3"
-)
-
-var Cache *cache.Cache
+// var Cache *cache.Cache
 
 // var Config *config.Config
 
-var Store *TunStore
-
-var Cron *cron.Cron
+// var Cron *cron.Cron
 
 type Security struct {
 	Rule string
@@ -20,7 +13,7 @@ type Security struct {
 
 var Securities []*Security
 
-func init() {
-	Cron = cron.New(cron.WithSeconds())
-	Cron.Start()
-}
+//func init() {
+//	Cron = cron.New(cron.WithSeconds())
+//	Cron.Start()
+//}

@@ -1,10 +1,9 @@
 package service
 
 import (
+	"next-terminal/models"
+	"next-terminal/repository"
 	"strconv"
-
-	"next-terminal/server/model"
-	"next-terminal/server/repository"
 )
 
 type NumService struct {
@@ -22,7 +21,7 @@ func (r NumService) InitNums() error {
 	}
 	if len(nums) == 0 {
 		for i := 0; i <= 30; i++ {
-			if err := r.numRepository.Create(&model.Num{I: strconv.Itoa(i)}); err != nil {
+			if err := r.numRepository.Create(&models.Num{I: strconv.Itoa(i)}); err != nil {
 				return err
 			}
 		}

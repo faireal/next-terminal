@@ -10,6 +10,8 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var Store *TunStore
+
 type Tun struct {
 	Protocol     string
 	Mode         string

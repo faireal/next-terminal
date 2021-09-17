@@ -65,8 +65,8 @@ class UserShareSelectedAsset extends Component {
             userGroupId: userGroupId
         }
         let paramStr = qs.stringify(params);
-        let q1 = request.get('/tags');
-        let q2 = request.get(`/assets/paging?${paramStr}`);
+        let q1 = request.get('/apis/tags');
+        let q2 = request.get(`/apis/assets/paging?${paramStr}`);
 
         let r1 = await q1;
         let r2 = await q2;
@@ -101,7 +101,7 @@ class UserShareSelectedAsset extends Component {
         };
 
         try {
-            let result = await request.get('/assets/paging?' + paramsStr);
+            let result = await request.get('/apis/assets/paging?' + paramsStr);
             if (result['code'] === 1) {
                 data = result['data'];
             } else {

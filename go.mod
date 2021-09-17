@@ -29,9 +29,11 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/ugorji/go v1.2.6 // indirect
 	go.uber.org/zap v1.19.1 // indirect
-	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
-	golang.org/x/sys v0.0.0-20210910150752-751e447fb3d0 // indirect
+	golang.org/x/crypto v0.0.0-20210915214749-c084706c2272
+	golang.org/x/sys v0.0.0-20210915083310-ed5796bab164 // indirect
+	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
+	gopkg.in/guregu/null.v3 v3.5.0 // indirect
 	gorm.io/driver/mysql v1.1.2
 	gorm.io/gorm v1.21.15
 	gorm.io/plugin/prometheus v0.0.0-20210820101226-2a49866f83ee

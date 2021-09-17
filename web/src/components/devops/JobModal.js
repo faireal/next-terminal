@@ -21,7 +21,7 @@ const JobModal = ({title, visible, handleOk, handleCancel, confirmLoading, model
     useEffect(() => {
         const fetchData = async () => {
             setResourcesLoading(true);
-            let result = await request.get('/assets?protocol=ssh');
+            let result = await request.get('/apis/assets?protocol=ssh');
             if (result['code'] === 1) {
                 setResources(result['data']);
             } else {

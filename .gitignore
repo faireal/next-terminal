@@ -32,3 +32,5 @@ playground/recording
 dist
 *.slowsql.txt
 *.dbnotfound.txt
+drive
+recording

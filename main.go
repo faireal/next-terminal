@@ -1,6 +1,8 @@
 package main
 
-import "next-terminal/server/cmd"
+import (
+	"next-terminal/cmd"
+)
 
 func main() {
 	cmd.Execute()

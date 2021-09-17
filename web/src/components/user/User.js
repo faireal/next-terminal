@@ -73,7 +73,7 @@ class User extends Component {
     }
 
     async delete(id) {
-        let result = await request.delete('/users/' + id);
+        let result = await request.delete('/apis/users/' + id);
         if (result.code === 1) {
             message.success('操作成功', 3);
             await this.loadTableData(this.state.queryParams);
@@ -97,7 +97,7 @@ class User extends Component {
         };
 
         try {
-            let result = await request.get('/users/paging?' + paramsStr);
+            let result = await request.get('/apis/users/paging?' + paramsStr);
             if (result.code === 1) {
                 data = result.data;
             } else {
@@ -169,7 +169,7 @@ class User extends Component {
 
         if (formData.id) {
             // 向后台提交数据
-            const result = await request.put('/users/' + formData.id, formData);
+            const result = await request.put('/apis/users/' + formData.id, formData);
             if (result.code === 1) {
                 message.success('操作成功', 3);
 
@@ -182,7 +182,7 @@ class User extends Component {
             }
         } else {
             // 向后台提交数据
-            const result = await request.post('/users', formData);
+            const result = await request.post('/apis/users', formData);
             if (result.code === 1) {
                 message.success('操作成功', 3);
 
@@ -238,7 +238,7 @@ class User extends Component {
             delBtnLoading: true
         })
         try {
-            let result = await request.delete('/users/' + this.state.selectedRowKeys.join(','));
+            let result = await request.delete('/apis/users/' + this.state.selectedRowKeys.join(','));
             if (result['code'] === 1) {
                 message.success('操作成功', 3);
                 this.setState({
@@ -267,7 +267,7 @@ class User extends Component {
             changePasswordConfirmLoading: true
         })
 
-        let result = await request.post(`/users/${this.state.selectedRow['id']}/change-password?password=${values['password']}`);
+        let result = await request.post(`/apis/users/${this.state.selectedRow['id']}/change-password?password=${values['password']}`);
         if (result['code'] === 1) {
             message.success('操作成功', 3);
         } else {
@@ -308,7 +308,7 @@ class User extends Component {
                 return (
                     <Button type="link" size='small'
                             onClick={async () => {
-                                let result = await request.get(`/users/${record['id']}`);
+                                let result = await request.get(`/apis/users/${record['id']}`);
                                 if (result['code'] !== 1) {
                                     message.error(result['message']);
                                     return;
@@ -418,7 +418,7 @@ class User extends Component {
                                                 okText: '确定',
                                                 cancelText: '取消',
                                                 onOk: async () => {
-                                                    let result = await request.post(`/users/${record['id']}/reset-totp`);
+                                                    let result = await request.post(`/apis/users/${record['id']}/reset-totp`);
                                                     if (result['code'] === 1) {
                                                         message.success('操作成功', 3);
                                                         this.loadTableData();
@@ -443,7 +443,7 @@ class User extends Component {
                         <div>
                             <Button type="link" size='small'
                                     onClick={async () => {
-                                        let result = await request.get(`/users/${record['id']}`);
+                                        let result = await request.get(`/apis/users/${record['id']}`);
                                         if (result['code'] !== 1) {
                                             message.error(result['message']);
                                             return;

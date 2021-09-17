@@ -1,12 +1,12 @@
 package service
 
 import (
+	"next-terminal/models"
+	"next-terminal/pkg/utils"
+	"next-terminal/repository"
 	"os"
 
 	"next-terminal/pkg/guacd"
-	"next-terminal/server/model"
-	"next-terminal/server/repository"
-	"next-terminal/server/utils"
 )
 
 type ConfigsService struct {
@@ -21,7 +21,7 @@ func (r ConfigsService) InitConfigs() error {
 	propertyMap := r.configsRepository.FindAllMap()
 
 	if len(propertyMap[guacd.Host]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.Host,
 			Cval: utils.GetKeyFromYaml("terminal.guacd.host", "127.0.0.1"),
 		}
@@ -31,7 +31,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.Port]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.Port,
 			Cval: utils.GetKeyFromYaml("terminal.guacd.port", "4822"),
 		}
@@ -41,7 +41,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.EnableRecording]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.EnableRecording,
 			Cval: "true",
 		}
@@ -52,7 +52,7 @@ func (r ConfigsService) InitConfigs() error {
 
 	if len(propertyMap[guacd.RecordingPath]) == 0 {
 		path, _ := os.Getwd()
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.RecordingPath,
 			Cval: path + "/recording/",
 		}
@@ -67,7 +67,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.CreateRecordingPath]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.CreateRecordingPath,
 			Cval: "true",
 		}
@@ -77,7 +77,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.DriveName]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.DriveName,
 			Cval: "File-System",
 		}
@@ -90,7 +90,7 @@ func (r ConfigsService) InitConfigs() error {
 
 		path, _ := os.Getwd()
 
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.DrivePath,
 			Cval: path + "/drive/",
 		}
@@ -105,7 +105,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.FontName]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.FontName,
 			Cval: "menlo",
 		}
@@ -115,7 +115,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.FontSize]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.FontSize,
 			Cval: "12",
 		}
@@ -125,7 +125,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.ColorScheme]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.ColorScheme,
 			Cval: "gray-black",
 		}
@@ -135,7 +135,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.EnableDrive]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.EnableDrive,
 			Cval: "true",
 		}
@@ -145,7 +145,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.EnableWallpaper]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.EnableWallpaper,
 			Cval: "false",
 		}
@@ -155,7 +155,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.EnableTheming]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.EnableTheming,
 			Cval: "false",
 		}
@@ -165,7 +165,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.EnableFontSmoothing]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.EnableFontSmoothing,
 			Cval: "false",
 		}
@@ -175,7 +175,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.EnableFullWindowDrag]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.EnableFullWindowDrag,
 			Cval: "false",
 		}
@@ -185,7 +185,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.EnableDesktopComposition]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.EnableDesktopComposition,
 			Cval: "false",
 		}
@@ -195,7 +195,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.EnableMenuAnimations]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.EnableMenuAnimations,
 			Cval: "false",
 		}
@@ -205,7 +205,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.DisableBitmapCaching]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.DisableBitmapCaching,
 			Cval: "false",
 		}
@@ -215,7 +215,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.DisableOffscreenCaching]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.DisableOffscreenCaching,
 			Cval: "false",
 		}
@@ -225,7 +225,7 @@ func (r ConfigsService) InitConfigs() error {
 	}
 
 	if len(propertyMap[guacd.DisableGlyphCaching]) == 0 {
-		property := model.Configs{
+		property := models.Configs{
 			Ckey: guacd.DisableGlyphCaching,
 			Cval: "true",
 		}

@@ -10,18 +10,11 @@ COPY . .
 
 RUN make build
 
-FROM ghcr.io/ysicing/debian
+FROM ghcr.io/ysicing/debian:font
 
 LABEL MAINTAINER="ysicing"
 
 WORKDIR /usr/local/next-terminal
-
-RUN set -x \
-    && apt-get update \
-    && apt-get install --no-install-recommends --no-install-suggests -y ttf-mscorefonts-installer fontconfig \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN mkfontscale && mkfontdir && fc-cache
 
 COPY --from=builder /app/dist/next-terminal ./
 COPY --from=builder /app/web/build ./web/build

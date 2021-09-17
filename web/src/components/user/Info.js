@@ -32,7 +32,7 @@ class Info extends Component {
     }
 
     loadInfo = async () => {
-        let result = await request.get('/info');
+        let result = await request.get('/apis/info');
         if (result['code'] === 1) {
             this.setState({
                 user: result['data']
