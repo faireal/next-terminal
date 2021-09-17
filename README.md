@@ -1,6 +1,6 @@
 # Next Terminal
 
-![Docker image](https://github.com/ysicing/next-terminal/workflows/Docker%20image/badge.svg?branch=ysicing)
+[![Docker NT image](https://github.com/ysicing/next-terminal/actions/workflows/docker.yml/badge.svg?branch=ysicing)](https://github.com/ysicing/next-terminal/actions/workflows/docker.yml)
 
 ## 快速了解
 
@@ -34,6 +34,16 @@ admin/admin
 
 - 本项目不提供任何担保，亦不承担任何责任。
 - 遵循GPLv2协议
+
+## 本地开发
+
+```bash
+git clone https://github.com/ysicing/next-terminal.git
+cd next-terminal
+# 配置好文件
+make static
+air
+```
 
 ## 快速安装
 
