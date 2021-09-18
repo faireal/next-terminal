@@ -73,7 +73,7 @@ class Credential extends Component {
     }
 
     async delete(id) {
-        const result = await request.delete('/credentials/' + id);
+        const result = await request.delete('/apis/credentials/' + id);
         if (result.code === 1) {
             message.success('删除成功');
             await this.loadTableData(this.state.queryParams);
@@ -169,7 +169,7 @@ class Credential extends Component {
                 items: items
             });
 
-            let result = await request.get('/credentials/' + id);
+            let result = await request.get('/apis/credentials/' + id);
             if (result['code'] !== 1) {
                 message.error(result['message']);
                 items[index].updateBtnLoading = false;
@@ -206,7 +206,7 @@ class Credential extends Component {
 
         if (formData.id) {
             // 向后台提交数据
-            const result = await request.put('/credentials/' + formData.id, formData);
+            const result = await request.put('/apis/credentials/' + formData.id, formData);
             if (result.code === 1) {
                 message.success('操作成功', 3);
 
@@ -219,7 +219,7 @@ class Credential extends Component {
             }
         } else {
             // 向后台提交数据
-            const result = await request.post('/credentials', formData);
+            const result = await request.post('/apis/credentials', formData);
             if (result.code === 1) {
                 message.success('操作成功', 3);
 
@@ -242,7 +242,7 @@ class Credential extends Component {
             delBtnLoading: true
         })
         try {
-            let result = await request.delete('/credentials/' + this.state.selectedRowKeys.join(','));
+            let result = await request.delete('/apis/credentials/' + this.state.selectedRowKeys.join(','));
             if (result.code === 1) {
                 message.success('操作成功', 3);
                 this.setState({
@@ -604,7 +604,7 @@ class Credential extends Component {
                                    .current
                                    .validateFields()
                                    .then(async values => {
-                                       let result = await request.post(`/credentials/${this.state.selected['id']}/change-owner?owner=${values['owner']}`);
+                                       let result = await request.post(`/apis/credentials/${this.state.selected['id']}/change-owner?owner=${values['owner']}`);
                                        if (result['code'] === 1) {
                                            message.success('操作成功');
                                            this.loadTableData();

@@ -229,7 +229,7 @@ class App extends Component {
                                 {
                                     this.state.triggerMenu && isAdmin() ?
                                         <>
-                                            <SubMenu key='audit' title='会话审计' icon={<AuditOutlined/>}>
+                                            <SubMenu key='audit' title='安全审计' icon={<AuditOutlined/>}>
                                                 <Menu.Item key="online-session" icon={<LinkOutlined/>}>
                                                     <Link to={'/online-session'}>
                                                         在线会话
@@ -241,25 +241,25 @@ class App extends Component {
                                                         历史会话
                                                     </Link>
                                                 </Menu.Item>
-                                            </SubMenu>
-
-                                            <SubMenu key='ops' title='系统运维' icon={<ControlOutlined/>}>
-
                                                 <Menu.Item key="login-log" icon={<LoginOutlined/>}>
                                                     <Link to={'/login-log'}>
                                                         登录日志
                                                     </Link>
                                                 </Menu.Item>
+                                                <Menu.Item key="access-security" icon={<SafetyCertificateOutlined/>}>
+                                                    <Link to={'/access-security'}>
+                                                        访问安全
+                                                    </Link>
+                                                </Menu.Item>
+                                            </SubMenu>
+
+                                            <SubMenu key='ops' title='运维工具' icon={<ControlOutlined/>}>
+
+
 
                                                 <Menu.Item key="job" icon={<BlockOutlined/>}>
                                                     <Link to={'/job'}>
                                                         计划任务
-                                                    </Link>
-                                                </Menu.Item>
-
-                                                <Menu.Item key="access-security" icon={<SafetyCertificateOutlined/>}>
-                                                    <Link to={'/access-security'}>
-                                                        访问安全
                                                     </Link>
                                                 </Menu.Item>
                                             </SubMenu>

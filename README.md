@@ -2,26 +2,9 @@
 
 [![Docker NT image](https://github.com/ysicing/next-terminal/actions/workflows/docker.yml/badge.svg?branch=ysicing)](https://github.com/ysicing/next-terminal/actions/workflows/docker.yml)
 
-## 快速了解
+## 版本变更
 
-Next Terminal是使用Golang和React开发的一款HTML5的远程桌面网关，具有小巧、易安装、易使用、资源占用小的特点，支持RDP、SSH、VNC和Telnet协议的连接和管理。
-
-Next Terminal基于 [Apache Guacamole](https://guacamole.apache.org/) 开发，使用到了guacd服务。
-
-目前支持的功能有：
-
-- 授权凭证管理
-- 资产管理（支持RDP、SSH、VNC、TELNET协议）
-- <del>指令管理</del>
-- <del>批量执行命令<del>
-- 在线会话管理（监控、强制断开）
-- 离线会话管理（查看录屏）
-- 双因素认证
-- 资产标签
-- 资产授权
-- 多用户&用户分组
-- 计划任务
-- LDAP登录支持
+[Changelog](./CHANGELOG.md)
 
 ## 在线体验
 
