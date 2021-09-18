@@ -1,4 +1,4 @@
-BUILD_VERSION   ?= $(shell cat version.txt || echo "0.0.1")
+BUILD_VERSION   ?= $(shell cat version.txt || echo "0.0.0")
 BUILD_DATE      := $(shell date "+%Y%m%d")
 COMMIT_SHA1     := $(shell git rev-parse --short HEAD || echo "0.0.0")
 RELEASEV := ${BUILD_VERSION}-${BUILD_DATE}-${COMMIT_SHA1}
@@ -36,7 +36,9 @@ static: ## 构建ui
 build: ## 构建二进制
 	@echo "build bin ${RELEASEV}"
 	@CGO_ENABLED=1 GOARCH=amd64 go build -o dist/next-terminal \
-    	-ldflags   "-extldflags "-static" -X 'main.Version=${RELEASEV}'"
+    	-ldflags   "-extldflags "-static" -X 'next-terminal/constants.Commit=${COMMIT_SHA1}' \
+          -X 'next-terminal/constants.Date=${BUILD_DATE}' \
+          -X 'next-terminal/constants.Release=${BUILD_VERSION}'"
 
 docker: ## 构建镜像
 	docker build -t ${IMAGE}/next-terminal:${BUILD_VERSION} -f hack/docker/next-terminal/Dockerfile .

@@ -6,6 +6,7 @@ import (
 	"github.com/ergoapi/exgin"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	"next-terminal/constants"
 	"next-terminal/models"
@@ -75,6 +76,8 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	e.POST("/login", LoginEndpoint)
 	e.POST("/ldaplogin", LdapLoginEndpoint)
 	e.POST("/loginWithTotp", loginWithTotpEndpoint)
+	e.GET("/version", RVersion)
+	e.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	e.GET("/tunnel", TunEndpoint)
 	e.GET("/ssh", SSHEndpoint)
@@ -203,6 +206,12 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		securities.GET("/:id", SecurityGetEndpoint)
 	}
 
+	e.NoMethod(func(c *gin.Context) {
+		exgin.GinsAbortWithCode(c, 200, fmt.Sprintf("not found: %v", c.Request.Method))
+	})
+	e.NoRoute(func(c *gin.Context) {
+		exgin.GinsAbortWithCode(c, 200, fmt.Sprintf("not found: %v", c.Request.URL.Path))
+	})
 	return e
 }
 
