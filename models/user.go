@@ -12,23 +12,26 @@ type User struct {
 	Nickname   string         `json:"nickname"`
 	TOTPSecret string         `json:"-"`
 	Online     bool           `json:"online"`
-	Enabled    bool           `json:"enabled"`
 	Created    utils.JsonTime `json:"created"`
 	Role       string         `json:"role"`
 	Mail       string         `json:"mail"`
 	Baned      bool           `json:"baned"`
+	Department string         `json:"department"`
+	Mode       string         `json:"mode"` // ldap,local,github
 }
 
 type UserForPage struct {
+	Model
 	ID               string         `json:"id"`
 	Username         string         `json:"username"`
 	Nickname         string         `json:"nickname"`
 	TOTPSecret       string         `json:"totpSecret"`
 	Mail             string         `json:"mail"`
 	Online           bool           `json:"online"`
-	Enabled          bool           `json:"enabled"`
 	Created          utils.JsonTime `json:"created"`
-	Type             string         `json:"type"`
+	Role             string         `json:"role"`
+	Department       string         `json:"department"`
+	Mode             string         `json:"mode"` // ldap,local,github
 	Baned            bool           `json:"baned"`
 	SharerAssetCount int64          `json:"sharerAssetCount"`
 }

@@ -34,3 +34,4 @@ dist
 *.dbnotfound.txt
 drive
 recording
+config.yml

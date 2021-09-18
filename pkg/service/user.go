@@ -3,17 +3,17 @@ package service
 import (
 	"github.com/ergoapi/zlog"
 	"next-terminal/constants"
-	model2 "next-terminal/models"
+	"next-terminal/models"
 	"next-terminal/pkg/utils"
-	repository2 "next-terminal/repository"
+	"next-terminal/repository"
 )
 
 type UserService struct {
-	userRepository     *repository2.UserRepository
-	loginLogRepository *repository2.LoginLogRepository
+	userRepository     *repository.UserRepository
+	loginLogRepository *repository.LoginLogRepository
 }
 
-func NewUserService(userRepository *repository2.UserRepository, loginLogRepository *repository2.LoginLogRepository) *UserService {
+func NewUserService(userRepository *repository.UserRepository, loginLogRepository *repository.LoginLogRepository) *UserService {
 	return &UserService{userRepository: userRepository, loginLogRepository: loginLogRepository}
 }
 
@@ -28,7 +28,7 @@ func (r UserService) InitUser() (err error) {
 			return err
 		}
 
-		user := model2.User{
+		user := models.User{
 			ID:       utils.UUID(),
 			Username: "admin",
 			Password: string(pass),
@@ -44,11 +44,11 @@ func (r UserService) InitUser() (err error) {
 		for i := range users {
 			// 修正默认用户类型为管理员
 			if users[i].Role == "" {
-				user := model2.User{
+				user := models.User{
 					Role: constants.RoleAdmin,
 					ID:   users[i].ID,
 				}
-				if err := r.userRepository.Update(&user); err != nil {
+				if err := r.userRepository.Update(user); err != nil {
 					return err
 				}
 				zlog.Info("自动修正用户「%v」ID「%v」类型为管理员", users[i].Nickname, users[i].ID)
@@ -88,7 +88,7 @@ func (r UserService) Logout(token string) (err error) {
 		return
 	}
 
-	loginLogForUpdate := &model2.LoginLog{LogoutTime: utils.NowJsonTime(), ID: token}
+	loginLogForUpdate := &models.LoginLog{LogoutTime: utils.NowJsonTime(), ID: token}
 	err = r.loginLogRepository.Update(loginLogForUpdate)
 	if err != nil {
 		return err

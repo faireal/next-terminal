@@ -6,7 +6,7 @@ import (
 	"github.com/ergoapi/zlog"
 	"github.com/spf13/viper"
 	"next-terminal/constants"
-	model2 "next-terminal/models"
+	"next-terminal/models"
 	"next-terminal/pkg/utils"
 	"strings"
 
@@ -22,27 +22,27 @@ func NewAssetRepository(db *gorm.DB) *AssetRepository {
 	return assetRepository
 }
 
-func (r AssetRepository) FindAll() (o []model2.Asset, err error) {
+func (r AssetRepository) FindAll() (o []models.Asset, err error) {
 	err = r.DB.Find(&o).Error
 	return
 }
 
-func (r AssetRepository) FindByIds(assetIds []string) (o []model2.Asset, err error) {
+func (r AssetRepository) FindByIds(assetIds []string) (o []models.Asset, err error) {
 	err = r.DB.Where("id in ?", assetIds).Find(&o).Error
 	return
 }
 
-func (r AssetRepository) FindByProtocol(protocol string) (o []model2.Asset, err error) {
+func (r AssetRepository) FindByProtocol(protocol string) (o []models.Asset, err error) {
 	err = r.DB.Where("protocol = ?", protocol).Find(&o).Error
 	return
 }
 
-func (r AssetRepository) FindByProtocolAndIds(protocol string, assetIds []string) (o []model2.Asset, err error) {
+func (r AssetRepository) FindByProtocolAndIds(protocol string, assetIds []string) (o []models.Asset, err error) {
 	err = r.DB.Where("protocol = ? and id in ?", protocol, assetIds).Find(&o).Error
 	return
 }
 
-func (r AssetRepository) FindByProtocolAndUser(protocol string, account model2.User) (o []model2.Asset, err error) {
+func (r AssetRepository) FindByProtocolAndUser(protocol string, account models.User) (o []models.Asset, err error) {
 	db := r.DB.Table("assets").Select("assets.id,assets.name,assets.ip,assets.port,assets.protocol,assets.active,assets.owner,assets.created, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on assets.owner = users.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
 
 	if constants.RoleDefault == account.Role {
@@ -57,7 +57,7 @@ func (r AssetRepository) FindByProtocolAndUser(protocol string, account model2.U
 	return
 }
 
-func (r AssetRepository) Find(pageIndex, pageSize int, name, protocol, tags string, account model2.User, owner, sharer, userGroupId, ip, order, field string) (o []model2.AssetForPage, total int64, err error) {
+func (r AssetRepository) Find(pageIndex, pageSize int, name, protocol, tags string, account models.User, owner, sharer, userGroupId, ip, order, field string) (o []models.AssetForPage, total int64, err error) {
 	db := r.DB.Table("assets").Select("assets.id,assets.name,assets.ip,assets.port,assets.protocol,assets.active,assets.owner,assets.created,assets.tags, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on assets.owner = users.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
 	dbCounter := r.DB.Table("assets").Select("DISTINCT assets.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
 
@@ -140,7 +140,7 @@ func (r AssetRepository) Find(pageIndex, pageSize int, name, protocol, tags stri
 	err = db.Order("assets." + field + " " + order).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&o).Error
 
 	if o == nil {
-		o = make([]model2.AssetForPage, 0)
+		o = make([]models.AssetForPage, 0)
 	} else {
 		for i := 0; i < len(o); i++ {
 			if o[i].Protocol == "ssh" {
@@ -161,7 +161,7 @@ func (r AssetRepository) Find(pageIndex, pageSize int, name, protocol, tags stri
 	return
 }
 
-func (r AssetRepository) Encrypt(item *model2.Asset, password []byte) error {
+func (r AssetRepository) Encrypt(item *models.Asset, password []byte) error {
 	if item.Password != "" && item.Password != "-" {
 		encryptedCBC, err := utils.AesEncryptCBC([]byte(item.Password), password)
 		if err != nil {
@@ -187,7 +187,7 @@ func (r AssetRepository) Encrypt(item *model2.Asset, password []byte) error {
 	return nil
 }
 
-func (r AssetRepository) Create(o *model2.Asset) (err error) {
+func (r AssetRepository) Create(o *models.Asset) (err error) {
 	if err := r.Encrypt(o, utils.Encryption()); err != nil {
 		return err
 	}
@@ -197,12 +197,12 @@ func (r AssetRepository) Create(o *model2.Asset) (err error) {
 	return nil
 }
 
-func (r AssetRepository) FindById(id string) (o model2.Asset, err error) {
+func (r AssetRepository) FindById(id string) (o models.Asset, err error) {
 	err = r.DB.Where("id = ?", id).First(&o).Error
 	return
 }
 
-func (r AssetRepository) Decrypt(item *model2.Asset, password []byte) error {
+func (r AssetRepository) Decrypt(item *models.Asset, password []byte) error {
 	if item.Encrypted {
 		if item.Password != "" && item.Password != "-" {
 			origData, err := base64.StdEncoding.DecodeString(item.Password)
@@ -241,7 +241,7 @@ func (r AssetRepository) Decrypt(item *model2.Asset, password []byte) error {
 	return nil
 }
 
-func (r AssetRepository) FindByIdAndDecrypt(id string) (o model2.Asset, err error) {
+func (r AssetRepository) FindByIdAndDecrypt(id string) (o models.Asset, err error) {
 	err = r.DB.Where("id = ?", id).First(&o).Error
 	if err == nil {
 		err = r.Decrypt(&o, utils.Encryption())
@@ -249,7 +249,7 @@ func (r AssetRepository) FindByIdAndDecrypt(id string) (o model2.Asset, err erro
 	return
 }
 
-func (r AssetRepository) UpdateById(o *model2.Asset, id string) error {
+func (r AssetRepository) UpdateById(o *models.Asset, id string) error {
 	o.ID = id
 	return r.DB.Updates(o).Error
 }
@@ -260,11 +260,11 @@ func (r AssetRepository) UpdateActiveById(active bool, id string) error {
 }
 
 func (r AssetRepository) DeleteById(id string) error {
-	return r.DB.Where("id = ?", id).Delete(&model2.Asset{}).Error
+	return r.DB.Where("id = ?", id).Delete(&models.Asset{}).Error
 }
 
 func (r AssetRepository) Count() (total int64, err error) {
-	err = r.DB.Find(&model2.Asset{}).Count(&total).Error
+	err = r.DB.Find(&models.Asset{}).Count(&total).Error
 	return
 }
 
@@ -282,12 +282,12 @@ func (r AssetRepository) CountByUserId(userId string) (total int64, err error) {
 	if len(userGroupIds) > 0 {
 		db = db.Or("resource_sharers.user_group_id in ?", userGroupIds)
 	}
-	err = db.Find(&model2.Asset{}).Count(&total).Error
+	err = db.Find(&models.Asset{}).Count(&total).Error
 	return
 }
 
 func (r AssetRepository) FindTags() (o []string, err error) {
-	var assets []model2.Asset
+	var assets []models.Asset
 	err = r.DB.Not("tags = ?", "").Find(&assets).Error
 	if err != nil {
 		return nil, err
@@ -308,7 +308,7 @@ func (r AssetRepository) FindTags() (o []string, err error) {
 }
 
 func (r AssetRepository) UpdateAttributes(assetId, protocol string, m map[string]interface{}) error {
-	var data []model2.AssetAttribute
+	var data []models.AssetAttribute
 	var parameterNames []string
 	switch protocol {
 	case "ssh":
@@ -331,7 +331,7 @@ func (r AssetRepository) UpdateAttributes(assetId, protocol string, m map[string
 	}
 
 	return r.DB.Transaction(func(tx *gorm.DB) error {
-		err := tx.Where("asset_id = ?", assetId).Delete(&model2.AssetAttribute{}).Error
+		err := tx.Where("asset_id = ?", assetId).Delete(&models.AssetAttribute{}).Error
 		if err != nil {
 			return err
 		}
@@ -339,9 +339,9 @@ func (r AssetRepository) UpdateAttributes(assetId, protocol string, m map[string
 	})
 }
 
-func genAttribute(assetId, name string, m map[string]interface{}) model2.AssetAttribute {
+func genAttribute(assetId, name string, m map[string]interface{}) models.AssetAttribute {
 	value := fmt.Sprintf("%v", m[name])
-	attribute := model2.AssetAttribute{
+	attribute := models.AssetAttribute{
 		Id:      utils.Sign([]string{assetId, name}),
 		AssetId: assetId,
 		Name:    name,
@@ -350,10 +350,10 @@ func genAttribute(assetId, name string, m map[string]interface{}) model2.AssetAt
 	return attribute
 }
 
-func (r AssetRepository) FindAttrById(assetId string) (o []model2.AssetAttribute, err error) {
+func (r AssetRepository) FindAttrById(assetId string) (o []models.AssetAttribute, err error) {
 	err = r.DB.Where("asset_id = ?", assetId).Find(&o).Error
 	if o == nil {
-		o = make([]model2.AssetAttribute, 0)
+		o = make([]models.AssetAttribute, 0)
 	}
 	return o, err
 }
@@ -396,7 +396,7 @@ func (r AssetRepository) FindAssetAttrMapByAssetId(assetId string) (map[string]i
 	return attributeMap, nil
 }
 
-func (r AssetRepository) InitAsset(item *model2.Asset, m map[string]interface{}) error {
+func (r AssetRepository) InitAsset(item *models.Asset, m map[string]interface{}) error {
 	// 已存在资产跳过
 	exist, _ := r.AssetGet("ip = ?", item.IP)
 	if exist != nil {
@@ -419,9 +419,9 @@ func (r AssetRepository) InitAsset(item *model2.Asset, m map[string]interface{})
 	return nil
 }
 
-func (r AssetRepository) AssetGet(where string, args ...interface{}) (*model2.Asset, error) {
-	var u model2.Asset
-	err := r.DB.Model(model2.Asset{}).Where(where, args...).Last(&u).Error
+func (r AssetRepository) AssetGet(where string, args ...interface{}) (*models.Asset, error) {
+	var u models.Asset
+	err := r.DB.Model(models.Asset{}).Where(where, args...).Last(&u).Error
 	if err != nil {
 		return nil, err
 	}

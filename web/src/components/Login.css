@@ -7,6 +7,14 @@
     float: right;
 }
 
+/* .login-ldap {
+    float: right;
+}
+
+.ant-col-rtl .login-ldap {
+    float: left;
+} */
+
 .login-form-button {
     width: 100%;
 }

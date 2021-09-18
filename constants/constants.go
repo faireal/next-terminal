@@ -25,8 +25,8 @@ const (
 	Guacd = "guacd" // 接入模式：guacd
 	Naive = "naive" // 接入模式：原生
 
-	RoleDefault  = "user"  // 普通用户
-	RoleAdmin = "admin" // 管理员
+	RoleDefault = "user"  // 普通用户
+	RoleAdmin   = "admin" // 管理员
 
 	Token = "X-Auth-Token"
 )
@@ -55,7 +55,6 @@ const (
 	Connecting   = "connecting"   // 会话状态：连接中
 	Connected    = "connected"    // 会话状态：已连接
 	Disconnected = "disconnected" // 会话状态：已断开连接
-
 
 )
 

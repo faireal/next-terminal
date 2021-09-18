@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"next-terminal/constants"
-	model2 "next-terminal/models"
+	"next-terminal/models"
 	"next-terminal/pkg/utils"
-	repository2 "next-terminal/repository"
+	"next-terminal/repository"
 	"strings"
 	"time"
 
@@ -17,13 +17,13 @@ import (
 )
 
 type JobService struct {
-	jobRepository        *repository2.JobRepository
-	jobLogRepository     *repository2.JobLogRepository
-	assetRepository      *repository2.AssetRepository
-	credentialRepository *repository2.CredentialRepository
+	jobRepository        *repository.JobRepository
+	jobLogRepository     *repository.JobLogRepository
+	assetRepository      *repository.AssetRepository
+	credentialRepository *repository.CredentialRepository
 }
 
-func NewJobService(jobRepository *repository2.JobRepository, jobLogRepository *repository2.JobLogRepository, assetRepository *repository2.AssetRepository, credentialRepository *repository2.CredentialRepository) *JobService {
+func NewJobService(jobRepository *repository.JobRepository, jobLogRepository *repository.JobLogRepository, assetRepository *repository.AssetRepository, credentialRepository *repository.CredentialRepository) *JobService {
 	return &JobService{jobRepository: jobRepository, jobLogRepository: jobLogRepository, assetRepository: assetRepository, credentialRepository: credentialRepository}
 }
 
@@ -43,18 +43,18 @@ func (r JobService) ChangeStatusById(id, status string) error {
 		}
 		zlog.Debug("开启计划任务「%v」,运行中计划任务数量「%v」", job.Name, len(cronv1.Cron.Entries()))
 
-		jobForUpdate := model2.Job{ID: id, Status: constants.JobStatusRunning, CronJobId: int(entryID)}
+		jobForUpdate := models.Job{ID: id, Status: constants.JobStatusRunning, CronJobId: int(entryID)}
 
 		return r.jobRepository.UpdateById(&jobForUpdate)
 	} else {
 		cronv1.Cron.Remove(cron.EntryID(job.CronJobId))
 		zlog.Debug("关闭计划任务「%v」,运行中计划任务数量「%v」", job.Name, len(cronv1.Cron.Entries()))
-		jobForUpdate := model2.Job{ID: id, Status: constants.JobStatusNotRunning}
+		jobForUpdate := models.Job{ID: id, Status: constants.JobStatusNotRunning}
 		return r.jobRepository.UpdateById(&jobForUpdate)
 	}
 }
 
-func getJob(j *model2.Job, jobService *JobService) (job cron.Job, err error) {
+func getJob(j *models.Job, jobService *JobService) (job cron.Job, err error) {
 	switch j.Func {
 	case constants.FuncCheckAssetStatusJob:
 		job = CheckAssetStatusJob{ID: j.ID, Mode: j.Mode, ResourceIds: j.ResourceIds, Metadata: j.Metadata, jobService: jobService}
@@ -79,7 +79,7 @@ func (r CheckAssetStatusJob) Run() {
 		return
 	}
 
-	var assets []model2.Asset
+	var assets []models.Asset
 	if r.Mode == constants.JobModeAll {
 		assets, _ = r.jobService.assetRepository.FindAll()
 	} else {
@@ -111,7 +111,7 @@ func (r CheckAssetStatusJob) Run() {
 	}
 
 	_ = r.jobService.jobRepository.UpdateLastUpdatedById(r.ID)
-	jobLog := model2.JobLog{
+	jobLog := models.JobLog{
 		ID:        utils.UUID(),
 		JobId:     r.ID,
 		Timestamp: utils.NowJsonTime(),
@@ -138,7 +138,7 @@ func (r ShellJob) Run() {
 		return
 	}
 
-	var assets []model2.Asset
+	var assets []models.Asset
 	if r.Mode == constants.JobModeAll {
 		assets, _ = r.jobService.assetRepository.FindByProtocol("ssh")
 	} else {
@@ -214,7 +214,7 @@ func (r ShellJob) Run() {
 	}
 
 	_ = r.jobService.jobRepository.UpdateLastUpdatedById(r.ID)
-	jobLog := model2.JobLog{
+	jobLog := models.JobLog{
 		ID:        utils.UUID(),
 		JobId:     r.ID,
 		Timestamp: utils.NowJsonTime(),
@@ -259,7 +259,7 @@ func (r JobService) ExecJobById(id string) (err error) {
 func (r JobService) InitJob() error {
 	jobs, _ := r.jobRepository.FindByFunc(constants.FuncCheckAssetStatusJob)
 	if len(jobs) == 0 {
-		job := model2.Job{
+		job := models.Job{
 			ID:      utils.UUID(),
 			Name:    "资产状态检测",
 			Func:    constants.FuncCheckAssetStatusJob,
@@ -287,7 +287,7 @@ func (r JobService) InitJob() error {
 	return nil
 }
 
-func (r JobService) Create(o *model2.Job) (err error) {
+func (r JobService) Create(o *models.Job) (err error) {
 
 	if o.Status == constants.JobStatusRunning {
 		j, err := getJob(o, &r)

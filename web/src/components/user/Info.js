@@ -109,7 +109,8 @@ class Info extends Component {
     render() {
         return (
             <>
-                <Content className="site-layout-background page-content">
+                {this.state.user.mode !== "ldap" && (
+                    <Content className="site-layout-background page-content">
                     <h1>修改密码</h1>
                     <Form ref={this.passwordFormRef} name="password" onFinish={this.changePassword}>
                         <Form.Item
@@ -162,6 +163,8 @@ class Info extends Component {
                         </Form.Item>
                     </Form>
                 </Content>
+                ) }
+
                 <Content className="site-layout-background page-content">
                     <h1>双因素认证</h1>
                     <Form hidden={this.state.qr}>

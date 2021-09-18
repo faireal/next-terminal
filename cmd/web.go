@@ -10,7 +10,7 @@ import (
 	"next-terminal/models"
 	ntcache "next-terminal/pkg/cache"
 	"next-terminal/pkg/task"
-	repository2 "next-terminal/repository"
+	"next-terminal/repository"
 )
 
 func newweb() *cobra.Command {
@@ -22,8 +22,8 @@ func newweb() *cobra.Command {
 			db := models.SetupDB()
 			e := api.SetupRoutes(db)
 
-			sessionRepo := repository2.NewSessionRepository(db)
-			configRepo := repository2.NewConfigsRepository(db)
+			sessionRepo := repository.NewSessionRepository(db)
+			configRepo := repository.NewConfigsRepository(db)
 			ticker := task.NewTicker(sessionRepo, configRepo)
 			ticker.SetupTicker()
 			addr := viper.GetString("core.http")

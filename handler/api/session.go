@@ -10,7 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"next-terminal/constants"
-	model2 "next-terminal/models"
+	"next-terminal/models"
 	"next-terminal/pkg/utils"
 	"os"
 	"path"
@@ -83,7 +83,7 @@ func SessionDeleteEndpoint(c *gin.Context) {
 func SessionConnectEndpoint(c *gin.Context) {
 	sessionId := c.Param("id")
 
-	session := model2.Session{}
+	session := models.Session{}
 	session.ID = sessionId
 	session.Status = constants.Connected
 	session.ConnectedTime = utils.NowJsonTime()
@@ -137,7 +137,7 @@ func CloseSessionById(sessionId string, code int, reason string) {
 		return
 	}
 
-	session := model2.Session{}
+	session := models.Session{}
 	session.ID = sessionId
 	session.Status = constants.Disconnected
 	session.DisconnectedTime = utils.NowJsonTime()
@@ -202,7 +202,7 @@ func SessionCreateEndpoint(c *gin.Context) {
 		return
 	}
 
-	session := &model2.Session{
+	session := &models.Session{
 		ID:         utils.UUID(),
 		AssetId:    asset.ID,
 		Username:   asset.Username,
@@ -492,7 +492,7 @@ func SessionLsEndpoint(c *gin.Context) {
 
 func SafetyRuleTrigger(c *gin.Context) {
 	zlog.Warn("IP %v 尝试进行攻击，请ban掉此IP", c.ClientIP())
-	security := model2.AccessSecurity{
+	security := models.AccessSecurity{
 		ID:     utils.UUID(),
 		Source: "安全规则触发",
 		IP:     c.ClientIP(),

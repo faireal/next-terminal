@@ -3,7 +3,7 @@ package repository
 import (
 	"fmt"
 	"gorm.io/gorm"
-	model2 "next-terminal/models"
+	"next-terminal/models"
 	"next-terminal/pkg/utils"
 )
 
@@ -31,15 +31,15 @@ func (r *ResourceSharerRepository) OverwriteUserIdsByResourceId(resourceId, reso
 	// 检查资产是否存在
 	switch resourceType {
 	case "asset":
-		resource := model2.Asset{}
+		resource := models.Asset{}
 		err = db.Where("id = ?", resourceId).First(&resource).Error
 		owner = resource.Owner
 	case "command":
-		resource := model2.Command{}
+		resource := models.Command{}
 		err = db.Where("id = ?", resourceId).First(&resource).Error
 		owner = resource.Owner
 	case "credential":
-		resource := model2.Credential{}
+		resource := models.Credential{}
 		err = db.Where("id = ?", resourceId).First(&resource).Error
 		owner = resource.Owner
 	}
@@ -54,7 +54,7 @@ func (r *ResourceSharerRepository) OverwriteUserIdsByResourceId(resourceId, reso
 		}
 	}
 
-	db.Where("resource_id = ?", resourceId).Delete(&model2.ResourceSharer{})
+	db.Where("resource_id = ?", resourceId).Delete(&models.ResourceSharer{})
 
 	for i := range userIds {
 		userId := userIds[i]
@@ -62,7 +62,7 @@ func (r *ResourceSharerRepository) OverwriteUserIdsByResourceId(resourceId, reso
 			continue
 		}
 		id := utils.Sign([]string{resourceId, resourceType, userId})
-		resource := &model2.ResourceSharer{
+		resource := &models.ResourceSharer{
 			ID:           id,
 			ResourceId:   resourceId,
 			ResourceType: resourceType,
@@ -95,11 +95,11 @@ func (r *ResourceSharerRepository) DeleteByUserIdAndResourceTypeAndResourceIdIn(
 		db = db.Where("resource_id in ?", resourceIds)
 	}
 
-	return db.Delete(&model2.ResourceSharer{}).Error
+	return db.Delete(&models.ResourceSharer{}).Error
 }
 
 func (r *ResourceSharerRepository) DeleteResourceSharerByResourceId(resourceId string) error {
-	return r.DB.Where("resource_id = ?", resourceId).Delete(&model2.ResourceSharer{}).Error
+	return r.DB.Where("resource_id = ?", resourceId).Delete(&models.ResourceSharer{}).Error
 }
 
 func (r *ResourceSharerRepository) AddSharerResources(userGroupId, userId, resourceType string, resourceIds []string) error {
@@ -112,19 +112,19 @@ func (r *ResourceSharerRepository) AddSharerResources(userGroupId, userId, resou
 			// 检查资产是否存在
 			switch resourceType {
 			case "asset":
-				resource := model2.Asset{}
+				resource := models.Asset{}
 				if err = tx.Where("id = ?", resourceId).First(&resource).Error; err != nil {
 					return fmt.Errorf("find asset fail err: %v", err)
 				}
 				owner = resource.Owner
 			case "command":
-				resource := model2.Command{}
+				resource := models.Command{}
 				if err = tx.Where("id = ?", resourceId).First(&resource).Error; err != nil {
 					return fmt.Errorf("find command fail err: %v", err)
 				}
 				owner = resource.Owner
 			case "credential":
-				resource := model2.Credential{}
+				resource := models.Credential{}
 				if err = tx.Where("id = ?", resourceId).First(&resource).Error; err != nil {
 					return fmt.Errorf("find credential fail err: %v", err)
 
@@ -137,7 +137,7 @@ func (r *ResourceSharerRepository) AddSharerResources(userGroupId, userId, resou
 			}
 
 			id := utils.Sign([]string{resourceId, resourceType, userId, userGroupId})
-			resource := &model2.ResourceSharer{
+			resource := &models.ResourceSharer{
 				ID:           id,
 				ResourceId:   resourceId,
 				ResourceType: resourceType,
@@ -156,7 +156,7 @@ func (r *ResourceSharerRepository) AddSharerResources(userGroupId, userId, resou
 func (r *ResourceSharerRepository) FindAssetIdsByUserId(userId string) (assetIds []string, err error) {
 	// 查询当前用户创建的资产
 	var ownerAssetIds, sharerAssetIds []string
-	asset := model2.Asset{}
+	asset := models.Asset{}
 	err = r.DB.Table(asset.TableName()).Select("id").Where("owner = ?", userId).Find(&ownerAssetIds).Error
 	if err != nil {
 		return nil, err

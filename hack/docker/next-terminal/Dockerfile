@@ -20,7 +20,7 @@ COPY --from=builder /app/dist/next-terminal ./
 COPY --from=builder /app/web/build ./web/build
 COPY --from=builder /app/web/src/fonts/Menlo-Regular-1.ttf /usr/share/fonts/
 COPY hack/docker/next-terminal/run.sh /run.sh
-COPY config.yml /usr/local/next-terminal/config.yml
+COPY config.example.yml /usr/local/next-terminal/config.yml
 
 RUN chmod +x /run.sh && mkdir /conf && ln -s /usr/local/next-terminal/config.yml /conf/nt.yml
 

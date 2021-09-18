@@ -1,13 +1,15 @@
 package api
 
 import (
+	"fmt"
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
-	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"gorm.io/gorm"
 	"next-terminal/constants"
-	model2 "next-terminal/models"
+	"next-terminal/models"
+	"next-terminal/pkg/ldap"
 	"next-terminal/pkg/utils"
 	"strings"
 	"time"
@@ -42,13 +44,8 @@ type ChangePassword struct {
 type Authorization struct {
 	Token    string
 	Remember bool
-	User     model2.User
+	User     models.User
 }
-
-//
-//type UserServer struct {
-//	repository.UserRepository
-//}
 
 // loginfail 默认密码校验次数
 func loginfail() int {
@@ -100,7 +97,7 @@ func LoginEndpoint(c *gin.Context) {
 		return
 	}
 
-	token, err := LoginSuccess(c, loginAccount, user)
+	token, err := LoginSuccess(c, loginAccount, user, "pass")
 	if err != nil {
 		errors.Dangerous(err)
 		return
@@ -108,13 +105,81 @@ func LoginEndpoint(c *gin.Context) {
 	Success(c, token)
 }
 
-func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user model2.User) (token string, err error) {
+func LdapLoginEndpoint(c *gin.Context) {
+	var loginAccount LoginAccount
+	exgin.Bind(c, &loginAccount)
+
+	// 存储登录失败次数信息
+	loginFailCountKey := loginAccount.Username
+	v, ok := ntcache.MemCache.Get(loginFailCountKey)
+	if !ok {
+		v = 1
+	}
+	count := v.(int)
+	if count >= loginfail() {
+		Fail(c, -1, "登录失败次数过多，请稍后再试")
+		return
+	}
+
+	ldapuser, err := ldap.LdapLogin(loginAccount.Username, loginAccount.Password)
+	if err != nil {
+		count++
+		ntcache.MemCache.Set(loginFailCountKey, count, time.Minute*time.Duration(5))
+		FailWithData(c, -1, fmt.Sprintf("您输入的账号或密码不正确: %v", err), count)
+		return
+	}
+
+	u, err := userRepository.UserGet("username = ?", ldapuser.Username)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		errors.Dangerous(err)
+		return
+	}
+
+	if err == gorm.ErrRecordNotFound {
+		// 创建用户
+		u = &models.User{
+			ID:         utils.UUID(),
+			Username:   ldapuser.Username,
+			Nickname:   ldapuser.Nickname,
+			Role:       constants.RoleDefault,
+			Department: ldapuser.Department,
+			Mode:       "ldap",
+			Mail:       ldapuser.Mail,
+			Created:    utils.NowJsonTime(),
+		}
+		userRepository.Create(u)
+	} else {
+		u.Department = ldapuser.Department
+		u.Nickname = ldapuser.Nickname
+		u.Mail = ldapuser.Mail
+		u.Mode = "ldap"
+	}
+
+	if u.TOTPSecret != "" && u.TOTPSecret != "-" {
+		Fail(c, 0, "")
+		return
+	}
+
+	if u.Baned {
+		Fail(c, -1, "当前账号已被禁用")
+		return
+	}
+
+	token, err := LoginSuccess(c, loginAccount, u, "ldap")
+	if err != nil {
+		errors.Dangerous(err)
+		return
+	}
+	Success(c, token)
+}
+
+func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user *models.User, logintype string) (token string, err error) {
 	token = strings.Join([]string{utils.UUID(), utils.UUID(), utils.UUID(), utils.UUID()}, "")
 
 	authorization := Authorization{
 		Token:    token,
 		Remember: loginAccount.Remember,
-		User:     user,
+		User:     *user,
 	}
 
 	cacheKey := BuildCacheKeyByToken(token)
@@ -127,7 +192,7 @@ func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user model2.User) (
 	}
 
 	// 保存登录日志
-	loginLog := model2.LoginLog{
+	loginLog := models.LoginLog{
 		ID:              token,
 		UserId:          user.ID,
 		ClientIP:        c.ClientIP(),
@@ -141,14 +206,22 @@ func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user model2.User) (
 	}
 
 	// 修改登录状态
-	err = userRepository.Update(&model2.User{Online: true, ID: user.ID})
+	var u models.User
+	if logintype == "ldap" {
+		u.Department = user.Department
+		u.Mail = user.Mail
+		u.Nickname = user.Nickname
+		u.Mode = user.Mode
+	}
+	u.Online = true
+	u.ID = user.ID
+	err = userRepository.Update(u)
 
 	return token, err
 }
 
 func BuildCacheKeyByToken(token string) string {
 	cacheKey := strings.Join([]string{constants.Token, token}, ":")
-	zlog.Debug(cacheKey)
 	return cacheKey
 }
 
@@ -195,7 +268,7 @@ func loginWithTotpEndpoint(c *gin.Context) {
 		return
 	}
 
-	token, err := LoginSuccess(c, loginAccount, user)
+	token, err := LoginSuccess(c, loginAccount, user, "pass")
 	if err != nil {
 		errors.Dangerous(err)
 		return
@@ -231,7 +304,7 @@ func ConfirmTOTPEndpoint(c *gin.Context) {
 		return
 	}
 
-	u := &model2.User{
+	u := models.User{
 		TOTPSecret: confirmTOTP.Secret,
 		ID:         account.ID,
 	}
@@ -275,7 +348,7 @@ func ReloadTOTPEndpoint(c *gin.Context) {
 
 func ResetTOTPEndpoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
-	u := &model2.User{
+	u := models.User{
 		TOTPSecret: "-",
 		ID:         account.ID,
 	}
@@ -306,7 +379,7 @@ func ChangePasswordEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	u := &model2.User{
+	u := models.User{
 		Password: string(passwd),
 		ID:       account.ID,
 	}
@@ -325,6 +398,7 @@ type AccountInfo struct {
 	Nickname   string `json:"nickname"`
 	Type       string `json:"type"`
 	EnableTotp bool   `json:"enableTotp"`
+	Mode       string `json:"mode"`
 }
 
 func InfoEndpoint(c *gin.Context) {
@@ -342,6 +416,7 @@ func InfoEndpoint(c *gin.Context) {
 		Nickname:   user.Nickname,
 		Type:       user.Role,
 		EnableTotp: user.TOTPSecret != "" && user.TOTPSecret != "-",
+		Mode:       user.Mode,
 	}
 	Success(c, info)
 }

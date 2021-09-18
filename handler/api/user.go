@@ -70,7 +70,7 @@ func UserUpdateEndpoint(c *gin.Context) {
 	exgin.Bind(c, &item)
 	item.ID = id
 
-	if err := userRepository.Update(&item); err != nil {
+	if err := userRepository.Update(item); err != nil {
 		errors.Dangerous(err)
 		return
 	}
@@ -148,7 +148,7 @@ func UserChangePasswordEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	u := &models.User{
+	u := models.User{
 		Password: string(passwd),
 		ID:       id,
 	}
@@ -170,7 +170,7 @@ func UserResetTotpEndpoint(c *gin.Context) {
 		return
 	}
 	id := c.Param("id")
-	u := &models.User{
+	u := models.User{
 		TOTPSecret: "-",
 		ID:         id,
 	}

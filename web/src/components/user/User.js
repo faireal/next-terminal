@@ -318,23 +318,26 @@ class User extends Component {
                 );
             }
         }, {
-            title: '用户昵称',
+            title: '昵称',
             dataIndex: 'nickname',
             key: 'nickname',
             sorter: true,
         }, {
-            title: '用户类型',
-            dataIndex: 'type',
-            key: 'type',
+            title: '角色',
+            dataIndex: 'role',
+            key: 'role',
             render: (text, record) => {
-
+                let mode = "local"
+                if (record.mode) {
+                    mode = record.mode
+                }
                 if (text === 'user') {
                     return (
-                        <Tag>普通用户</Tag>
+                        <Tag>普通用户({ mode })</Tag>
                     );
                 } else if (text === 'admin') {
                     return (
-                        <Tag color="blue">管理用户</Tag>
+                        <Tag color="blue">管理用户({ mode })</Tag>
                     );
                 } else {
                     return text;
@@ -344,7 +347,7 @@ class User extends Component {
             title: '邮箱',
             dataIndex: 'mail',
             key: 'mail',
-        }, {
+        },{
             title: '二次认证',
             dataIndex: 'totpSecret',
             key: 'totpSecret',
@@ -400,7 +403,7 @@ class User extends Component {
                     const menu = (
                         <Menu>
                             <Menu.Item key="1">
-                                <Button type="text" size='small'
+                                <Button type="text" size='small' disabled={record.mode === "ldap"}
                                         onClick={() => {
                                             this.setState({
                                                 changePasswordVisible: true,
@@ -483,14 +486,14 @@ class User extends Component {
 
                                     <Search
                                         ref={this.inputRefOfNickname}
-                                        placeholder="用户昵称"
+                                        placeholder="昵称"
                                         allowClear
                                         onSearch={this.handleSearchByNickname}
                                     />
 
                                     <Search
                                         ref={this.inputRefOfUsername}
-                                        placeholder="登录账号"
+                                        placeholder="用户"
                                         allowClear
                                         onSearch={this.handleSearchByUsername}
                                     />

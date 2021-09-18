@@ -3,17 +3,17 @@ package task
 import (
 	"github.com/ergoapi/zlog"
 	"next-terminal/constants"
-	repository2 "next-terminal/repository"
+	"next-terminal/repository"
 	"strconv"
 	"time"
 )
 
 type Ticker struct {
-	sessionRepository *repository2.SessionRepository
-	configsRepository *repository2.ConfigsRepository
+	sessionRepository *repository.SessionRepository
+	configsRepository *repository.ConfigsRepository
 }
 
-func NewTicker(sessionRepository *repository2.SessionRepository, configsRepository *repository2.ConfigsRepository) *Ticker {
+func NewTicker(sessionRepository *repository.SessionRepository, configsRepository *repository.ConfigsRepository) *Ticker {
 	return &Ticker{sessionRepository: sessionRepository, configsRepository: configsRepository}
 }
 

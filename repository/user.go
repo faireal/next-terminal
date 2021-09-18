@@ -1,9 +1,10 @@
 package repository
 
 import (
+	"github.com/ergoapi/zlog"
 	"gorm.io/gorm"
 	"next-terminal/constants"
-	model2 "next-terminal/models"
+	"next-terminal/models"
 )
 
 type UserRepository struct {
@@ -15,15 +16,15 @@ func NewUserRepository(db *gorm.DB) *UserRepository {
 	return userRepository
 }
 
-func (r UserRepository) FindAll() (o []model2.User) {
+func (r UserRepository) FindAll() (o []models.User) {
 	if r.DB.Find(&o).Error != nil {
 		return nil
 	}
 	return
 }
 
-func (r UserRepository) Find(pageIndex, pageSize int, username, nickname, mail, order, field string, account model2.User) (o []model2.UserForPage, total int64, err error) {
-	db := r.DB.Table("users").Select("users.id,users.username,users.nickname,users.mail,users.online,users.enabled,users.created,users.role, count(resource_sharers.user_id) as sharer_asset_count, users.totp_secret").Joins("left join resource_sharers on users.id = resource_sharers.user_id and resource_sharers.resource_type = 'asset'").Group("users.id")
+func (r UserRepository) Find(pageIndex, pageSize int, username, nickname, mail, order, field string, account models.User) (o []models.UserForPage, total int64, err error) {
+	db := r.DB.Table("users").Select("users.*, count(resource_sharers.user_id) as sharer_asset_count").Joins("left join resource_sharers on users.id = resource_sharers.user_id and resource_sharers.resource_type = 'asset'").Group("users.id")
 	dbCounter := r.DB.Table("users")
 
 	if constants.RoleDefault == account.Role {
@@ -68,7 +69,7 @@ func (r UserRepository) Find(pageIndex, pageSize int, username, nickname, mail, 
 
 	err = db.Order("users." + field + " " + order).Find(&o).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Error
 	if o == nil {
-		o = make([]model2.UserForPage, 0)
+		o = make([]models.UserForPage, 0)
 	}
 
 	for i := 0; i < len(o); i++ {
@@ -81,26 +82,27 @@ func (r UserRepository) Find(pageIndex, pageSize int, username, nickname, mail, 
 	return
 }
 
-func (r UserRepository) FindById(id string) (o model2.User, err error) {
+func (r UserRepository) FindById(id string) (o models.User, err error) {
 	err = r.DB.Where("id = ?", id).First(&o).Error
 	return
 }
 
-func (r UserRepository) FindByUsername(username string) (o model2.User, err error) {
+func (r UserRepository) FindByUsername(username string) (o *models.User, err error) {
 	err = r.DB.Where("username = ?", username).First(&o).Error
 	return
 }
 
-func (r UserRepository) FindOnlineUsers() (o []model2.User, err error) {
+func (r UserRepository) FindOnlineUsers() (o []models.User, err error) {
 	err = r.DB.Where("online = ?", true).Find(&o).Error
 	return
 }
 
-func (r UserRepository) Create(o *model2.User) error {
+func (r UserRepository) Create(o *models.User) error {
+	zlog.Debug(o.Username, o.Password)
 	return r.DB.Create(o).Error
 }
 
-func (r UserRepository) Update(o *model2.User) error {
+func (r UserRepository) Update(o models.User) error {
 	return r.DB.Updates(o).Error
 }
 
@@ -112,17 +114,17 @@ func (r UserRepository) UpdateOnline(id string, online bool) error {
 func (r UserRepository) DeleteById(id string) error {
 	return r.DB.Transaction(func(tx *gorm.DB) (err error) {
 		// 删除用户
-		err = tx.Where("id = ?", id).Delete(&model2.User{}).Error
+		err = tx.Where("id = ?", id).Delete(&models.User{}).Error
 		if err != nil {
 			return err
 		}
 		// 删除用户组中的用户关系
-		err = tx.Where("user_id = ?", id).Delete(&model2.UserGroupMember{}).Error
+		err = tx.Where("user_id = ?", id).Delete(&models.UserGroupMember{}).Error
 		if err != nil {
 			return err
 		}
 		// 删除用户分享到的资产
-		err = tx.Where("user_id = ?", id).Delete(&model2.ResourceSharer{}).Error
+		err = tx.Where("user_id = ?", id).Delete(&models.ResourceSharer{}).Error
 		if err != nil {
 			return err
 		}
@@ -131,13 +133,13 @@ func (r UserRepository) DeleteById(id string) error {
 }
 
 func (r UserRepository) CountOnlineUser() (total int64, err error) {
-	err = r.DB.Where("online = ?", true).Find(&model2.User{}).Count(&total).Error
+	err = r.DB.Where("online = ?", true).Find(&models.User{}).Count(&total).Error
 	return
 }
 
-func (r UserRepository) UserGet(where string, args ...interface{}) (*model2.User, error) {
-	var u model2.User
-	err := r.DB.Model(model2.User{}).Where(where, args...).Last(&u).Error
+func (r UserRepository) UserGet(where string, args ...interface{}) (*models.User, error) {
+	var u models.User
+	err := r.DB.Model(models.User{}).Where(where, args...).Last(&u).Error
 	if err != nil {
 		return nil, err
 	}

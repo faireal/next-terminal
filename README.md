@@ -12,8 +12,8 @@ Next Terminal基于 [Apache Guacamole](https://guacamole.apache.org/) 开发，�
 
 - 授权凭证管理
 - 资产管理（支持RDP、SSH、VNC、TELNET协议）
-- 指令管理
-- 批量执行命令
+- <del>指令管理</del>
+- <del>批量执行命令<del>
 - 在线会话管理（监控、强制断开）
 - 离线会话管理（查看录屏）
 - 双因素认证
@@ -21,6 +21,7 @@ Next Terminal基于 [Apache Guacamole](https://guacamole.apache.org/) 开发，�
 - 资产授权
 - 多用户&用户分组
 - 计划任务
+- LDAP登录支持
 
 ## 在线体验
 

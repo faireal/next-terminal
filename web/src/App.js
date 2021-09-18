@@ -16,7 +16,6 @@ import {
     AuditOutlined,
     BlockOutlined,
     CloudServerOutlined,
-    CodeOutlined,
     ControlOutlined,
     DashboardOutlined,
     DesktopOutlined,

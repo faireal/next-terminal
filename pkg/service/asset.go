@@ -3,15 +3,15 @@ package service
 import (
 	"next-terminal/models"
 	"next-terminal/pkg/utils"
-	repository2 "next-terminal/repository"
+	"next-terminal/repository"
 )
 
 type AssetService struct {
-	assetRepository *repository2.AssetRepository
-	userRepository  *repository2.UserRepository
+	assetRepository *repository.AssetRepository
+	userRepository  *repository.UserRepository
 }
 
-func NewAssetService(assetRepository *repository2.AssetRepository, userRepository *repository2.UserRepository) *AssetService {
+func NewAssetService(assetRepository *repository.AssetRepository, userRepository *repository.UserRepository) *AssetService {
 	return &AssetService{assetRepository: assetRepository, userRepository: userRepository}
 }
 

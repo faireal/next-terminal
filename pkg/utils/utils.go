@@ -292,10 +292,19 @@ func Encryption() []byte {
 	return []byte(md5Sum)
 }
 
-func GetKeyFromYaml(key, defaultvalue string) string {
+func GetKeyFromYaml(key string, defaultvalue ...string) string {
+	dk := ""
+	if len(defaultvalue) > 0 {
+		dk = defaultvalue[0]
+	}
 	getkey := viper.GetString(key)
 	if len(getkey) == 0 {
-		return defaultvalue
+		return dk
 	}
 	return getkey
+}
+
+// GetStatusFromYaml 获取状态
+func GetStatusFromYaml(key string) bool {
+	return viper.GetBool(key)
 }

@@ -3,7 +3,7 @@ package repository
 import (
 	"gorm.io/gorm"
 	"next-terminal/constants"
-	model2 "next-terminal/models"
+	"next-terminal/models"
 )
 
 type CommandRepository struct {
@@ -15,7 +15,7 @@ func NewCommandRepository(db *gorm.DB) *CommandRepository {
 	return commandRepository
 }
 
-func (r CommandRepository) Find(pageIndex, pageSize int, name, content, order, field string, account model2.User) (o []model2.CommandForPage, total int64, err error) {
+func (r CommandRepository) Find(pageIndex, pageSize int, name, content, order, field string, account models.User) (o []models.CommandForPage, total int64, err error) {
 	db := r.DB.Table("commands").Select("commands.id,commands.name,commands.content,commands.owner,commands.created, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on commands.owner = users.id").Joins("left join resource_sharers on commands.id = resource_sharers.resource_id").Group("commands.id")
 	dbCounter := r.DB.Table("commands").Select("DISTINCT commands.id").Joins("left join resource_sharers on commands.id = resource_sharers.resource_id").Group("commands.id")
 
@@ -54,28 +54,28 @@ func (r CommandRepository) Find(pageIndex, pageSize int, name, content, order, f
 
 	err = db.Order("commands." + field + " " + order).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&o).Error
 	if o == nil {
-		o = make([]model2.CommandForPage, 0)
+		o = make([]models.CommandForPage, 0)
 	}
 	return
 }
 
-func (r CommandRepository) Create(o *model2.Command) (err error) {
+func (r CommandRepository) Create(o *models.Command) (err error) {
 	if err = r.DB.Create(o).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r CommandRepository) FindById(id string) (o model2.Command, err error) {
+func (r CommandRepository) FindById(id string) (o models.Command, err error) {
 	err = r.DB.Where("id = ?", id).First(&o).Error
 	return
 }
 
-func (r CommandRepository) UpdateById(o *model2.Command, id string) error {
+func (r CommandRepository) UpdateById(o *models.Command, id string) error {
 	o.ID = id
 	return r.DB.Updates(o).Error
 }
 
 func (r CommandRepository) DeleteById(id string) error {
-	return r.DB.Where("id = ?", id).Delete(&model2.Command{}).Error
+	return r.DB.Where("id = ?", id).Delete(&models.Command{}).Error
 }

@@ -19,7 +19,7 @@ class LoginForm extends Component {
         width: window.innerWidth,
         loginAccount: undefined,
         totpModalVisible: false,
-        confirmLoading: false
+        confirmLoading: false,
     };
 
     componentDidMount() {
@@ -37,8 +37,13 @@ class LoginForm extends Component {
         });
 
         try {
-            let result = await request.post('/login', params);
-
+            let loginurl = '/login'
+            var username = params.username
+            if (username.indexOf("@") > 0) {
+                loginurl = '/ldaplogin'
+                params.username = username.split('@')[0]
+            }
+            let result = await request.post(loginurl, params);
             if (result.code === 0) {
                 // 进行双因子认证
                 this.setState({
@@ -118,8 +123,13 @@ class LoginForm extends Component {
                         <Form.Item name='password' rules={[{required: true, message: '请输入登录密码！'}]}>
                             <Input.Password prefix={<LockOutlined/>} placeholder="登录密码"/>
                         </Form.Item>
-                        <Form.Item name='remember' valuePropName='checked' initialValue={false}>
-                            <Checkbox>记住登录</Checkbox>
+                        <Form.Item>
+                            <Form.Item name='remember' valuePropName='checked' initialValue={false} noStyle>
+                                <Checkbox >记住登录</Checkbox>
+                            </Form.Item>
+                            {/* <Form.Item name='ldap' valuePropName='checked' initialValue={false} className="login-ldap">
+                                <Checkbox >LDAP</Checkbox>
+                            </Form.Item> */}
                         </Form.Item>
                         <Form.Item>
                             <Button type="primary" htmlType="submit" className="login-form-button"

@@ -3,7 +3,7 @@ package repository
 import (
 	"encoding/base64"
 	"next-terminal/constants"
-	model2 "next-terminal/models"
+	"next-terminal/models"
 	"next-terminal/pkg/utils"
 
 	"gorm.io/gorm"
@@ -18,7 +18,7 @@ func NewCredentialRepository(db *gorm.DB) *CredentialRepository {
 	return credentialRepository
 }
 
-func (r CredentialRepository) FindByUser(account model2.User) (o []model2.CredentialSimpleVo, err error) {
+func (r CredentialRepository) FindByUser(account models.User) (o []models.CredentialSimpleVo, err error) {
 	db := r.DB.Table("credentials").Select("DISTINCT credentials.id,credentials.name").Joins("left join resource_sharers on credentials.id = resource_sharers.resource_id")
 	if account.Role == constants.RoleDefault {
 		db = db.Where("credentials.owner = ? or resource_sharers.user_id = ?", account.ID, account.ID)
@@ -27,7 +27,7 @@ func (r CredentialRepository) FindByUser(account model2.User) (o []model2.Creden
 	return
 }
 
-func (r CredentialRepository) Find(pageIndex, pageSize int, name, order, field string, account model2.User) (o []model2.CredentialForPage, total int64, err error) {
+func (r CredentialRepository) Find(pageIndex, pageSize int, name, order, field string, account models.User) (o []models.CredentialForPage, total int64, err error) {
 	db := r.DB.Table("credentials").Select("credentials.id,credentials.name,credentials.type,credentials.username,credentials.owner,credentials.created,users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on credentials.owner = users.id").Joins("left join resource_sharers on credentials.id = resource_sharers.resource_id").Group("credentials.id")
 	dbCounter := r.DB.Table("credentials").Select("DISTINCT credentials.id").Joins("left join resource_sharers on credentials.id = resource_sharers.resource_id").Group("credentials.id")
 
@@ -61,12 +61,12 @@ func (r CredentialRepository) Find(pageIndex, pageSize int, name, order, field s
 
 	err = db.Order("credentials." + field + " " + order).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&o).Error
 	if o == nil {
-		o = make([]model2.CredentialForPage, 0)
+		o = make([]models.CredentialForPage, 0)
 	}
 	return
 }
 
-func (r CredentialRepository) Create(o *model2.Credential) (err error) {
+func (r CredentialRepository) Create(o *models.Credential) (err error) {
 	if err := r.Encrypt(o, utils.Encryption()); err != nil {
 		return err
 	}
@@ -76,12 +76,12 @@ func (r CredentialRepository) Create(o *model2.Credential) (err error) {
 	return nil
 }
 
-func (r CredentialRepository) FindById(id string) (o model2.Credential, err error) {
+func (r CredentialRepository) FindById(id string) (o models.Credential, err error) {
 	err = r.DB.Where("id = ?", id).First(&o).Error
 	return
 }
 
-func (r CredentialRepository) Encrypt(item *model2.Credential, password []byte) error {
+func (r CredentialRepository) Encrypt(item *models.Credential, password []byte) error {
 	if item.Password != "-" {
 		encryptedCBC, err := utils.AesEncryptCBC([]byte(item.Password), password)
 		if err != nil {
@@ -107,7 +107,7 @@ func (r CredentialRepository) Encrypt(item *model2.Credential, password []byte) 
 	return nil
 }
 
-func (r CredentialRepository) Decrypt(item *model2.Credential, password []byte) error {
+func (r CredentialRepository) Decrypt(item *models.Credential, password []byte) error {
 	if item.Encrypted {
 		if item.Password != "" && item.Password != "-" {
 			origData, err := base64.StdEncoding.DecodeString(item.Password)
@@ -146,7 +146,7 @@ func (r CredentialRepository) Decrypt(item *model2.Credential, password []byte) 
 	return nil
 }
 
-func (r CredentialRepository) FindByIdAndDecrypt(id string) (o model2.Credential, err error) {
+func (r CredentialRepository) FindByIdAndDecrypt(id string) (o models.Credential, err error) {
 	err = r.DB.Where("id = ?", id).First(&o).Error
 	if err == nil {
 		err = r.Decrypt(&o, utils.Encryption())
@@ -154,17 +154,17 @@ func (r CredentialRepository) FindByIdAndDecrypt(id string) (o model2.Credential
 	return
 }
 
-func (r CredentialRepository) UpdateById(o *model2.Credential, id string) error {
+func (r CredentialRepository) UpdateById(o *models.Credential, id string) error {
 	o.ID = id
 	return r.DB.Updates(o).Error
 }
 
 func (r CredentialRepository) DeleteById(id string) error {
-	return r.DB.Where("id = ?", id).Delete(&model2.Credential{}).Error
+	return r.DB.Where("id = ?", id).Delete(&models.Credential{}).Error
 }
 
 func (r CredentialRepository) Count() (total int64, err error) {
-	err = r.DB.Find(&model2.Credential{}).Count(&total).Error
+	err = r.DB.Find(&models.Credential{}).Count(&total).Error
 	return
 }
 
@@ -182,11 +182,11 @@ func (r CredentialRepository) CountByUserId(userId string) (total int64, err err
 	if len(userGroupIds) > 0 {
 		db = db.Or("resource_sharers.user_group_id in ?", userGroupIds)
 	}
-	err = db.Find(&model2.Credential{}).Count(&total).Error
+	err = db.Find(&models.Credential{}).Count(&total).Error
 	return
 }
 
-func (r CredentialRepository) FindAll() (o []model2.Credential, err error) {
+func (r CredentialRepository) FindAll() (o []models.Credential, err error) {
 	err = r.DB.Find(&o).Error
 	return
 }

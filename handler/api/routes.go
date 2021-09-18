@@ -8,10 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"next-terminal/constants"
-	model2 "next-terminal/models"
+	"next-terminal/models"
 	"next-terminal/pkg/utils"
-	repository2 "next-terminal/repository"
-	"os"
+	"next-terminal/repository"
 	"strings"
 	"time"
 
@@ -21,19 +20,19 @@ import (
 )
 
 var (
-	userRepository           *repository2.UserRepository
-	userGroupRepository      *repository2.UserGroupRepository
-	resourceSharerRepository *repository2.ResourceSharerRepository
-	assetRepository          *repository2.AssetRepository
-	credentialRepository     *repository2.CredentialRepository
-	configsRepository        *repository2.ConfigsRepository
-	commandRepository        *repository2.CommandRepository
-	sessionRepository        *repository2.SessionRepository
-	numRepository            *repository2.NumRepository
-	accessSecurityRepository *repository2.AccessSecurityRepository
-	jobRepository            *repository2.JobRepository
-	jobLogRepository         *repository2.JobLogRepository
-	loginLogRepository       *repository2.LoginLogRepository
+	userRepository           *repository.UserRepository
+	userGroupRepository      *repository.UserGroupRepository
+	resourceSharerRepository *repository.ResourceSharerRepository
+	assetRepository          *repository.AssetRepository
+	credentialRepository     *repository.CredentialRepository
+	configsRepository        *repository.ConfigsRepository
+	commandRepository        *repository.CommandRepository
+	sessionRepository        *repository.SessionRepository
+	numRepository            *repository.NumRepository
+	accessSecurityRepository *repository.AccessSecurityRepository
+	jobRepository            *repository.JobRepository
+	jobLogRepository         *repository.JobLogRepository
+	loginLogRepository       *repository.LoginLogRepository
 
 	jobService        *service.JobService
 	propertyService   *service.ConfigsService
@@ -51,8 +50,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	InitService()
 
 	if err := InitDBData(); err != nil {
-		zlog.Error("初始化数据异常")
-		os.Exit(0)
+		zlog.Panic("初始化数据异常: %v", err)
 	}
 
 	if err := ReloadData(); err != nil {
@@ -75,6 +73,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	e.Static("/static", "web/build/static")
 
 	e.POST("/login", LoginEndpoint)
+	e.POST("/ldaplogin", LdapLoginEndpoint)
 	e.POST("/loginWithTotp", loginWithTotpEndpoint)
 
 	e.GET("/tunnel", TunEndpoint)
@@ -219,19 +218,19 @@ func ReloadData() error {
 }
 
 func InitRepository(db *gorm.DB) {
-	userRepository = repository2.NewUserRepository(db)
-	userGroupRepository = repository2.NewUserGroupRepository(db)
-	resourceSharerRepository = repository2.NewResourceSharerRepository(db)
-	assetRepository = repository2.NewAssetRepository(db)
-	credentialRepository = repository2.NewCredentialRepository(db)
-	configsRepository = repository2.NewConfigsRepository(db)
-	commandRepository = repository2.NewCommandRepository(db)
-	sessionRepository = repository2.NewSessionRepository(db)
-	numRepository = repository2.NewNumRepository(db)
-	accessSecurityRepository = repository2.NewAccessSecurityRepository(db)
-	jobRepository = repository2.NewJobRepository(db)
-	jobLogRepository = repository2.NewJobLogRepository(db)
-	loginLogRepository = repository2.NewLoginLogRepository(db)
+	userRepository = repository.NewUserRepository(db)
+	userGroupRepository = repository.NewUserGroupRepository(db)
+	resourceSharerRepository = repository.NewResourceSharerRepository(db)
+	assetRepository = repository.NewAssetRepository(db)
+	credentialRepository = repository.NewCredentialRepository(db)
+	configsRepository = repository.NewConfigsRepository(db)
+	commandRepository = repository.NewCommandRepository(db)
+	sessionRepository = repository.NewSessionRepository(db)
+	numRepository = repository.NewNumRepository(db)
+	accessSecurityRepository = repository.NewAccessSecurityRepository(db)
+	jobRepository = repository.NewJobRepository(db)
+	jobLogRepository = repository.NewJobLogRepository(db)
+	loginLogRepository = repository.NewLoginLogRepository(db)
 }
 
 func InitService() {
@@ -289,7 +288,7 @@ func ResetPassword(username string) error {
 	if err != nil {
 		return err
 	}
-	u := &model2.User{
+	u := models.User{
 		Password: string(passwd),
 		ID:       user.ID,
 	}
@@ -305,7 +304,7 @@ func ResetTotp(username string) error {
 	if err != nil {
 		return err
 	}
-	u := &model2.User{
+	u := models.User{
 		TOTPSecret: "-",
 		ID:         user.ID,
 	}

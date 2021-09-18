@@ -61,7 +61,7 @@
     width: 125px;
     text-align: left;
     padding: 0 5px;
-    float: right;
+    /* float: right; */
 }
 
 .page-herder {
