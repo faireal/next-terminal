@@ -518,6 +518,16 @@ class Asset extends Component {
                 }
             }
         }, {
+            title: '服务商',
+            dataIndex: 'provider',
+            key: 'provider',
+            render: text => {
+                if (text) {
+                    return text
+                }
+                return 'idc'
+            }
+        }, {
             title: '状态',
             dataIndex: 'active',
             key: 'active',

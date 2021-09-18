@@ -1,8 +1,8 @@
 package service
 
 import (
+	"next-terminal/constants"
 	"next-terminal/models"
-	"next-terminal/pkg/constant"
 	"next-terminal/pkg/utils"
 	"next-terminal/repository"
 )
@@ -16,7 +16,7 @@ func NewSessionService(sessionRepository *repository.SessionRepository) *Session
 }
 
 func (r SessionService) FixSessionState() error {
-	sessions, err := r.sessionRepository.FindByStatus(constant.Connected)
+	sessions, err := r.sessionRepository.FindByStatus(constants.Connected)
 	if err != nil {
 		return err
 	}
@@ -24,7 +24,7 @@ func (r SessionService) FixSessionState() error {
 	if len(sessions) > 0 {
 		for i := range sessions {
 			session := models.Session{
-				Status:           constant.Disconnected,
+				Status:           constants.Disconnected,
 				DisconnectedTime: utils.NowJsonTime(),
 			}
 

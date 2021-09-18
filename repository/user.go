@@ -2,8 +2,8 @@ package repository
 
 import (
 	"gorm.io/gorm"
+	"next-terminal/constants"
 	model2 "next-terminal/models"
-	"next-terminal/pkg/constant"
 )
 
 type UserRepository struct {
@@ -23,13 +23,13 @@ func (r UserRepository) FindAll() (o []model2.User) {
 }
 
 func (r UserRepository) Find(pageIndex, pageSize int, username, nickname, mail, order, field string, account model2.User) (o []model2.UserForPage, total int64, err error) {
-	db := r.DB.Table("users").Select("users.id,users.username,users.nickname,users.mail,users.online,users.enabled,users.created,users.type, count(resource_sharers.user_id) as sharer_asset_count, users.totp_secret").Joins("left join resource_sharers on users.id = resource_sharers.user_id and resource_sharers.resource_type = 'asset'").Group("users.id")
+	db := r.DB.Table("users").Select("users.id,users.username,users.nickname,users.mail,users.online,users.enabled,users.created,users.role, count(resource_sharers.user_id) as sharer_asset_count, users.totp_secret").Joins("left join resource_sharers on users.id = resource_sharers.user_id and resource_sharers.resource_type = 'asset'").Group("users.id")
 	dbCounter := r.DB.Table("users")
 
-	if constant.TypeUser == account.Type {
+	if constants.RoleDefault == account.Role {
 		// 普通用户只能查看到普通用户
-		db = db.Where("users.type = ?", constant.TypeUser)
-		dbCounter = dbCounter.Where("type = ?", constant.TypeUser)
+		db = db.Where("users.role = ?", constants.RoleDefault)
+		dbCounter = dbCounter.Where("role = ?", constants.RoleDefault)
 	}
 
 	if len(username) > 0 {

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"encoding/base64"
+	"next-terminal/constants"
 	"next-terminal/models"
 	"next-terminal/pkg/utils"
 	"os"
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-	"next-terminal/pkg/constant"
 )
 
 type SessionRepository struct {
@@ -80,7 +80,7 @@ func (r SessionRepository) FindByStatusIn(statuses []string) (o []models.Session
 
 func (r SessionRepository) FindOutTimeSessions(dayLimit int) (o []models.Session, err error) {
 	limitTime := time.Now().Add(time.Duration(-dayLimit*24) * time.Hour)
-	err = r.DB.Where("status = ? and connected_time < ?", constant.Disconnected, limitTime).Find(&o).Error
+	err = r.DB.Where("status = ? and connected_time < ?", constants.Disconnected, limitTime).Find(&o).Error
 	return
 }
 
@@ -182,7 +182,7 @@ func (r SessionRepository) DeleteByStatus(status string) error {
 }
 
 func (r SessionRepository) CountOnlineSession() (total int64, err error) {
-	err = r.DB.Where("status = ?", constant.Connected).Find(&models.Session{}).Count(&total).Error
+	err = r.DB.Where("status = ?", constants.Connected).Find(&models.Session{}).Count(&total).Error
 	return
 }
 

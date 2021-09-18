@@ -6,6 +6,7 @@ import (
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"next-terminal/constants"
 	"next-terminal/models"
 	"next-terminal/pkg/utils"
 	"path"
@@ -13,7 +14,6 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"next-terminal/pkg/constant"
 	"next-terminal/pkg/global"
 	"next-terminal/pkg/guacd"
 	"next-terminal/pkg/term"
@@ -67,7 +67,7 @@ func SSHEndpoint(c *gin.Context) {
 	}
 
 	user, _ := GetCurrentAccount(c)
-	if constant.TypeUser == user.Type {
+	if constants.RoleDefault == user.Role {
 		// 检测是否有访问权限
 		assetIds, err := resourceSharerRepository.FindAssetIdsByUserId(user.ID)
 		if err != nil {
@@ -144,7 +144,7 @@ func SSHEndpoint(c *gin.Context) {
 		ConnectionId: sessionId,
 		Width:        cols,
 		Height:       rows,
-		Status:       constant.Connecting,
+		Status:       constants.Connecting,
 		Recording:    recording,
 	}
 	// 创建新会话

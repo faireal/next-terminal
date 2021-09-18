@@ -3,8 +3,10 @@ package api
 import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
+	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"next-terminal/constants"
 	model2 "next-terminal/models"
 	"next-terminal/pkg/utils"
 	"strings"
@@ -48,6 +50,15 @@ type Authorization struct {
 //	repository.UserRepository
 //}
 
+// loginfail 默认密码校验次数
+func loginfail() int {
+	defaultnum := viper.GetInt("core.login.trynum")
+	if defaultnum > 0 {
+		return defaultnum
+	}
+	return 3
+}
+
 func LoginEndpoint(c *gin.Context) {
 	var loginAccount LoginAccount
 	exgin.Bind(c, &loginAccount)
@@ -60,7 +71,7 @@ func LoginEndpoint(c *gin.Context) {
 		v = 1
 	}
 	count := v.(int)
-	if count >= 5 {
+	if count >= loginfail() {
 		Fail(c, -1, "登录失败次数过多，请稍后再试")
 		return
 	}
@@ -81,6 +92,11 @@ func LoginEndpoint(c *gin.Context) {
 
 	if user.TOTPSecret != "" && user.TOTPSecret != "-" {
 		Fail(c, 0, "")
+		return
+	}
+
+	if user.Baned {
+		Fail(c, -1, "当前账号已被禁用")
 		return
 	}
 
@@ -131,7 +147,8 @@ func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user model2.User) (
 }
 
 func BuildCacheKeyByToken(token string) string {
-	cacheKey := strings.Join([]string{Token, token}, ":")
+	cacheKey := strings.Join([]string{constants.Token, token}, ":")
+	zlog.Debug(cacheKey)
 	return cacheKey
 }
 
@@ -323,7 +340,7 @@ func InfoEndpoint(c *gin.Context) {
 		Id:         user.ID,
 		Username:   user.Username,
 		Nickname:   user.Nickname,
-		Type:       user.Type,
+		Type:       user.Role,
 		EnableTotp: user.TOTPSecret != "" && user.TOTPSecret != "-",
 	}
 	Success(c, info)

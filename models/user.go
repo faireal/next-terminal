@@ -14,8 +14,9 @@ type User struct {
 	Online     bool           `json:"online"`
 	Enabled    bool           `json:"enabled"`
 	Created    utils.JsonTime `json:"created"`
-	Type       string         `json:"type"`
+	Role       string         `json:"role"`
 	Mail       string         `json:"mail"`
+	Baned      bool           `json:"baned"`
 }
 
 type UserForPage struct {
@@ -28,6 +29,7 @@ type UserForPage struct {
 	Enabled          bool           `json:"enabled"`
 	Created          utils.JsonTime `json:"created"`
 	Type             string         `json:"type"`
+	Baned            bool           `json:"baned"`
 	SharerAssetCount int64          `json:"sharerAssetCount"`
 }
 

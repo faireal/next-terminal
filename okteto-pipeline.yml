@@ -7,7 +7,6 @@ deploy:
   - kubectl apply -f hack/k8s/centos.yaml -n ysicing
   - kubectl rollout restart deploy/debian -n ysicing
   - kubectl rollout restart deploy/centos -n ysicing
-  -
 devs:
   - hack/k8s/guacd.yaml
   - hack/k8s/nt.yaml

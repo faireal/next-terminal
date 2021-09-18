@@ -2,11 +2,10 @@ package task
 
 import (
 	"github.com/ergoapi/zlog"
+	"next-terminal/constants"
 	repository2 "next-terminal/repository"
 	"strconv"
 	"time"
-
-	"next-terminal/pkg/constant"
 )
 
 type Ticker struct {
@@ -24,7 +23,7 @@ func (t *Ticker) SetupTicker() {
 	unUsedSessionTicker := time.NewTicker(time.Minute * 60)
 	go func() {
 		for range unUsedSessionTicker.C {
-			sessions, _ := t.sessionRepository.FindByStatusIn([]string{constant.NoConnect, constant.Connecting})
+			sessions, _ := t.sessionRepository.FindByStatusIn([]string{constants.NoConnect, constants.Connecting})
 			if len(sessions) > 0 {
 				now := time.Now()
 				for i := range sessions {

@@ -2,11 +2,11 @@ package repository
 
 import (
 	"encoding/base64"
+	"next-terminal/constants"
 	model2 "next-terminal/models"
 	"next-terminal/pkg/utils"
 
 	"gorm.io/gorm"
-	"next-terminal/pkg/constant"
 )
 
 type CredentialRepository struct {
@@ -20,7 +20,7 @@ func NewCredentialRepository(db *gorm.DB) *CredentialRepository {
 
 func (r CredentialRepository) FindByUser(account model2.User) (o []model2.CredentialSimpleVo, err error) {
 	db := r.DB.Table("credentials").Select("DISTINCT credentials.id,credentials.name").Joins("left join resource_sharers on credentials.id = resource_sharers.resource_id")
-	if account.Type == constant.TypeUser {
+	if account.Role == constants.RoleDefault {
 		db = db.Where("credentials.owner = ? or resource_sharers.user_id = ?", account.ID, account.ID)
 	}
 	err = db.Find(&o).Error
@@ -31,7 +31,7 @@ func (r CredentialRepository) Find(pageIndex, pageSize int, name, order, field s
 	db := r.DB.Table("credentials").Select("credentials.id,credentials.name,credentials.type,credentials.username,credentials.owner,credentials.created,users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on credentials.owner = users.id").Joins("left join resource_sharers on credentials.id = resource_sharers.resource_id").Group("credentials.id")
 	dbCounter := r.DB.Table("credentials").Select("DISTINCT credentials.id").Joins("left join resource_sharers on credentials.id = resource_sharers.resource_id").Group("credentials.id")
 
-	if constant.TypeUser == account.Type {
+	if constants.RoleDefault == account.Role {
 		owner := account.ID
 		db = db.Where("credentials.owner = ? or resource_sharers.user_id = ?", owner, owner)
 		dbCounter = dbCounter.Where("credentials.owner = ? or resource_sharers.user_id = ?", owner, owner)

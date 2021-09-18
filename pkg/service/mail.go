@@ -3,10 +3,10 @@ package service
 import (
 	"github.com/ergoapi/zlog"
 	"net/smtp"
+	"next-terminal/constants"
 	"next-terminal/repository"
 
 	"github.com/jordan-wright/email"
-	"next-terminal/pkg/constant"
 )
 
 type MailService struct {
@@ -19,10 +19,10 @@ func NewMailService(configsRepository *repository.ConfigsRepository) *MailServic
 
 func (r MailService) SendMail(to, subject, text string) {
 	cfgsMap := r.configsRepository.FindAllMap()
-	host := cfgsMap[constant.MailHost]
-	port := cfgsMap[constant.MailPort]
-	username := cfgsMap[constant.MailUsername]
-	password := cfgsMap[constant.MailPassword]
+	host := cfgsMap[constants.MailHost]
+	port := cfgsMap[constants.MailPort]
+	username := cfgsMap[constants.MailUsername]
+	password := cfgsMap[constants.MailPassword]
 
 	if host == "" || port == "" || username == "" || password == "" {
 		zlog.Debug("邮箱信息不完整，跳过发送邮件。")

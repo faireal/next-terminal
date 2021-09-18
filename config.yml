@@ -8,6 +8,9 @@ terminal:
 core:
   encryptionkey: ""
   http: 0.0.0.0:8080
+  login:
+    trynum: 3
+    exp: 86400 #1d
 db:
   type: mysql
   dsn: next-terminal:nt12345x@tcp(192.168.30.4:3306)/next-terminal?charset=utf8mb4&parseTime=True&loc=Local

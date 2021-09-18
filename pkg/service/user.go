@@ -2,8 +2,8 @@ package service
 
 import (
 	"github.com/ergoapi/zlog"
+	"next-terminal/constants"
 	model2 "next-terminal/models"
-	"next-terminal/pkg/constant"
 	"next-terminal/pkg/utils"
 	repository2 "next-terminal/repository"
 )
@@ -33,7 +33,7 @@ func (r UserService) InitUser() (err error) {
 			Username: "admin",
 			Password: string(pass),
 			Nickname: "超级管理员",
-			Type:     constant.TypeAdmin,
+			Role:     constants.RoleAdmin,
 			Created:  utils.NowJsonTime(),
 		}
 		if err := r.userRepository.Create(&user); err != nil {
@@ -43,9 +43,9 @@ func (r UserService) InitUser() (err error) {
 	} else {
 		for i := range users {
 			// 修正默认用户类型为管理员
-			if users[i].Type == "" {
+			if users[i].Role == "" {
 				user := model2.User{
-					Type: constant.TypeAdmin,
+					Role: constants.RoleAdmin,
 					ID:   users[i].ID,
 				}
 				if err := r.userRepository.Update(&user); err != nil {

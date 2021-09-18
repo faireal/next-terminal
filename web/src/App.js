@@ -219,13 +219,13 @@ class App extends Component {
                                     </Menu.Item>
                                 </SubMenu>
 
-                                <SubMenu key='command-manage' title='指令管理' icon={<CodeOutlined/>}>
+                                {/* <SubMenu key='command-manage' title='指令管理' icon={<CodeOutlined/>}>
                                     <Menu.Item key="dynamic-command" icon={<BlockOutlined/>}>
                                         <Link to={'/dynamic-command'}>
                                             动态指令
                                         </Link>
                                     </Menu.Item>
-                                </SubMenu>
+                                </SubMenu> */}
 
                                 {
                                     this.state.triggerMenu && isAdmin() ?
@@ -282,11 +282,11 @@ class App extends Component {
                                 }
 
 
-                                <Menu.Item key="info" icon={<SolutionOutlined/>}>
+                                {/* <Menu.Item key="info" icon={<SolutionOutlined/>}>
                                     <Link to={'/info'}>
                                         个人中心
                                     </Link>
-                                </Menu.Item>
+                                </Menu.Item> */}
 
                                 {
                                     this.state.triggerMenu && isAdmin() ?
@@ -318,7 +318,7 @@ class App extends Component {
                                             <div className={'layout-header-right-item'}>
                                                 <Tooltip placement="bottom" title={'使用帮助'}>
                                                     <a target='_blank' rel="noreferrer"
-                                                       href='https://github.com/ysicing/next-terminal/blob/ysicing/docs/faq.md'>
+                                                       href='https://github.com/ysicing/next-terminal'>
                                                         <QuestionCircleOutlined/>
                                                     </a>
                                                 </Tooltip>

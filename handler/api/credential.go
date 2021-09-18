@@ -6,12 +6,11 @@ import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
 	"github.com/gin-gonic/gin"
+	"next-terminal/constants"
 	"next-terminal/models"
 	"next-terminal/pkg/utils"
 	"strconv"
 	"strings"
-
-	"next-terminal/pkg/constant"
 )
 
 func CredentialAllEndpoint(c *gin.Context) {
@@ -29,7 +28,7 @@ func CredentialCreateEndpoint(c *gin.Context) {
 	item.Created = utils.NowJsonTime()
 
 	switch item.Type {
-	case constant.Custom:
+	case constants.Custom:
 		item.PrivateKey = "-"
 		item.Passphrase = "-"
 		if item.Username == "" {
@@ -38,7 +37,7 @@ func CredentialCreateEndpoint(c *gin.Context) {
 		if item.Password == "" {
 			item.Password = "-"
 		}
-	case constant.PrivateKey:
+	case constants.PrivateKey:
 		item.Password = "-"
 		if item.Username == "" {
 			item.Username = "-"
@@ -96,7 +95,7 @@ func CredentialUpdateEndpoint(c *gin.Context) {
 	exgin.Bind(c, &item)
 
 	switch item.Type {
-	case constant.Custom:
+	case constants.Custom:
 		item.PrivateKey = "-"
 		item.Passphrase = "-"
 		if item.Username == "" {
@@ -113,7 +112,7 @@ func CredentialUpdateEndpoint(c *gin.Context) {
 			}
 			item.Password = base64.StdEncoding.EncodeToString(encryptedCBC)
 		}
-	case constant.PrivateKey:
+	case constants.PrivateKey:
 		item.Password = "-"
 		if item.Username == "" {
 			item.Username = "-"

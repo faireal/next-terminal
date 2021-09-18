@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httputil"
+	"next-terminal/constants"
 	ntcache "next-terminal/pkg/cache"
 	"next-terminal/pkg/utils"
 	"os"
@@ -20,7 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"next-terminal/pkg/constant"
 	"next-terminal/pkg/global"
 )
 
@@ -145,12 +145,12 @@ func TcpWall() gin.HandlerFunc {
 				}
 			}
 
-			if security.Rule == constant.AccessRuleAllow {
+			if security.Rule == constants.AccessRuleAllow {
 				c.Next()
 				return
 			}
-			if security.Rule == constant.AccessRuleReject {
-				if exgin.GinsHeader(c, "X-Requested-With") != "" || exgin.GinsHeader(c, Token) != "" || exgin.GinsHeader(c, "Authorization") != "" {
+			if security.Rule == constants.AccessRuleReject {
+				if exgin.GinsHeader(c, "X-Requested-With") != "" || exgin.GinsHeader(c, constants.Token) != "" || exgin.GinsHeader(c, "Authorization") != "" {
 					Fail(c, 0, "您的访问请求被拒绝 :(")
 					return
 				} else {
@@ -217,7 +217,7 @@ func Admin() gin.HandlerFunc {
 			return
 		}
 
-		if account.Type != constant.TypeAdmin {
+		if account.Role != constants.RoleAdmin {
 			Fail(c, 403, "permission denied")
 			return
 		}

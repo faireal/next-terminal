@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/ergoapi/zlog"
 	"github.com/spf13/viper"
+	"next-terminal/constants"
 	model2 "next-terminal/models"
 	"next-terminal/pkg/utils"
 	"strings"
 
 	"gorm.io/gorm"
-	"next-terminal/pkg/constant"
 )
 
 type AssetRepository struct {
@@ -45,7 +45,7 @@ func (r AssetRepository) FindByProtocolAndIds(protocol string, assetIds []string
 func (r AssetRepository) FindByProtocolAndUser(protocol string, account model2.User) (o []model2.Asset, err error) {
 	db := r.DB.Table("assets").Select("assets.id,assets.name,assets.ip,assets.port,assets.protocol,assets.active,assets.owner,assets.created, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on assets.owner = users.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
 
-	if constant.TypeUser == account.Type {
+	if constants.RoleDefault == account.Role {
 		owner := account.ID
 		db = db.Where("assets.owner = ? or resource_sharers.user_id = ?", owner, owner)
 	}
@@ -61,7 +61,7 @@ func (r AssetRepository) Find(pageIndex, pageSize int, name, protocol, tags stri
 	db := r.DB.Table("assets").Select("assets.id,assets.name,assets.ip,assets.port,assets.protocol,assets.active,assets.owner,assets.created,assets.tags, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on assets.owner = users.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
 	dbCounter := r.DB.Table("assets").Select("DISTINCT assets.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
 
-	if constant.TypeUser == account.Type {
+	if constants.RoleDefault == account.Role {
 		owner := account.ID
 		db = db.Where("assets.owner = ? or resource_sharers.user_id = ?", owner, owner)
 		dbCounter = dbCounter.Where("assets.owner = ? or resource_sharers.user_id = ?", owner, owner)
@@ -150,7 +150,7 @@ func (r AssetRepository) Find(pageIndex, pageSize int, name, protocol, tags stri
 				}
 
 				for j := range attributes {
-					if attributes[j].Name == constant.SshMode {
+					if attributes[j].Name == constants.SshMode {
 						o[i].SshMode = attributes[j].Value
 						break
 					}
@@ -312,15 +312,15 @@ func (r AssetRepository) UpdateAttributes(assetId, protocol string, m map[string
 	var parameterNames []string
 	switch protocol {
 	case "ssh":
-		parameterNames = constant.SSHParameterNames
+		parameterNames = constants.SSHParameterNames
 	case "rdp":
-		parameterNames = constant.RDPParameterNames
+		parameterNames = constants.RDPParameterNames
 	case "vnc":
-		parameterNames = constant.VNCParameterNames
+		parameterNames = constants.VNCParameterNames
 	case "telnet":
-		parameterNames = constant.TelnetParameterNames
+		parameterNames = constants.TelnetParameterNames
 	case "kubernetes":
-		parameterNames = constant.KubernetesParameterNames
+		parameterNames = constants.KubernetesParameterNames
 	}
 
 	for i := range parameterNames {
@@ -371,15 +371,15 @@ func (r AssetRepository) FindAssetAttrMapByAssetId(assetId string) (map[string]i
 	var parameterNames []string
 	switch asset.Protocol {
 	case "ssh":
-		parameterNames = constant.SSHParameterNames
+		parameterNames = constants.SSHParameterNames
 	case "rdp":
-		parameterNames = constant.RDPParameterNames
+		parameterNames = constants.RDPParameterNames
 	case "vnc":
-		parameterNames = constant.VNCParameterNames
+		parameterNames = constants.VNCParameterNames
 	case "telnet":
-		parameterNames = constant.TelnetParameterNames
+		parameterNames = constants.TelnetParameterNames
 	case "kubernetes":
-		parameterNames = constant.KubernetesParameterNames
+		parameterNames = constants.KubernetesParameterNames
 	}
 	// TODO nil panic
 	cfgsMap := configsRepository.FindAllMap()

@@ -2,9 +2,9 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"next-terminal/constants"
 	"next-terminal/models"
 	ntcache "next-terminal/pkg/cache"
-	"next-terminal/pkg/constant"
 )
 
 type H map[string]interface{}
@@ -40,11 +40,13 @@ func NotFound(c *gin.Context, message string) {
 }
 
 func GetToken(c *gin.Context) string {
-	token := c.Request.Header.Get(Token)
+	// 1. Authorization JWT Token 临时有效token
+	// 2. Token 永久token
+	token := c.Request.Header.Get(constants.Token)
 	if len(token) > 0 {
 		return token
 	}
-	return c.Query(Token)
+	return c.Query(constants.Token)
 }
 
 func GetCurrentAccount(c *gin.Context) (models.User, bool) {
@@ -64,7 +66,7 @@ func HasPermission(c *gin.Context, owner string) bool {
 		return false
 	}
 	// 检测是否为管理人员
-	if constant.TypeAdmin == account.Type {
+	if constants.RoleAdmin == account.Role {
 		return true
 	}
 	// 检测是否为所有者

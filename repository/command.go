@@ -2,8 +2,8 @@ package repository
 
 import (
 	"gorm.io/gorm"
+	"next-terminal/constants"
 	model2 "next-terminal/models"
-	"next-terminal/pkg/constant"
 )
 
 type CommandRepository struct {
@@ -19,7 +19,7 @@ func (r CommandRepository) Find(pageIndex, pageSize int, name, content, order, f
 	db := r.DB.Table("commands").Select("commands.id,commands.name,commands.content,commands.owner,commands.created, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on commands.owner = users.id").Joins("left join resource_sharers on commands.id = resource_sharers.resource_id").Group("commands.id")
 	dbCounter := r.DB.Table("commands").Select("DISTINCT commands.id").Joins("left join resource_sharers on commands.id = resource_sharers.resource_id").Group("commands.id")
 
-	if constant.TypeUser == account.Type {
+	if constants.RoleDefault == account.Role {
 		owner := account.ID
 		db = db.Where("commands.owner = ? or resource_sharers.user_id = ?", owner, owner)
 		dbCounter = dbCounter.Where("commands.owner = ? or resource_sharers.user_id = ?", owner, owner)

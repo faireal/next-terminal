@@ -4,12 +4,12 @@ import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
+	"next-terminal/constants"
 	"next-terminal/models"
 	"path"
 	"strconv"
 
 	"github.com/gorilla/websocket"
-	"next-terminal/pkg/constant"
 	"next-terminal/pkg/global"
 	"next-terminal/pkg/guacd"
 )
@@ -53,7 +53,7 @@ func TunEndpoint(c *gin.Context) {
 			errors.Dangerous(err)
 			return
 		}
-		if session.Status != constant.Connected {
+		if session.Status != constants.Connected {
 			zlog.Warn("会话未在线")
 			errors.Dangerous("会话未在线")
 			return
@@ -195,7 +195,7 @@ func TunEndpoint(c *gin.Context) {
 			ConnectionId: tunnel.UUID,
 			Width:        intWidth,
 			Height:       intHeight,
-			Status:       constant.Connecting,
+			Status:       constants.Connecting,
 			Recording:    configuration.GetParameter(guacd.RecordingPath),
 		}
 		// 创建新会话

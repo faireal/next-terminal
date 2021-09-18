@@ -7,6 +7,7 @@ import (
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"next-terminal/constants"
 	model2 "next-terminal/models"
 	"next-terminal/pkg/utils"
 	repository2 "next-terminal/repository"
@@ -18,8 +19,6 @@ import (
 	"gorm.io/gorm"
 	"next-terminal/pkg/service"
 )
-
-const Token = "X-Auth-Token"
 
 var (
 	userRepository           *repository2.UserRepository
@@ -125,14 +124,14 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 
 	e.GET("/apis/tags", AssetTagsEndpoint)
 
-	commands := e.Group("/apis/commands")
+	k8s := e.Group("/apis/k8s")
 	{
-		commands.GET("/paging", CommandPagingEndpoint)
-		commands.POST("", CommandCreateEndpoint)
-		commands.PUT("/:id", CommandUpdateEndpoint)
-		commands.DELETE("/:id", CommandDeleteEndpoint)
-		commands.GET("/:id", CommandGetEndpoint)
-		commands.POST("/:id/change-owner", CommandChangeOwnerEndpoint, Admin())
+		k8s.GET("/paging", CommandPagingEndpoint)
+		k8s.POST("", CommandCreateEndpoint)
+		k8s.PUT("/:id", CommandUpdateEndpoint)
+		k8s.DELETE("/:id", CommandDeleteEndpoint)
+		k8s.GET("/:id", CommandGetEndpoint)
+		k8s.POST("/:id/change-owner", CommandChangeOwnerEndpoint, Admin())
 	}
 
 	credentials := e.Group("/apis/credentials")
@@ -362,7 +361,7 @@ func SetupCache() *cache.Cache {
 	// 配置缓存器
 	mCache := cache.New(5*time.Minute, 10*time.Minute)
 	mCache.OnEvicted(func(key string, value interface{}) {
-		if strings.HasPrefix(key, Token) {
+		if strings.HasPrefix(key, constants.Token) {
 			token := GetTokenFormCacheKey(key)
 			zlog.Debug("用户Token「%v」过期", token)
 			err := userService.Logout(token)

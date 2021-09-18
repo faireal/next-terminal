@@ -8,12 +8,11 @@ import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
 	"github.com/gin-gonic/gin"
+	"next-terminal/constants"
 	"next-terminal/models"
 	"next-terminal/pkg/utils"
 	"strconv"
 	"strings"
-
-	"next-terminal/pkg/constant"
 )
 
 func AssetCreateEndpoint(c *gin.Context) {
@@ -83,7 +82,7 @@ func AssetImportEndpoint(c *gin.Context) {
 				Protocol:    record[1],
 				IP:          record[2],
 				Port:        port,
-				AccountType: constant.Custom,
+				AccountType: constants.Custom,
 				Username:    record[4],
 				Password:    record[5],
 				PrivateKey:  record[6],

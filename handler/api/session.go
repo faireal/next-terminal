@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"next-terminal/constants"
 	model2 "next-terminal/models"
 	"next-terminal/pkg/utils"
 	"os"
@@ -18,7 +19,6 @@ import (
 	"sync"
 
 	"github.com/pkg/sftp"
-	"next-terminal/pkg/constant"
 	"next-terminal/pkg/global"
 )
 
@@ -43,10 +43,10 @@ func SessionPagingEndpoint(c *gin.Context) {
 	}
 
 	for i := 0; i < len(items); i++ {
-		if status == constant.Disconnected && len(items[i].Recording) > 0 {
+		if status == constants.Disconnected && len(items[i].Recording) > 0 {
 
 			var recording string
-			if items[i].Mode == constant.Naive {
+			if items[i].Mode == constants.Naive {
 				recording = items[i].Recording
 			} else {
 				recording = items[i].Recording + "/recording"
@@ -85,7 +85,7 @@ func SessionConnectEndpoint(c *gin.Context) {
 
 	session := model2.Session{}
 	session.ID = sessionId
-	session.Status = constant.Connected
+	session.Status = constants.Connected
 	session.ConnectedTime = utils.NowJsonTime()
 
 	if err := sessionRepository.UpdateById(&session, sessionId); err != nil {
@@ -127,11 +127,11 @@ func CloseSessionById(sessionId string, code int, reason string) {
 		return
 	}
 
-	if s.Status == constant.Disconnected {
+	if s.Status == constants.Disconnected {
 		return
 	}
 
-	if s.Status == constant.Connecting {
+	if s.Status == constants.Connecting {
 		// 会话还未建立成功，无需保留数据
 		_ = sessionRepository.DeleteById(sessionId)
 		return
@@ -139,7 +139,7 @@ func CloseSessionById(sessionId string, code int, reason string) {
 
 	session := model2.Session{}
 	session.ID = sessionId
-	session.Status = constant.Disconnected
+	session.Status = constants.Disconnected
 	session.DisconnectedTime = utils.NowJsonTime()
 	session.Code = code
 	session.Message = reason
@@ -174,15 +174,15 @@ func SessionCreateEndpoint(c *gin.Context) {
 	assetId := c.Query("assetId")
 	mode := c.Query("mode")
 
-	if mode == constant.Naive {
-		mode = constant.Naive
+	if mode == constants.Naive {
+		mode = constants.Naive
 	} else {
-		mode = constant.Guacd
+		mode = constants.Guacd
 	}
 
 	user, _ := GetCurrentAccount(c)
 
-	if constant.TypeUser == user.Type {
+	if constants.RoleDefault == user.Role {
 		// 检测是否有访问权限
 		assetIds, err := resourceSharerRepository.FindAssetIdsByUserId(user.ID)
 		if err != nil {
@@ -212,7 +212,7 @@ func SessionCreateEndpoint(c *gin.Context) {
 		Protocol:   asset.Protocol,
 		IP:         asset.IP,
 		Port:       asset.Port,
-		Status:     constant.NoConnect,
+		Status:     constants.NoConnect,
 		Creator:    user.ID,
 		ClientIP:   c.ClientIP(),
 		Mode:       mode,
@@ -225,7 +225,7 @@ func SessionCreateEndpoint(c *gin.Context) {
 			return
 		}
 
-		if credential.Type == constant.Custom {
+		if credential.Type == constants.Custom {
 			session.Username = credential.Username
 			session.Password = credential.Password
 		} else {
@@ -496,7 +496,7 @@ func SafetyRuleTrigger(c *gin.Context) {
 		ID:     utils.UUID(),
 		Source: "安全规则触发",
 		IP:     c.ClientIP(),
-		Rule:   constant.AccessRuleReject,
+		Rule:   constants.AccessRuleReject,
 	}
 
 	_ = accessSecurityRepository.Create(&security)
@@ -676,7 +676,7 @@ func SessionRecordingEndpoint(c *gin.Context) {
 	}
 
 	var recording string
-	if session.Mode == constant.Naive {
+	if session.Mode == constants.Naive {
 		recording = session.Recording
 	} else {
 		recording = session.Recording + "/recording"

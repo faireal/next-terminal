@@ -3,7 +3,7 @@ package api
 import (
 	"github.com/ergoapi/errors"
 	"github.com/gin-gonic/gin"
-	"next-terminal/pkg/constant"
+	"next-terminal/constants"
 	"next-terminal/repository"
 )
 
@@ -23,7 +23,7 @@ func OverviewCounterEndPoint(c *gin.Context) {
 		credential         int64
 		asset              int64
 	)
-	if constant.TypeUser == account.Type {
+	if constants.RoleDefault == account.Role {
 		countUser, _ = userRepository.CountOnlineUser()
 		countOnlineSession, _ = sessionRepository.CountOnlineSession()
 		credential, _ = credentialRepository.CountByUserId(account.ID)

@@ -25,7 +25,6 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 
 	"github.com/gofrs/uuid"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -224,12 +223,6 @@ func IpToInt(ip string) int64 {
 func StringToInt(in string) (out int) {
 	out, _ = strconv.Atoi(in)
 	return
-}
-
-func Check(f func() error) {
-	if err := f(); err != nil {
-		logrus.Error("Received error:", err)
-	}
 }
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {

@@ -23,6 +23,7 @@ type Asset struct {
 	Tags         string         `json:"tags"`
 	Owner        string         `gorm:"index" json:"owner"`
 	Encrypted    bool           `json:"encrypted"`
+	Provider     string         `json:"provider"`
 }
 
 type AssetForPage struct {
@@ -39,6 +40,7 @@ type AssetForPage struct {
 	OwnerName   string         `json:"ownerName"`
 	SharerCount int64          `json:"sharerCount"`
 	SshMode     string         `json:"sshMode"`
+	Provider    string         `json:"provider"`
 }
 
 func (r *Asset) TableName() string {
