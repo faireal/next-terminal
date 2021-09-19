@@ -82,4 +82,5 @@ require (
 	github.com/ergoapi/ldap v0.0.1 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.3 // indirect
 	github.com/go-ldap/ldap/v3 v3.4.1 // indirect
+	k8s.io/client-go v0.18.19 // indirect
 )

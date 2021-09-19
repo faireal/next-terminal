@@ -36,7 +36,7 @@ var (
 	loginLogRepository       *repository.LoginLogRepository
 
 	jobService        *service.JobService
-	propertyService   *service.ConfigsService
+	configsService    *service.ConfigsService
 	userService       *service.UserService
 	sessionService    *service.SessionService
 	mailService       *service.MailService
@@ -244,7 +244,7 @@ func InitRepository(db *gorm.DB) {
 
 func InitService() {
 	jobService = service.NewJobService(jobRepository, jobLogRepository, assetRepository, credentialRepository)
-	propertyService = service.NewConfigsService(configsRepository)
+	configsService = service.NewConfigsService(configsRepository)
 	userService = service.NewUserService(userRepository, loginLogRepository)
 	sessionService = service.NewSessionService(sessionRepository)
 	mailService = service.NewMailService(configsRepository)
@@ -254,7 +254,11 @@ func InitService() {
 }
 
 func InitDBData() (err error) {
-	if err := propertyService.InitConfigs(); err != nil {
+	if configsService.Init() {
+		zlog.Info("initialized")
+		return nil
+	}
+	if err := configsService.InitConfigs(); err != nil {
 		return err
 	}
 	if err := numService.InitNums(); err != nil {
@@ -282,9 +286,11 @@ func InitDBData() (err error) {
 		return err
 	}
 	if viper.GetBool("mode.demo") {
-		return assetService.InitDemoVM()
+		if err := assetService.InitDemoVM(); err != nil {
+			return err
+		}
 	}
-	return nil
+	return configsService.InitDone()
 }
 
 func ResetPassword(username string) error {

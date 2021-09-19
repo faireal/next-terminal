@@ -1,6 +1,7 @@
 package service
 
 import (
+	"gorm.io/gorm"
 	"next-terminal/models"
 	"next-terminal/pkg/utils"
 	"next-terminal/repository"
@@ -17,15 +18,31 @@ func NewConfigsService(configsRepository *repository.ConfigsRepository) *Configs
 	return &ConfigsService{configsRepository: configsRepository}
 }
 
-func (r ConfigsService) InitConfigs() error {
-	propertyMap := r.configsRepository.FindAllMap()
+func (c ConfigsService) Init() bool {
+	status, err := c.configsRepository.ConfigsGet("inited")
+	if err != nil {
+		return false
+	}
+	return status == "done"
+}
+
+func (c ConfigsService) InitDone() error {
+	_, err := c.configsRepository.ConfigsGet("inited")
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return err
+	}
+	return c.configsRepository.ConfigsSet("inited", "done")
+}
+
+func (c ConfigsService) InitConfigs() error {
+	propertyMap := c.configsRepository.FindAllMap()
 
 	if len(propertyMap[guacd.Host]) == 0 {
 		property := models.Configs{
 			Ckey: guacd.Host,
 			Cval: utils.GetKeyFromYaml("terminal.guacd.host", "127.0.0.1"),
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -35,7 +52,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.Port,
 			Cval: utils.GetKeyFromYaml("terminal.guacd.port", "4822"),
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -45,7 +62,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableRecording,
 			Cval: "true",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -61,7 +78,7 @@ func (r ConfigsService) InitConfigs() error {
 				return err
 			}
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -71,7 +88,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.CreateRecordingPath,
 			Cval: "true",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -81,7 +98,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.DriveName,
 			Cval: "File-System",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -99,7 +116,7 @@ func (r ConfigsService) InitConfigs() error {
 				return err
 			}
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -109,7 +126,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.FontName,
 			Cval: "menlo",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -119,7 +136,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.FontSize,
 			Cval: "12",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -129,7 +146,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.ColorScheme,
 			Cval: "gray-black",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -139,7 +156,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableDrive,
 			Cval: "true",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -149,7 +166,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableWallpaper,
 			Cval: "false",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -159,7 +176,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableTheming,
 			Cval: "false",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -169,7 +186,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableFontSmoothing,
 			Cval: "false",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -179,7 +196,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableFullWindowDrag,
 			Cval: "false",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -189,7 +206,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableDesktopComposition,
 			Cval: "false",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -199,7 +216,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.EnableMenuAnimations,
 			Cval: "false",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -209,7 +226,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.DisableBitmapCaching,
 			Cval: "false",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -219,7 +236,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.DisableOffscreenCaching,
 			Cval: "false",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}
@@ -229,7 +246,7 @@ func (r ConfigsService) InitConfigs() error {
 			Ckey: guacd.DisableGlyphCaching,
 			Cval: "true",
 		}
-		if err := r.configsRepository.Create(&property); err != nil {
+		if err := c.configsRepository.Create(&property); err != nil {
 			return err
 		}
 	}

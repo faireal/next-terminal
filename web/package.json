@@ -1,6 +1,6 @@
 {
   "name": "next-terminal",
-  "version": "0.6.0-20210918-e6e04ec",
+  "version": "0.6.1-20210919-e120b5e",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^4.3.0",

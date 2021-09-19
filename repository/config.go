@@ -27,6 +27,10 @@ func (r ConfigsRepository) Create(o *models.Configs) (err error) {
 	return
 }
 
+func (c ConfigsRepository) Save(o *models.Configs) error {
+	return c.DB.Where("ckey = ?", o.Ckey).Save(o).Error
+}
+
 func (r ConfigsRepository) UpdateByName(o *models.Configs, ckey string) error {
 	o.Ckey = ckey
 	return r.DB.Updates(o).Error
@@ -60,4 +64,39 @@ func (r ConfigsRepository) GetRecordingPath() (string, error) {
 		return "", err
 	}
 	return cfg.Cval, nil
+}
+
+// ConfigsGet 获取配置
+func (r ConfigsRepository) ConfigsGet(ckey string) (string, error) {
+	var obj models.Configs
+	has := r.DB.Model(models.Configs{}).Where("ckey=?", ckey).Last(&obj)
+	if has.Error != nil && has.Error != gorm.ErrRecordNotFound {
+		return "", has.Error
+	}
+
+	if has.RowsAffected == 0 {
+		return "", nil
+	}
+
+	return obj.Cval, nil
+}
+
+// ConfigsSet 添加配置
+func (r ConfigsRepository) ConfigsSet(ckey, cval string) error {
+	var obj models.Configs
+	has := r.DB.Model(models.Configs{}).Where("ckey=?", ckey).Last(&obj)
+	if has.Error != nil && has.Error != gorm.ErrRecordNotFound {
+		return has.Error
+	}
+	var err error
+	if has.RowsAffected == 0 {
+		err = r.Create(&models.Configs{
+			Ckey: ckey,
+			Cval: cval,
+		})
+	} else {
+		obj.Cval = cval
+		err = r.Save(&obj)
+	}
+	return err
 }
