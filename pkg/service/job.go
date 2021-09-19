@@ -254,7 +254,7 @@ func (r JobService) ExecJobById(id string) (err error) {
 	return nil
 }
 
-func (r JobService) InitJob() error {
+func (r JobService) LoadJobs() error {
 	jobs, _ := r.jobRepository.FindByFunc(constants.FuncCheckAssetStatusJob)
 	if len(jobs) == 0 {
 		job := models.Job{

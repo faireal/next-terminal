@@ -5,6 +5,7 @@ import {Col, Divider, Dropdown, Layout, Menu, Popconfirm, Row, Tooltip} from "an
 import {Link, Route, Switch} from "react-router-dom";
 import Dashboard from "./components/dashboard/Dashboard";
 import Asset from "./components/asset/Asset";
+import Cluster from './components/cluster/Cluster';
 import Access from "./components/access/Access";
 import User from "./components/user/User";
 import OnlineSession from "./components/session/OnlineSession";
@@ -35,6 +36,7 @@ import {
     UserSwitchOutlined,
     MenuUnfoldOutlined,
     MenuFoldOutlined,
+    DatabaseOutlined,
 } from '@ant-design/icons';
 import Info from "./components/user/Info";
 import request from "./common/request";
@@ -204,18 +206,26 @@ class App extends Component {
                                         控制面板
                                     </Link>
                                 </Menu.Item>
-
                                 <SubMenu key='resource' title='资源管理' icon={<CloudServerOutlined/>}>
-                                    <Menu.Item key="asset" icon={<DesktopOutlined/>}>
-                                        <Link to={'/asset'}>
-                                            资产列表
-                                        </Link>
-                                    </Menu.Item>
-                                    <Menu.Item key="credential" icon={<IdcardOutlined/>}>
-                                        <Link to={'/credential'}>
-                                            授权凭证
-                                        </Link>
-                                    </Menu.Item>
+                                    <SubMenu key='machine' title='资源管理' icon={<DatabaseOutlined/>}>
+                                        <Menu.Item key="asset" icon={<DesktopOutlined/>}>
+                                            <Link to={'/asset'}>
+                                                资产列表
+                                            </Link>
+                                        </Menu.Item>
+                                        <Menu.Item key="credential" icon={<IdcardOutlined/>}>
+                                            <Link to={'/credential'}>
+                                                授权凭证
+                                            </Link>
+                                        </Menu.Item>
+                                    </SubMenu>
+                                    <SubMenu key='cloudnative' title='云原生管理' icon={<DatabaseOutlined/>}>
+                                        <Menu.Item key="cluster" icon={<DesktopOutlined/>}>
+                                            <Link to={'/cluster'}>
+                                                集群列表
+                                            </Link>
+                                        </Menu.Item>
+                                    </SubMenu>
                                 </SubMenu>
 
                                 {/* <SubMenu key='command-manage' title='指令管理' icon={<CodeOutlined/>}>
@@ -340,6 +350,7 @@ class App extends Component {
                             <Route path="/user" component={User}/>
                             <Route path="/user-group" component={UserGroup}/>
                             <Route path="/asset" component={Asset}/>
+                            <Route path="/cluster" component={Cluster}/>
                             <Route path="/credential" component={Credential}/>
                             <Route path="/dynamic-command" component={DynamicCommand}/>
                             <Route path="/batch-command" component={BatchCommand}/>

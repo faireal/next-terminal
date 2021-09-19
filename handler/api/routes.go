@@ -50,6 +50,8 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	InitRepository(db)
 	InitService()
 
+	LoadJobs()
+
 	if err := InitDBData(); err != nil {
 		zlog.Panic("初始化数据异常: %v", err)
 	}
@@ -253,6 +255,14 @@ func InitService() {
 	credentialService = service.NewCredentialService(credentialRepository)
 }
 
+func LoadJobs()  {
+	if err := jobService.LoadJobs(); err != nil {
+		zlog.Error("load job err: %v", err)
+		return
+	}
+	zlog.Info("load all job done.")
+}
+
 func InitDBData() (err error) {
 	if configsService.Init() {
 		zlog.Info("initialized")
@@ -265,9 +275,6 @@ func InitDBData() (err error) {
 		return err
 	}
 	if err := userService.InitUser(); err != nil {
-		return err
-	}
-	if err := jobService.InitJob(); err != nil {
 		return err
 	}
 	if err := userService.FixUserOnlineState(); err != nil {
