@@ -25,7 +25,6 @@ func CredentialCreateEndpoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 	item.Owner = account.ID
 	item.ID = utils.UUID()
-	item.Created = utils.NowJsonTime()
 
 	switch item.Type {
 	case constants.Custom:

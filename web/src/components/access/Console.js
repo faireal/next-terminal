@@ -132,7 +132,7 @@ class Console extends Component {
     }
 
     async createSession(assetsId) {
-        let result = await request.post(`/sessions?assetId=${assetsId}&mode=naive`);
+        let result = await request.post(`/apis/sessions?assetId=${assetsId}&mode=naive`);
         if (result['code'] !== 1) {
             this.showMessage(result['message']);
             return null;
@@ -141,7 +141,7 @@ class Console extends Component {
     }
 
     updateSessionStatus = async (sessionId) => {
-        let result = await request.post(`/sessions/${sessionId}/connect`);
+        let result = await request.post(`/apis/sessions/${sessionId}/connect`);
         if (result['code'] !== 1) {
             message.error(result['message']);
         }

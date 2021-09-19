@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/ergoapi/errors"
+	"github.com/ergoapi/util/file"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
+	"gopkg.in/guregu/null.v3"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -17,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/pkg/sftp"
 	"next-terminal/pkg/global"
@@ -52,7 +55,7 @@ func SessionPagingEndpoint(c *gin.Context) {
 				recording = items[i].Recording + "/recording"
 			}
 
-			if utils.FileExists(recording) {
+			if file.CheckFileExists(recording) {
 				items[i].Recording = "1"
 			} else {
 				items[i].Recording = "0"
@@ -86,7 +89,7 @@ func SessionConnectEndpoint(c *gin.Context) {
 	session := models.Session{}
 	session.ID = sessionId
 	session.Status = constants.Connected
-	session.ConnectedTime = utils.NowJsonTime()
+	session.ConnectedTime = null.TimeFrom(time.Now())
 
 	if err := sessionRepository.UpdateById(&session, sessionId); err != nil {
 		errors.Dangerous(err)
@@ -140,7 +143,7 @@ func CloseSessionById(sessionId string, code int, reason string) {
 	session := models.Session{}
 	session.ID = sessionId
 	session.Status = constants.Disconnected
-	session.DisconnectedTime = utils.NowJsonTime()
+	session.DisconnectedTime = null.TimeFrom(time.Now())
 	session.Code = code
 	session.Message = reason
 	session.Password = "-"
@@ -385,7 +388,7 @@ type File struct {
 	IsDir   bool           `json:"isDir"`
 	Mode    string         `json:"mode"`
 	IsLink  bool           `json:"isLink"`
-	ModTime utils.JsonTime `json:"modTime"`
+	ModTime null.Time `json:"modTime"`
 	Size    int64          `json:"size"`
 }
 
@@ -443,7 +446,7 @@ func SessionLsEndpoint(c *gin.Context) {
 				IsDir:   fileInfos[i].IsDir(),
 				Mode:    fileInfos[i].Mode().String(),
 				IsLink:  fileInfos[i].Mode()&os.ModeSymlink == os.ModeSymlink,
-				ModTime: utils.NewJsonTime(fileInfos[i].ModTime()),
+				ModTime: null.TimeFrom(fileInfos[i].ModTime()),
 				Size:    fileInfos[i].Size(),
 			}
 
@@ -477,7 +480,7 @@ func SessionLsEndpoint(c *gin.Context) {
 				IsDir:   fileInfos[i].IsDir(),
 				Mode:    fileInfos[i].Mode().String(),
 				IsLink:  fileInfos[i].Mode()&os.ModeSymlink == os.ModeSymlink,
-				ModTime: utils.NewJsonTime(fileInfos[i].ModTime()),
+				ModTime: null.TimeFrom(fileInfos[i].ModTime()),
 				Size:    fileInfos[i].Size(),
 			}
 
@@ -682,6 +685,6 @@ func SessionRecordingEndpoint(c *gin.Context) {
 		recording = session.Recording + "/recording"
 	}
 
-	zlog.Debug("读取录屏文件：%v,是否存在: %v, 是否为文件: %v", recording, utils.FileExists(recording), utils.IsFile(recording))
+	zlog.Debug("读取录屏文件：%v,是否存在: %v, 是否为文件: %v", recording, file.CheckFileExists(recording), utils.IsFile(recording))
 	c.File(recording)
 }

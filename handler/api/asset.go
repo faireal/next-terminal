@@ -29,7 +29,6 @@ func AssetCreateEndpoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 	item.Owner = account.ID
 	item.ID = utils.UUID()
-	item.Created = utils.NowJsonTime()
 
 	if err := assetRepository.InitAsset(&item, m); err != nil {
 		errors.Dangerous(err)
@@ -88,7 +87,6 @@ func AssetImportEndpoint(c *gin.Context) {
 				PrivateKey:  record[6],
 				Passphrase:  record[7],
 				Description: record[8],
-				Created:     utils.NowJsonTime(),
 				Owner:       account.ID,
 			}
 

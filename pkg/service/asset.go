@@ -53,7 +53,6 @@ func (r AssetService) InitDemoVM() error {
 	debian.Tags = "debian"
 	debian.Owner = u.ID
 	debian.Encrypted = true
-	debian.Created = utils.NowJsonTime()
 
 	m := map[string]interface{}{
 		"ssh-mode": "guacd",
@@ -63,7 +62,7 @@ func (r AssetService) InitDemoVM() error {
 	}
 	centos := models.Asset{}
 	centos.ID = utils.UUID()
-	centos.Name = "debian"
+	centos.Name = "centos"
 	centos.Protocol = "ssh"
 	centos.IP = "centos.ysicing.svc"
 	centos.Port = 22
@@ -74,6 +73,5 @@ func (r AssetService) InitDemoVM() error {
 	centos.Tags = "centos"
 	centos.Owner = u.ID
 	centos.Encrypted = true
-	centos.Created = utils.NowJsonTime()
 	return r.assetRepository.InitAsset(&centos, m)
 }

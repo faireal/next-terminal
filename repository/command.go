@@ -16,7 +16,7 @@ func NewCommandRepository(db *gorm.DB) *CommandRepository {
 }
 
 func (r CommandRepository) Find(pageIndex, pageSize int, name, content, order, field string, account models.User) (o []models.CommandForPage, total int64, err error) {
-	db := r.DB.Table("commands").Select("commands.id,commands.name,commands.content,commands.owner,commands.created, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on commands.owner = users.id").Joins("left join resource_sharers on commands.id = resource_sharers.resource_id").Group("commands.id")
+	db := r.DB.Table("commands").Select("commands.id,commands.name,commands.content,commands.owner,commands.created_at, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on commands.owner = users.id").Joins("left join resource_sharers on commands.id = resource_sharers.resource_id").Group("commands.id")
 	dbCounter := r.DB.Table("commands").Select("DISTINCT commands.id").Joins("left join resource_sharers on commands.id = resource_sharers.resource_id").Group("commands.id")
 
 	if constants.RoleDefault == account.Role {
@@ -49,7 +49,7 @@ func (r CommandRepository) Find(pageIndex, pageSize int, name, content, order, f
 	if field == "name" {
 		field = "name"
 	} else {
-		field = "created"
+		field = "created_at"
 	}
 
 	err = db.Order("commands." + field + " " + order).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&o).Error

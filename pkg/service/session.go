@@ -1,10 +1,11 @@
 package service
 
 import (
+	"gopkg.in/guregu/null.v3"
 	"next-terminal/constants"
 	"next-terminal/models"
-	"next-terminal/pkg/utils"
 	"next-terminal/repository"
+	"time"
 )
 
 type SessionService struct {
@@ -25,7 +26,7 @@ func (r SessionService) FixSessionState() error {
 		for i := range sessions {
 			session := models.Session{
 				Status:           constants.Disconnected,
-				DisconnectedTime: utils.NowJsonTime(),
+				DisconnectedTime: null.TimeFrom(time.Now()),
 			}
 
 			_ = r.sessionRepository.UpdateById(&session, sessions[i].ID)

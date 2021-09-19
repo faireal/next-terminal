@@ -22,7 +22,6 @@ func UserGroupCreateEndpoint(c *gin.Context) {
 
 	userGroup := models.UserGroup{
 		ID:      utils.UUID(),
-		Created: utils.NowJsonTime(),
 		Name:    item.Name,
 	}
 

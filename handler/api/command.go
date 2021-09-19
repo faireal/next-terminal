@@ -17,7 +17,6 @@ func CommandCreateEndpoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 	item.Owner = account.ID
 	item.ID = utils.UUID()
-	item.Created = utils.NowJsonTime()
 
 	if err := commandRepository.Create(&item); err != nil {
 		errors.Dangerous(err)

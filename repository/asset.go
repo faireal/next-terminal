@@ -43,7 +43,7 @@ func (r AssetRepository) FindByProtocolAndIds(protocol string, assetIds []string
 }
 
 func (r AssetRepository) FindByProtocolAndUser(protocol string, account models.User) (o []models.Asset, err error) {
-	db := r.DB.Table("assets").Select("assets.id,assets.name,assets.ip,assets.port,assets.protocol,assets.active,assets.owner,assets.created, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on assets.owner = users.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
+	db := r.DB.Table("assets").Select("assets.id,assets.name,assets.ip,assets.port,assets.protocol,assets.active,assets.owner,assets.created_at, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on assets.owner = users.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
 
 	if constants.RoleDefault == account.Role {
 		owner := account.ID
@@ -58,7 +58,7 @@ func (r AssetRepository) FindByProtocolAndUser(protocol string, account models.U
 }
 
 func (r AssetRepository) Find(pageIndex, pageSize int, name, protocol, tags string, account models.User, owner, sharer, userGroupId, ip, order, field string) (o []models.AssetForPage, total int64, err error) {
-	db := r.DB.Table("assets").Select("assets.id,assets.name,assets.ip,assets.port,assets.protocol,assets.active,assets.owner,assets.created,assets.tags, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on assets.owner = users.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
+	db := r.DB.Table("assets").Select("assets.id,assets.name,assets.ip,assets.port,assets.protocol,assets.active,assets.owner,assets.created_at,assets.tags, users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on assets.owner = users.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
 	dbCounter := r.DB.Table("assets").Select("DISTINCT assets.id").Joins("left join resource_sharers on assets.id = resource_sharers.resource_id").Group("assets.id")
 
 	if constants.RoleDefault == account.Role {
@@ -134,7 +134,7 @@ func (r AssetRepository) Find(pageIndex, pageSize int, name, protocol, tags stri
 	if field == "name" {
 		field = "name"
 	} else {
-		field = "created"
+		field = "created_at"
 	}
 
 	err = db.Order("assets." + field + " " + order).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&o).Error

@@ -3,7 +3,6 @@ package repository
 import (
 	"gorm.io/gorm"
 	"next-terminal/models"
-	"next-terminal/pkg/utils"
 )
 
 type JobRepository struct {
@@ -43,10 +42,10 @@ func (r JobRepository) Find(pageIndex, pageSize int, name, status, order, field 
 
 	if field == "name" {
 		field = "name"
-	} else if field == "created" {
-		field = "created"
+	} else if field == "created_at" {
+		field = "created_at"
 	} else {
-		field = "updated"
+		field = "updated_at"
 	}
 
 	err = db.Order(field + " " + order).Find(&o).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Error
@@ -71,7 +70,7 @@ func (r JobRepository) UpdateById(o *models.Job) (err error) {
 }
 
 func (r JobRepository) UpdateLastUpdatedById(id string) (err error) {
-	err = r.DB.Updates(models.Job{ID: id, Updated: utils.NowJsonTime()}).Error
+	err = r.DB.Updates(models.Job{ID: id}).Error
 	return
 }
 

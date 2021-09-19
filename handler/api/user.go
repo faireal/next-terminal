@@ -27,7 +27,6 @@ func UserCreateEndpoint(c *gin.Context) {
 	item.Password = string(pass)
 
 	item.ID = utils.UUID()
-	item.Created = utils.NowJsonTime()
 
 	if err := userRepository.Create(&item); err != nil {
 		errors.Dangerous(err)

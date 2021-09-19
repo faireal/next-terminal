@@ -35,3 +35,4 @@ dist
 drive
 recording
 config.yml
+hack/k8s/nt-cfg-default.yaml

@@ -1,7 +1,7 @@
 package models
 
 import (
-	"next-terminal/pkg/utils"
+	"gopkg.in/guregu/null.v3"
 )
 
 type LoginLog struct {
@@ -10,19 +10,20 @@ type LoginLog struct {
 	UserId          string         `gorm:"index" json:"userId"`
 	ClientIP        string         `json:"clientIp"`
 	ClientUserAgent string         `json:"clientUserAgent"`
-	LoginTime       utils.JsonTime `json:"loginTime"`
-	LogoutTime      utils.JsonTime `json:"logoutTime"`
+	LoginTime       null.Time `json:"loginTime"`
+	LogoutTime      null.Time `json:"logoutTime"`
 	Remember        bool           `json:"remember"`
 }
 
 type LoginLogForPage struct {
+	Model
 	ID              string         `json:"id"`
 	UserId          string         `json:"userId"`
 	UserName        string         `json:"userName"`
 	ClientIP        string         `json:"clientIp"`
 	ClientUserAgent string         `json:"clientUserAgent"`
-	LoginTime       utils.JsonTime `json:"loginTime"`
-	LogoutTime      utils.JsonTime `json:"logoutTime"`
+	LoginTime       null.Time `json:"loginTime"`
+	LogoutTime      null.Time `json:"logoutTime"`
 	Remember        bool           `json:"remember"`
 }
 

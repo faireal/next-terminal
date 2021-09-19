@@ -1,6 +1,14 @@
 ## CHANGELOG
 
-## v0.0.6
+## v0.6.2-beta
+
+- 
+
+## v0.6.1
+
+- 优化重复初始化
+
+## v0.6.0
 
 Changelog since v0.5.0
 

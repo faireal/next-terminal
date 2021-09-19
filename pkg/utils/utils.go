@@ -7,7 +7,6 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"crypto/sha256"
-	"database/sql/driver"
 	"encoding/base64"
 	"fmt"
 	"github.com/spf13/viper"
@@ -28,43 +27,43 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type JsonTime struct {
-	time.Time
-}
+//type JsonTime struct {
+//	time.Time
+//}
+//
+//func NewJsonTime(t time.Time) JsonTime {
+//	return JsonTime{
+//		Time: t,
+//	}
+//}
 
-func NewJsonTime(t time.Time) JsonTime {
-	return JsonTime{
-		Time: t,
-	}
-}
+//func NowJsonTime() JsonTime {
+//	return JsonTime{
+//		Time: time.Now(),
+//	}
+//}
 
-func NowJsonTime() JsonTime {
-	return JsonTime{
-		Time: time.Now(),
-	}
-}
+//func (t JsonTime) MarshalJSON() ([]byte, error) {
+//	var stamp = fmt.Sprintf("\"%s\"", t.Format("2006-01-02 15:04:05"))
+//	return []byte(stamp), nil
+//}
 
-func (t JsonTime) MarshalJSON() ([]byte, error) {
-	var stamp = fmt.Sprintf("\"%s\"", t.Format("2006-01-02 15:04:05"))
-	return []byte(stamp), nil
-}
-
-func (t JsonTime) Value() (driver.Value, error) {
-	var zeroTime time.Time
-	if t.Time.UnixNano() == zeroTime.UnixNano() {
-		return nil, nil
-	}
-	return t.Time, nil
-}
-
-func (t *JsonTime) Scan(v interface{}) error {
-	value, ok := v.(time.Time)
-	if ok {
-		*t = JsonTime{Time: value}
-		return nil
-	}
-	return fmt.Errorf("can not convert %v to timestamp", v)
-}
+//func (t JsonTime) Value() (driver.Value, error) {
+//	var zeroTime time.Time
+//	if t.Time.UnixNano() == zeroTime.UnixNano() {
+//		return nil, nil
+//	}
+//	return t.Time, nil
+//}
+//
+//func (t *JsonTime) Scan(v interface{}) error {
+//	value, ok := v.(time.Time)
+//	if ok {
+//		*t = JsonTime{Time: value}
+//		return nil
+//	}
+//	return fmt.Errorf("can not convert %v to timestamp", v)
+//}
 
 type Bcrypt struct {
 	cost int
@@ -118,15 +117,15 @@ func ImageToBase64Encode(img image.Image) (string, error) {
 }
 
 // 判断所给路径文件/文件夹是否存在
-func FileExists(path string) bool {
-	_, err := os.Stat(path) //os.Stat获取文件信息
-	if err != nil {
-		return os.IsExist(err)
-	}
-	return true
-}
+//func FileExists(path string) bool {
+//	_, err := os.Stat(path) //os.Stat获取文件信息
+//	if err != nil {
+//		return os.IsExist(err)
+//	}
+//	return true
+//}
 
-// 判断所给路径是否为文件夹
+// IsDir 判断所给路径是否为文件夹
 func IsDir(path string) bool {
 	s, err := os.Stat(path)
 	if err != nil {
@@ -135,7 +134,7 @@ func IsDir(path string) bool {
 	return s.IsDir()
 }
 
-// 判断所给路径是否为文件
+// IsFile 判断所给路径是否为文件
 func IsFile(path string) bool {
 	return !IsDir(path)
 }

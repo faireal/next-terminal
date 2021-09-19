@@ -28,7 +28,7 @@ func (r CredentialRepository) FindByUser(account models.User) (o []models.Creden
 }
 
 func (r CredentialRepository) Find(pageIndex, pageSize int, name, order, field string, account models.User) (o []models.CredentialForPage, total int64, err error) {
-	db := r.DB.Table("credentials").Select("credentials.id,credentials.name,credentials.type,credentials.username,credentials.owner,credentials.created,users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on credentials.owner = users.id").Joins("left join resource_sharers on credentials.id = resource_sharers.resource_id").Group("credentials.id")
+	db := r.DB.Table("credentials").Select("credentials.id,credentials.name,credentials.type,credentials.username,credentials.owner,credentials.created_at,users.nickname as owner_name,COUNT(resource_sharers.user_id) as sharer_count").Joins("left join users on credentials.owner = users.id").Joins("left join resource_sharers on credentials.id = resource_sharers.resource_id").Group("credentials.id")
 	dbCounter := r.DB.Table("credentials").Select("DISTINCT credentials.id").Joins("left join resource_sharers on credentials.id = resource_sharers.resource_id").Group("credentials.id")
 
 	if constants.RoleDefault == account.Role {
@@ -56,7 +56,7 @@ func (r CredentialRepository) Find(pageIndex, pageSize int, name, order, field s
 	if field == "name" {
 		field = "name"
 	} else {
-		field = "created"
+		field = "created_at"
 	}
 
 	err = db.Order("credentials." + field + " " + order).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&o).Error

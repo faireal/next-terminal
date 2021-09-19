@@ -2,6 +2,7 @@ package term
 
 import (
 	"encoding/json"
+	"github.com/ergoapi/util/file"
 	"next-terminal/pkg/utils"
 	"os"
 	"time"
@@ -31,7 +32,7 @@ func NewRecorder(recoding string) (recorder *Recorder, err error) {
 
 	parentDirectory := utils.GetParentDirectory(recoding)
 
-	if utils.FileExists(parentDirectory) {
+	if file.CheckFileExists(parentDirectory) {
 		if err := os.RemoveAll(parentDirectory); err != nil {
 			return nil, err
 		}

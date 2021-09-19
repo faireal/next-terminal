@@ -1,9 +1,5 @@
 package models
 
-import (
-	"next-terminal/pkg/utils"
-)
-
 type Job struct {
 	Model
 	ID          string         `gorm:"primary_key" json:"id"`
@@ -15,8 +11,6 @@ type Job struct {
 	ResourceIds string         `json:"resourceIds"`
 	Status      string         `json:"status"`
 	Metadata    string         `json:"metadata"`
-	Created     utils.JsonTime `json:"created"`
-	Updated     utils.JsonTime `json:"updated"`
 }
 
 func (r *Job) TableName() string {
@@ -26,7 +20,6 @@ func (r *Job) TableName() string {
 type JobLog struct {
 	Model
 	ID        string         `json:"id"`
-	Timestamp utils.JsonTime `json:"timestamp"`
 	JobId     string         `json:"jobId"`
 	Message   string         `json:"message"`
 }

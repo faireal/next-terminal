@@ -34,7 +34,6 @@ func (r UserService) InitUser() (err error) {
 			Password: string(pass),
 			Nickname: "超级管理员",
 			Role:     constants.RoleAdmin,
-			Created:  utils.NowJsonTime(),
 		}
 		if err := r.userRepository.Create(&user); err != nil {
 			return err
@@ -88,7 +87,7 @@ func (r UserService) Logout(token string) (err error) {
 		return
 	}
 
-	loginLogForUpdate := &models.LoginLog{LogoutTime: utils.NowJsonTime(), ID: token}
+	loginLogForUpdate := &models.LoginLog{ID: token}
 	err = r.loginLogRepository.Update(loginLogForUpdate)
 	if err != nil {
 		return err

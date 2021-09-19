@@ -14,7 +14,6 @@ func JobCreateEndpoint(c *gin.Context) {
 	var item models.Job
 	exgin.Bind(c, &item)
 	item.ID = utils.UUID()
-	item.Created = utils.NowJsonTime()
 
 	if err := jobService.Create(&item); err != nil {
 		errors.Dangerous(err)

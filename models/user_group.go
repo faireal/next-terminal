@@ -1,20 +1,15 @@
 package models
 
-import (
-	"next-terminal/pkg/utils"
-)
-
 type UserGroup struct {
 	Model
 	ID      string         `gorm:"primary_key" json:"id"`
 	Name    string         `json:"name"`
-	Created utils.JsonTime `json:"created"`
 }
 
 type UserGroupForPage struct {
+	Model
 	ID         string         `json:"id"`
 	Name       string         `json:"name"`
-	Created    utils.JsonTime `json:"created"`
 	AssetCount int64          `json:"assetCount"`
 }
 

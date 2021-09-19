@@ -6,6 +6,7 @@ import (
 	"github.com/ergoapi/exgin"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"gopkg.in/guregu/null.v3"
 	"gorm.io/gorm"
 	"next-terminal/constants"
 	"next-terminal/models"
@@ -145,7 +146,6 @@ func LdapLoginEndpoint(c *gin.Context) {
 			Department: ldapuser.Department,
 			Mode:       "ldap",
 			Mail:       ldapuser.Mail,
-			Created:    utils.NowJsonTime(),
 		}
 		userRepository.Create(u)
 	} else {
@@ -197,7 +197,7 @@ func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user *models.User, 
 		UserId:          user.ID,
 		ClientIP:        c.ClientIP(),
 		ClientUserAgent: c.Request.UserAgent(),
-		LoginTime:       utils.NowJsonTime(),
+		LoginTime:       null.TimeFrom(time.Now()),
 		Remember:        authorization.Remember,
 	}
 

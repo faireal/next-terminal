@@ -6,6 +6,8 @@ services:
     environment:
       ROOT_PASSWORD: next-terminal
     restart: always
+    ports:
+      - "10022:22"
     networks:
       next-terminal:
         ipv4_address: 172.77.77.100
@@ -15,8 +17,10 @@ services:
     environment:
       SSH_USER_PASSWORD: next-terminal
       SSH_USER: next-terminal
-      SSH_PASSWORD_AUTHENTICATION: true
+      SSH_PASSWORD_AUTHENTICATION: "true"
     restart: always
+    ports:
+      - "10023:22"
     networks:
       next-terminal:
         ipv4_address: 172.77.77.101

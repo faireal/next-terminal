@@ -1,7 +1,7 @@
 package models
 
 import (
-	"next-terminal/pkg/utils"
+	"gopkg.in/guregu/null.v3"
 )
 
 type Session struct {
@@ -24,8 +24,8 @@ type Session struct {
 	Passphrase       string         `json:"passphrase"`
 	Code             int            `json:"code"`
 	Message          string         `json:"message"`
-	ConnectedTime    utils.JsonTime `json:"connectedTime"`
-	DisconnectedTime utils.JsonTime `json:"disconnectedTime"`
+	ConnectedTime    null.Time `json:"connectedTime"`
+	DisconnectedTime null.Time `json:"disconnectedTime"`
 	Mode             string         `json:"mode"`
 }
 
@@ -34,6 +34,7 @@ func (r *Session) TableName() string {
 }
 
 type SessionForPage struct {
+	Model
 	ID               string         `json:"id"`
 	Protocol         string         `json:"protocol"`
 	IP               string         `json:"ip"`
@@ -47,8 +48,8 @@ type SessionForPage struct {
 	Height           int            `json:"height"`
 	Status           string         `json:"status"`
 	Recording        string         `json:"recording"`
-	ConnectedTime    utils.JsonTime `json:"connectedTime"`
-	DisconnectedTime utils.JsonTime `json:"disconnectedTime"`
+	ConnectedTime    null.Time `json:"connectedTime"`
+	DisconnectedTime null.Time `json:"disconnectedTime"`
 	AssetName        string         `json:"assetName"`
 	CreatorName      string         `json:"creatorName"`
 	Code             int            `json:"code"`

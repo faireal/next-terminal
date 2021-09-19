@@ -291,8 +291,8 @@ class UserShareSelectedAsset extends Component {
             key: 'ownerName'
         }, {
             title: '创建日期',
-            dataIndex: 'created',
-            key: 'created',
+            dataIndex: 'created_at',
+            key: 'created_at',
             render: (text, record) => {
                 return (
                     <Tooltip title={text}>

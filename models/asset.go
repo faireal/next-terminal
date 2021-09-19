@@ -1,9 +1,5 @@
 package models
 
-import (
-	"next-terminal/pkg/utils"
-)
-
 type Asset struct {
 	Model
 	ID           string         `gorm:"primary_key " json:"id"`
@@ -19,7 +15,6 @@ type Asset struct {
 	Passphrase   string         `json:"passphrase"`
 	Description  string         `json:"description"`
 	Active       bool           `json:"active"`
-	Created      utils.JsonTime `json:"created"`
 	Tags         string         `json:"tags"`
 	Owner        string         `gorm:"index" json:"owner"`
 	Encrypted    bool           `json:"encrypted"`
@@ -34,7 +29,6 @@ type AssetForPage struct {
 	Protocol    string         `json:"protocol"`
 	Port        int            `json:"port"`
 	Active      bool           `json:"active"`
-	Created     utils.JsonTime `json:"created"`
 	Tags        string         `json:"tags"`
 	Owner       string         `json:"owner"`
 	OwnerName   string         `json:"ownerName"`

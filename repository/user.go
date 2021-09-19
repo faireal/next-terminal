@@ -64,7 +64,7 @@ func (r UserRepository) Find(pageIndex, pageSize int, username, nickname, mail, 
 	} else if field == "nickname" {
 		field = "nickname"
 	} else {
-		field = "created"
+		field = "created_at"
 	}
 
 	err = db.Order("users." + field + " " + order).Find(&o).Offset((pageIndex - 1) * pageSize).Limit(pageSize).Error

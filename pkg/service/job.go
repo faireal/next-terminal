@@ -114,7 +114,6 @@ func (r CheckAssetStatusJob) Run() {
 	jobLog := models.JobLog{
 		ID:        utils.UUID(),
 		JobId:     r.ID,
-		Timestamp: utils.NowJsonTime(),
 		Message:   message,
 	}
 
@@ -217,7 +216,6 @@ func (r ShellJob) Run() {
 	jobLog := models.JobLog{
 		ID:        utils.UUID(),
 		JobId:     r.ID,
-		Timestamp: utils.NowJsonTime(),
 		Message:   message,
 	}
 
@@ -263,11 +261,9 @@ func (r JobService) InitJob() error {
 			ID:      utils.UUID(),
 			Name:    "资产状态检测",
 			Func:    constants.FuncCheckAssetStatusJob,
-			Cron:    "0 0 0/1 * * ?",
+			Cron:    "@every 3m",
 			Mode:    constants.JobModeAll,
 			Status:  constants.JobStatusRunning,
-			Created: utils.NowJsonTime(),
-			Updated: utils.NowJsonTime(),
 		}
 		if err := r.jobRepository.Create(&job); err != nil {
 			return err

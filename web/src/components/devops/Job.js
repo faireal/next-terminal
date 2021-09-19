@@ -318,8 +318,8 @@ class Job extends Component {
             key: 'cron'
         }, {
             title: '创建日期',
-            dataIndex: 'created',
-            key: 'created',
+            dataIndex: 'created_at',
+            key: 'created_at',
             render: (text, record) => {
                 return (
                     <Tooltip title={text}>
@@ -330,8 +330,8 @@ class Job extends Component {
             sorter: true,
         }, {
             title: '最后执行日期',
-            dataIndex: 'updated',
-            key: 'updated',
+            dataIndex: 'updated_at',
+            key: 'updated_at',
             render: (text, record) => {
                 if (text === '0001-01-01 00:00:00') {
                     return '';
@@ -572,7 +572,7 @@ class Job extends Component {
 
                                                 return <><Divider
                                                     orientation="left"
-                                                    style={{color: 'white'}}>{item['timestamp']}</Divider>{item['message']}</>;
+                                                    style={{color: 'white'}}>{item['created_at']}</Divider>{item['message']}</>;
                                             })
                                         }
                                     </pre>

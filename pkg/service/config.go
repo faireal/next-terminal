@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/ergoapi/util/file"
 	"gorm.io/gorm"
 	"next-terminal/models"
 	"next-terminal/pkg/utils"
@@ -73,7 +74,7 @@ func (c ConfigsService) InitConfigs() error {
 			Ckey: guacd.RecordingPath,
 			Cval: path + "/recording/",
 		}
-		if !utils.FileExists(property.Cval) {
+		if !file.CheckFileExists(property.Cval) {
 			if err := os.Mkdir(property.Cval, os.ModePerm); err != nil {
 				return err
 			}
@@ -111,7 +112,7 @@ func (c ConfigsService) InitConfigs() error {
 			Ckey: guacd.DrivePath,
 			Cval: path + "/drive/",
 		}
-		if !utils.FileExists(property.Cval) {
+		if !file.CheckFileExists(property.Cval) {
 			if err := os.Mkdir(property.Cval, os.ModePerm); err != nil {
 				return err
 			}
