@@ -9,6 +9,11 @@ core:
   encryptionkey: ""
   http: 0.0.0.0:8080
   login:
+    oauth2:
+      enable: false
+      type: github
+      id: ""
+      secret: ""
     ladp: false
     trynum: 3
     exp: 86400 #1d

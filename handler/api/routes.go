@@ -78,6 +78,10 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	e.POST("/login", LoginEndpoint)
 	e.POST("/ldaplogin", LdapLoginEndpoint)
 	e.POST("/loginWithTotp", loginWithTotpEndpoint)
+	if viper.GetBool("core.login.oauth2.enable") {
+		e.GET("/oauth2/login", Oauth2login)
+		e.GET("/oauth2/callback", Oauth2Callback)
+	}
 	e.GET("/version", RVersion)
 	e.GET("/metrics", gin.WrapH(promhttp.Handler()))
 

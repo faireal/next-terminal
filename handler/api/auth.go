@@ -1,13 +1,16 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"golang.org/x/oauth2"
 	"gopkg.in/guregu/null.v3"
 	"gorm.io/gorm"
+	"net/http"
 	"next-terminal/constants"
 	"next-terminal/models"
 	"next-terminal/pkg/ldap"
@@ -18,6 +21,9 @@ import (
 	"next-terminal/pkg/totp"
 
 	ntcache "next-terminal/pkg/cache"
+	GitHubAPI "github.com/google/go-github/github"
+	GitHubOauth2 "golang.org/x/oauth2/github"
+
 )
 
 const (
@@ -209,10 +215,10 @@ func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user *models.User, 
 	var u models.User
 	if logintype == "ldap" {
 		u.Department = user.Department
-		u.Mail = user.Mail
-		u.Nickname = user.Nickname
-		u.Mode = user.Mode
 	}
+	u.Mail = user.Mail
+	u.Nickname = user.Nickname
+	u.Mode = user.Mode
 	u.Online = true
 	u.ID = user.ID
 	err = userRepository.Update(u)
@@ -275,6 +281,124 @@ func loginWithTotpEndpoint(c *gin.Context) {
 	}
 
 	Success(c, token)
+}
+
+func getCommonOauth2Config(c *gin.Context, oauth2type, clientid, clientsecret string) *oauth2.Config {
+	if oauth2type == constants.ConfigTypeGitee {
+		return &oauth2.Config{
+			ClientID:    clientid,
+			ClientSecret: clientsecret,
+			Scopes:       []string{},
+			Endpoint: oauth2.Endpoint{
+				AuthURL:  "https://gitee.com/oauth/authorize",
+				TokenURL: "https://gitee.com/oauth/token",
+			},
+			RedirectURL: getRedirectURL(c),
+		}
+	} else {
+		return &oauth2.Config{
+			ClientID:     clientid,
+			ClientSecret: clientsecret,
+			Scopes:       []string{},
+			Endpoint:     GitHubOauth2.Endpoint,
+		}
+	}
+}
+
+func getRedirectURL(c *gin.Context) string {
+	schame := "http://"
+	if strings.HasPrefix(c.Request.Referer(), "https://") {
+		schame = "https://"
+	}
+	return schame + c.Request.Host + "/oauth2/callback"
+}
+
+func Oauth2login(c *gin.Context)  {
+	state := utils.RandStringBytesMaskImprSrcUnsafe(6)
+	ntcache.MemCache.Set(fmt.Sprintf("%s%s", constants.CacheKeyOauth2State, c.ClientIP()), state, 0)
+	authtype := viper.GetString("core.login.oauth2.type")
+	authid := viper.GetString("core.login.oauth2.id")
+	authsecret := viper.GetString("core.login.oauth2.secret")
+
+	url := getCommonOauth2Config(c, authtype, authid, authsecret).AuthCodeURL(state, oauth2.AccessTypeOnline)
+	c.Redirect(http.StatusFound, url)
+}
+
+func Oauth2Callback(c *gin.Context)  {
+	var err error
+	authtype := viper.GetString("core.login.oauth2.type")
+	authid := viper.GetString("core.login.oauth2.id")
+	authsecret := viper.GetString("core.login.oauth2.secret")
+	// 验证登录跳转时的 State
+	state, ok := ntcache.MemCache.Get(fmt.Sprintf("%s%s", constants.CacheKeyOauth2State, c.ClientIP()))
+	if !ok || state.(string) != c.Query("state") {
+		err = fmt.Errorf("非法的登录方式")
+	}
+	oauth2Config := getCommonOauth2Config(c, authtype, authid, authsecret)
+	ctx := context.Background()
+	var otk *oauth2.Token
+	if err == nil {
+		otk, err = oauth2Config.Exchange(ctx, c.Query("code"))
+	}
+	var client *GitHubAPI.Client
+	if err == nil {
+		oc := oauth2Config.Client(ctx, otk)
+		if authtype == constants.ConfigTypeGitee {
+			client, err = GitHubAPI.NewEnterpriseClient("https://gitee.com/api/v5/", "https://gitee.com/api/v5/", oc)
+		} else {
+			client = GitHubAPI.NewClient(oc)
+		}
+	}
+	var gu *GitHubAPI.User
+	if err == nil {
+		gu, _, err = client.Users.Get(ctx, "")
+	}
+	if err != nil {
+		Fail(c, -1, fmt.Sprintf("登录失败，请联系管理员, 错误信息: %v", err))
+		return
+	}
+	u, err := userRepository.UserGet("username = ?", *gu.Name)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		errors.Dangerous(err)
+		return
+	}
+
+	if err == gorm.ErrRecordNotFound {
+		// 创建用户
+		u = &models.User{
+			ID:         utils.UUID(),
+			Username:   *gu.Login,
+			Nickname:   *gu.Name,
+			Role:       constants.RoleDefault,
+			Mode:       authtype,
+			Mail:       *gu.Email,
+		}
+		userRepository.Create(u)
+	} else {
+		u.Nickname = *gu.Name
+		u.Mail = *gu.Email
+		u.Mode = authtype
+	}
+
+	if u.TOTPSecret != "" && u.TOTPSecret != "-" {
+		Fail(c, 0, "")
+		return
+	}
+
+	if u.Baned {
+		Fail(c, -1, "当前账号已被禁用")
+		return
+	}
+
+	token, err := LoginSuccess(c, LoginAccount{Remember: true}, u, authtype)
+	if err != nil {
+		errors.Dangerous(err)
+		return
+	}
+	//Success(c, token)
+	c.SetCookie("X-Auth-Token", token, 60*60*24, "", "", false, false)
+	c.Status(http.StatusOK)
+	c.Writer.WriteString("<script>window.location.href='/#/'</script>")
 }
 
 func LogoutEndpoint(c *gin.Context) {
