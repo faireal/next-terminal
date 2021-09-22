@@ -5,18 +5,16 @@ import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"net/http"
 	"next-terminal/constants"
 	"next-terminal/models"
-	"next-terminal/pkg/utils"
-	"path"
-	"strconv"
-	"time"
-
-	"github.com/gorilla/websocket"
 	"next-terminal/pkg/global"
 	"next-terminal/pkg/guacd"
 	"next-terminal/pkg/term"
+	"next-terminal/pkg/utils"
+	"path"
+	"strconv"
 )
 
 var UpGrader = websocket.Upgrader{
@@ -235,7 +233,7 @@ func ReadMessage(nextTerminal *term.NextTerminal, quitChan chan bool, ws *websoc
 				}
 				_ = WriteMessage(ws, msg)
 			}
-			time.Sleep(time.Duration(10) * time.Millisecond)
+			// time.Sleep(time.Duration(10) * time.Millisecond)
 		}
 	}
 }

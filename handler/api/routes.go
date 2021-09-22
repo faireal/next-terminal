@@ -33,7 +33,7 @@ var (
 	accessSecurityRepository *repository.AccessSecurityRepository
 	jobRepository            *repository.JobRepository
 	jobLogRepository         *repository.JobLogRepository
-	logsRepository       *repository.LogsRepository
+	logsRepository           *repository.LogsRepository
 
 	jobService        *service.JobService
 	configsService    *service.ConfigsService

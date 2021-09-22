@@ -1,7 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
 	"next-terminal/constants"
@@ -162,23 +164,24 @@ func TunEndpoint(c *gin.Context) {
 		}
 	}
 
-	addr := propertyMap[guacd.Host] + ":" + propertyMap[guacd.Port]
+	tun := global.Tun{
+		Protocol:  session.Protocol,
+		Mode:      session.Mode,
+		WebSocket: ws,
+		Tunnel:    nil,
+	}
 
-	tunnel, err := guacd.NewTunnel(addr, configuration)
+	tunnelAddr := propertyMap[guacd.Host] + ":" + propertyMap[guacd.Port]
+	tun.Tunnel, err = guacd.NewTunnel(tunnelAddr, configuration)
+
 	if err != nil {
 		if connectionId == "" {
 			CloseSessionById(sessionId, NewTunnelError, err.Error())
 		}
 		zlog.Error("建立连接失败: %v", err.Error())
-		errors.Dangerous(err)
+		tun.Close(NewTunnelError, fmt.Sprintf("Guacd实例连接失败: %v", err.Error()))
+		exgin.GinsData(c, nil, nil)
 		return
-	}
-
-	tun := global.Tun{
-		Protocol:  session.Protocol,
-		Mode:      session.Mode,
-		WebSocket: ws,
-		Tunnel:    tunnel,
 	}
 
 	if len(session.ConnectionId) == 0 {
@@ -192,7 +195,7 @@ func TunEndpoint(c *gin.Context) {
 		global.Store.Set(sessionId, &observable)
 
 		sess := models.Session{
-			ConnectionId: tunnel.UUID,
+			ConnectionId: tun.Tunnel.UUID,
 			Width:        intWidth,
 			Height:       intHeight,
 			Status:       constants.Connecting,
@@ -217,7 +220,7 @@ func TunEndpoint(c *gin.Context) {
 
 	go func() {
 		for {
-			instruction, err := tunnel.Read()
+			instruction, err := tun.Tunnel.Read()
 			if err != nil {
 				if connectionId == "" {
 					CloseSessionById(sessionId, TunnelClosed, "远程连接关闭")
@@ -245,7 +248,7 @@ func TunEndpoint(c *gin.Context) {
 			}
 			break
 		}
-		_, err = tunnel.WriteAndFlush(message)
+		_, err = tun.Tunnel.WriteAndFlush(message)
 		if err != nil {
 			if connectionId == "" {
 				CloseSessionById(sessionId, TunnelClosed, "远程连接关闭")

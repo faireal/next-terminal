@@ -107,6 +107,16 @@ func UserDeleteEndpoint(c *gin.Context) {
 			}
 		}
 
+		// 关闭用户已连接的sessions
+		onlineSessions, err := sessionRepository.GetOnlineSessionsByUserID(userId)
+		if err != nil {
+			errors.Dangerous(err)
+			return
+		}
+		for i := range onlineSessions {
+			CloseSessionById(onlineSessions[i].ID, ForcedDisconnect, "管理员强制关闭了此会话")
+		}
+
 		// 删除用户
 		if err := userRepository.DeleteById(userId); err != nil {
 			errors.Dangerous(err)

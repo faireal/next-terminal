@@ -186,6 +186,12 @@ func (r SessionRepository) CountOnlineSession() (total int64, err error) {
 	return
 }
 
+// GetOnlineSessionsByUserID 基于UserID获取在线的Session列表
+func (r SessionRepository) GetOnlineSessionsByUserID(userID string) (o []models.Session, err error) {
+	err = r.DB.Where("status in ? and creator = ?", []string{constants.Connecting, constants.Connected}, userID).Find(&o).Error
+	return
+}
+
 type D struct {
 	Day      string `json:"day"`
 	Count    int    `json:"count"`

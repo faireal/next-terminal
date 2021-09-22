@@ -9,7 +9,7 @@ import (
 )
 
 type UserService struct {
-	userRepository     *repository.UserRepository
+	userRepository *repository.UserRepository
 	logsRepository *repository.LogsRepository
 }
 

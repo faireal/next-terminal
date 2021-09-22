@@ -46,8 +46,8 @@ func PropertyUpdateEndpoint(c *gin.Context) {
 	exgin.GinsData(c, nil, nil)
 }
 
-func ShowCfg(c *gin.Context)  {
+func ShowCfg(c *gin.Context) {
 	cfg := map[string]interface{}{}
 	cfg["cluster"] = true
-	exgin.GinsData(c, cfg , nil)
+	exgin.GinsData(c, cfg, nil)
 }
