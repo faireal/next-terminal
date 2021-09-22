@@ -22,7 +22,8 @@ const formTailLayout = {
 class Setting extends Component {
 
     state = {
-        properties: {}
+        properties: {},
+        settingmode: ""
     }
 
     rdpSettingFormRef = React.createRef();
@@ -33,6 +34,14 @@ class Setting extends Component {
 
     componentDidMount() {
         this.getProperties();
+    }
+
+    UNSAFE_componentWillReceiveProps(newProps) {
+        if (newProps.match.params.id !== this.state.settingmode) {
+            this.setState({
+                settingmode: newProps.match.params.id
+            })
+        }
     }
 
     changeProperties = async (values) => {
@@ -51,6 +60,8 @@ class Setting extends Component {
             return (/^true$/i).test(this);
         };
 
+        const { id } = this.props.match.params;
+
         let result = await request.get('/apis/properties');
         if (result['code'] === 1) {
             let properties = result['data'];
@@ -68,7 +79,8 @@ class Setting extends Component {
             }
 
             this.setState({
-                properties: properties
+                properties: properties,
+                settingmode: id
             })
 
             if (this.rdpSettingFormRef.current) {
@@ -100,12 +112,14 @@ class Setting extends Component {
     }
 
     render() {
+        const { settingmode } = this.state
+        console.log(settingmode)
         return (
             <>
-                <Content className="site-layout-background page-content">
-
+                {(settingmode==="ssh") ? (
+                    <Content className="site-layout-background page-content">
+                    <Title>{this.state.settingmode}</Title>
                     <Tabs tabPosition={'left'} onChange={this.handleOnTabChange} tabBarStyle={{width: 150}}>
-
                         <TabPane tab="RDP配置" key="rdp">
                             <Form ref={this.rdpSettingFormRef} name="rdp" onFinish={this.changeProperties}
                                   layout="vertical">
@@ -546,6 +560,12 @@ class Setting extends Component {
                                 </Form.Item>
                             </Form>
                         </TabPane>
+                    </Tabs>
+                </Content>
+                ):(
+                    <Content className="site-layout-background page-content">
+                    <Title>{this.state.settingmode}</Title>
+                    <Tabs tabPosition={'left'} onChange={this.handleOnTabChange} tabBarStyle={{width: 150}}>
                         <TabPane tab="邮箱配置" key="mail">
                             <Title level={3}>邮箱配置</Title>
                             <Form ref={this.mailSettingFormRef} name="password" onFinish={this.changeProperties}
@@ -619,6 +639,8 @@ class Setting extends Component {
                         </TabPane>
                     </Tabs>
                 </Content>
+                )}
+                
             </>
         );
     }

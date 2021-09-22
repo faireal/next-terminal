@@ -37,6 +37,7 @@ import {
     MenuUnfoldOutlined,
     MenuFoldOutlined,
     DatabaseOutlined,
+    MessageOutlined,
 } from '@ant-design/icons';
 import Info from "./components/user/Info";
 import request from "./common/request";
@@ -185,7 +186,7 @@ class App extends Component {
                                 {
                                     !this.state.collapsed ?
 
-                                        <>&nbsp;<h1>Next Terminal</h1></> :
+                                        <>&nbsp;<h1>Next OPS</h1></> :
                                         null
                                 }
                             </div>
@@ -300,11 +301,23 @@ class App extends Component {
                                 {
                                     this.state.triggerMenu && isAdmin() ?
                                         <>
-                                            <Menu.Item key="setting" icon={<SettingOutlined/>}>
+                                            {/* <Menu.Item key="setting" icon={<SettingOutlined/>}>
                                                 <Link to={'/setting'}>
                                                     系统设置
                                                 </Link>
-                                            </Menu.Item>
+                                            </Menu.Item> */}
+                                            <SubMenu key='setting' title='高级设置' icon={<SettingOutlined/>}>
+                                                <Menu.Item key="setting-ssh" icon={<SettingOutlined/>}>
+                                                    <Link to={'/setting/ssh'}>
+                                                    SSH设置
+                                                    </Link>
+                                                </Menu.Item>
+                                                <Menu.Item key="setting-msg" icon={<MessageOutlined />}>
+                                                    <Link to={'/setting/msg'}>
+                                                    消息设置
+                                                    </Link>
+                                                </Menu.Item>
+                                            </SubMenu>
                                         </> : undefined
                                 }
                             </Menu>
@@ -358,12 +371,12 @@ class App extends Component {
                             <Route path="/offline-session" component={OfflineSession}/>
                             <Route path="/login-log" component={LoginLog}/>
                             <Route path="/info" component={Info}/>
-                            <Route path="/setting" component={Setting}/>
+                            <Route path="/setting/:id" component={Setting}/>
                             <Route path="/job" component={Job}/>
                             <Route path="/access-security" component={Security}/>
 
                             <Footer style={{textAlign: 'center'}}>
-                                Next Terminal ©2021 dushixiang Version:{this.state.package['version']}
+                                Next OPS ©2021 dushixiang Version:{this.state.package['version']}
                             </Footer>
                         </Layout>
 

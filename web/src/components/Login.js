@@ -4,7 +4,7 @@ import './Login.css'
 import request from "../common/request";
 import {message} from "antd/es";
 import {withRouter} from "react-router-dom";
-import {LockOutlined, OneToOneOutlined, UserOutlined, GithubOutlined} from '@ant-design/icons';
+import {LockOutlined, OneToOneOutlined, UserOutlined} from '@ant-design/icons';
 
 const {Title} = Typography;
 
@@ -114,7 +114,7 @@ class LoginForm extends Component {
                  style={{width: this.state.width, height: this.state.height, backgroundColor: '#F0F2F5'}}>
                 <Card className='login-card' title={null}>
                     <div style={{textAlign: "center", margin: '15px auto 30px auto', color: '#1890ff'}}>
-                        <Title level={1}>Next Terminal</Title>
+                        <Title level={1}>Next OPS</Title>
                     </div>
                     <Form onFinish={this.handleSubmit} className="login-form">
                         <Form.Item name='username' rules={[{required: true, message: '请输入登录账号！'}]}>
@@ -139,7 +139,7 @@ class LoginForm extends Component {
                         </Form.Item>
                     </Form>
                     {/* <Form>
-                        <a href="/oauth2/login"><GithubOutlined key="GithubOutlined"/></a>
+                        <a href="/oauth2/"><GithubOutlined key="GithubOutlined"/></a>
                     </Form> */}
                 </Card>
 
