@@ -23,7 +23,7 @@ func CommandCreateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, item)
+	exgin.GinsData(c, item, nil)
 }
 
 func CommandPagingEndpoint(c *gin.Context) {
@@ -42,10 +42,10 @@ func CommandPagingEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, H{
+	exgin.GinsData(c, H{
 		"total": total,
 		"items": items,
-	})
+	}, nil)
 }
 
 func CommandUpdateEndpoint(c *gin.Context) {
@@ -63,7 +63,7 @@ func CommandUpdateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func CommandDeleteEndpoint(c *gin.Context) {
@@ -84,7 +84,7 @@ func CommandDeleteEndpoint(c *gin.Context) {
 			return
 		}
 	}
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func CommandGetEndpoint(c *gin.Context) {
@@ -101,7 +101,7 @@ func CommandGetEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, item)
+	exgin.GinsData(c, item, nil)
 }
 
 func CommandChangeOwnerEndpoint(c *gin.Context) {
@@ -117,7 +117,7 @@ func CommandChangeOwnerEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func PreCheckCommandPermission(c *gin.Context, id string) error {

@@ -54,7 +54,7 @@ class LoginForm extends Component {
                 this.totpInputRef.current.focus();
                 return;
             }
-            if (result.code !== 1) {
+            if (result.code !== 200) {
                 throw new Error(result.message);
             }
 
@@ -82,7 +82,7 @@ class LoginForm extends Component {
         try {
             let result = await request.post('/loginWithTotp', loginAccount);
 
-            if (result['code'] !== 1) {
+            if (result['code'] !== 200) {
                 message.error(result['message']);
                 return;
             }

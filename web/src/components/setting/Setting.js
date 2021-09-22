@@ -46,7 +46,7 @@ class Setting extends Component {
 
     changeProperties = async (values) => {
         let result = await request.put('/apis/properties', values);
-        if (result.code === 1) {
+        if (result.code === 200) {
             message.success('修改成功');
         } else {
             message.error(result.message);
@@ -63,7 +63,7 @@ class Setting extends Component {
         const { id } = this.props.match.params;
 
         let result = await request.get('/apis/properties');
-        if (result['code'] === 1) {
+        if (result['code'] === 200) {
             let properties = result['data'];
 
             for (let key in properties) {

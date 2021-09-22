@@ -2,15 +2,15 @@ package models
 
 type UserGroup struct {
 	Model
-	ID      string         `gorm:"primary_key" json:"id"`
-	Name    string         `json:"name"`
+	ID   string `gorm:"primary_key" json:"id"`
+	Name string `json:"name"`
 }
 
 type UserGroupForPage struct {
 	Model
-	ID         string         `json:"id"`
-	Name       string         `json:"name"`
-	AssetCount int64          `json:"assetCount"`
+	ID         string `json:"id"`
+	Name       string `json:"name"`
+	AssetCount int64  `json:"assetCount"`
 }
 
 func (r *UserGroup) TableName() string {

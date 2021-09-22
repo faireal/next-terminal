@@ -125,7 +125,7 @@ class Access extends Component {
 
     updateSessionStatus = async (sessionId) => {
         let result = await request.post(`/apis/sessions/${sessionId}/connect`);
-        if (result.code !== 1) {
+        if (result.code !== 200) {
             message.error(result.message);
         }
     }
@@ -342,7 +342,7 @@ class Access extends Component {
 
     async createSession(assetsId) {
         let result = await request.post(`/apis/sessions?assetId=${assetsId}&mode=guacd`);
-        if (result['code'] !== 1) {
+        if (result['code'] !== 200) {
             this.showMessage(result['message']);
             return null;
         }
@@ -466,7 +466,7 @@ class Access extends Component {
 
     resize = async (sessionId, width, height) => {
         let result = await request.post(`/apis/sessions/${sessionId}/resize?width=${width}&height=${height}`);
-        if (result.code !== 1) {
+        if (result.code !== 200) {
             message.error(result.message);
         }
     }

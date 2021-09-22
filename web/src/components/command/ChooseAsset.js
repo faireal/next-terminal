@@ -64,7 +64,7 @@ class ChooseAsset extends Component {
         this.checkedAssets = this.props.setCheckedAssets;
         this.loadTableData();
         let result = await request.get('/apis/tags');
-        if (result['code'] === 1) {
+        if (result['code'] === 200) {
             this.setState({
                 tags: result['data']
             })
@@ -88,7 +88,7 @@ class ChooseAsset extends Component {
 
         try {
             let result = await request.get('/apis/assets/paging?' + paramsStr);
-            if (result['code'] === 1) {
+            if (result['code'] === 200) {
                 data = result['data'];
             } else {
                 message.error(result['message']);

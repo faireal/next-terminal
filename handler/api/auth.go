@@ -20,10 +20,9 @@ import (
 
 	"next-terminal/pkg/totp"
 
-	ntcache "next-terminal/pkg/cache"
 	GitHubAPI "github.com/google/go-github/github"
 	GitHubOauth2 "golang.org/x/oauth2/github"
-
+	ntcache "next-terminal/pkg/cache"
 )
 
 const (
@@ -109,7 +108,7 @@ func LoginEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, token)
+	exgin.GinsData(c, token, nil)
 }
 
 func LdapLoginEndpoint(c *gin.Context) {
@@ -176,7 +175,7 @@ func LdapLoginEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, token)
+	exgin.GinsData(c, token, nil)
 }
 
 func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user *models.User, logintype string) (token string, err error) {
@@ -198,7 +197,7 @@ func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user *models.User, 
 	}
 
 	// 保存登录日志
-	loginLog := models.LoginLog{
+	loginLog := models.Logs{
 		ID:              token,
 		UserId:          user.ID,
 		ClientIP:        c.ClientIP(),
@@ -207,7 +206,7 @@ func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user *models.User, 
 		Remember:        authorization.Remember,
 	}
 
-	if loginLogRepository.Create(&loginLog) != nil {
+	if logsRepository.Create(&loginLog) != nil {
 		return "", err
 	}
 
@@ -280,13 +279,13 @@ func loginWithTotpEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, token)
+	exgin.GinsData(c, token, nil)
 }
 
 func getCommonOauth2Config(c *gin.Context, oauth2type, clientid, clientsecret string) *oauth2.Config {
 	if oauth2type == constants.ConfigTypeGitee {
 		return &oauth2.Config{
-			ClientID:    clientid,
+			ClientID:     clientid,
 			ClientSecret: clientsecret,
 			Scopes:       []string{},
 			Endpoint: oauth2.Endpoint{
@@ -313,7 +312,7 @@ func getRedirectURL(c *gin.Context) string {
 	return schame + c.Request.Host + "/oauth2/callback"
 }
 
-func Oauth2login(c *gin.Context)  {
+func Oauth2login(c *gin.Context) {
 	state := utils.RandStringBytesMaskImprSrcUnsafe(6)
 	ntcache.MemCache.Set(fmt.Sprintf("%s%s", constants.CacheKeyOauth2State, c.ClientIP()), state, 0)
 	authtype := viper.GetString("core.login.oauth2.type")
@@ -324,7 +323,7 @@ func Oauth2login(c *gin.Context)  {
 	c.Redirect(http.StatusFound, url)
 }
 
-func Oauth2Callback(c *gin.Context)  {
+func Oauth2Callback(c *gin.Context) {
 	var err error
 	authtype := viper.GetString("core.login.oauth2.type")
 	authid := viper.GetString("core.login.oauth2.id")
@@ -366,12 +365,12 @@ func Oauth2Callback(c *gin.Context)  {
 	if err == gorm.ErrRecordNotFound {
 		// 创建用户
 		u = &models.User{
-			ID:         utils.UUID(),
-			Username:   *gu.Login,
-			Nickname:   *gu.Name,
-			Role:       constants.RoleDefault,
-			Mode:       authtype,
-			Mail:       *gu.Email,
+			ID:       utils.UUID(),
+			Username: *gu.Login,
+			Nickname: *gu.Name,
+			Role:     constants.RoleDefault,
+			Mode:     authtype,
+			Mail:     *gu.Email,
 		}
 		userRepository.Create(u)
 	} else {
@@ -410,7 +409,7 @@ func LogoutEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func ConfirmTOTPEndpoint(c *gin.Context) {
@@ -437,7 +436,7 @@ func ConfirmTOTPEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func ReloadTOTPEndpoint(c *gin.Context) {
@@ -464,10 +463,10 @@ func ReloadTOTPEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, map[string]string{
+	exgin.GinsData(c, map[string]string{
 		"qr":     qrEncode,
 		"secret": key.Secret(),
-	})
+	}, nil)
 }
 
 func ResetTOTPEndpoint(c *gin.Context) {
@@ -480,7 +479,7 @@ func ResetTOTPEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func ChangePasswordEndpoint(c *gin.Context) {
@@ -542,5 +541,5 @@ func InfoEndpoint(c *gin.Context) {
 		EnableTotp: user.TOTPSecret != "" && user.TOTPSecret != "-",
 		Mode:       user.Mode,
 	}
-	Success(c, info)
+	exgin.GinsData(c, info, nil)
 }

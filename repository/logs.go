@@ -5,16 +5,16 @@ import (
 	"next-terminal/models"
 )
 
-type LoginLogRepository struct {
+type LogsRepository struct {
 	DB *gorm.DB
 }
 
-func NewLoginLogRepository(db *gorm.DB) *LoginLogRepository {
-	loginLogRepository = &LoginLogRepository{DB: db}
-	return loginLogRepository
+func NewLogsRepository(db *gorm.DB) *LogsRepository {
+	logsRepository = &LogsRepository{DB: db}
+	return logsRepository
 }
 
-func (r LoginLogRepository) Find(pageIndex, pageSize int, userId, clientIp string) (o []models.LoginLogForPage, total int64, err error) {
+func (r LogsRepository) Find(pageIndex, pageSize int, userId, clientIp string) (o []models.LogsForPage, total int64, err error) {
 
 	db := r.DB.Table("login_logs").Select("login_logs.id,login_logs.user_id,login_logs.client_ip,login_logs.client_user_agent,login_logs.login_time, login_logs.logout_time, users.nickname as user_name").Joins("left join users on login_logs.user_id = users.id")
 	dbCounter := r.DB.Table("login_logs").Select("DISTINCT login_logs.id")
@@ -36,34 +36,34 @@ func (r LoginLogRepository) Find(pageIndex, pageSize int, userId, clientIp strin
 
 	err = db.Order("login_logs.login_time desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&o).Error
 	if o == nil {
-		o = make([]models.LoginLogForPage, 0)
+		o = make([]models.LogsForPage, 0)
 	}
 	return
 }
 
-func (r LoginLogRepository) FindAliveLoginLogs() (o []models.LoginLog, err error) {
+func (r LogsRepository) FindAliveLoginLogs() (o []models.Logs, err error) {
 	err = r.DB.Where("logout_time is null").Find(&o).Error
 	return
 }
 
-func (r LoginLogRepository) FindAliveLoginLogsByUserId(userId string) (o []models.LoginLog, err error) {
+func (r LogsRepository) FindAliveLoginLogsByUserId(userId string) (o []models.Logs, err error) {
 	err = r.DB.Where("logout_time is null and user_id = ?", userId).Find(&o).Error
 	return
 }
 
-func (r LoginLogRepository) Create(o *models.LoginLog) (err error) {
+func (r LogsRepository) Create(o *models.Logs) (err error) {
 	return r.DB.Create(o).Error
 }
 
-func (r LoginLogRepository) DeleteByIdIn(ids []string) (err error) {
-	return r.DB.Where("id in ?", ids).Delete(&models.LoginLog{}).Error
+func (r LogsRepository) DeleteByIdIn(ids []string) (err error) {
+	return r.DB.Where("id in ?", ids).Delete(&models.Logs{}).Error
 }
 
-func (r LoginLogRepository) FindById(id string) (o models.LoginLog, err error) {
+func (r LogsRepository) FindById(id string) (o models.Logs, err error) {
 	err = r.DB.Where("id = ?", id).First(&o).Error
 	return
 }
 
-func (r LoginLogRepository) Update(o *models.LoginLog) error {
+func (r LogsRepository) Update(o *models.Logs) error {
 	return r.DB.Updates(o).Error
 }

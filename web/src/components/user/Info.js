@@ -33,7 +33,7 @@ class Info extends Component {
 
     loadInfo = async () => {
         let result = await request.get('/apis/info');
-        if (result['code'] === 1) {
+        if (result['code'] === 200) {
             this.setState({
                 user: result['data']
             })
@@ -71,7 +71,7 @@ class Info extends Component {
 
     changePassword = async (values) => {
         let result = await request.post('/change-password', values);
-        if (result.code === 1) {
+        if (result.code === 200) {
             message.success('密码修改成功，即将跳转至登录页面');
             window.location.href = '/#';
         } else {
@@ -82,7 +82,7 @@ class Info extends Component {
     confirmTOTP = async (values) => {
         values['secret'] = this.state.secret
         let result = await request.post('/confirm-totp', values);
-        if (result.code === 1) {
+        if (result.code === 200) {
             message.success('TOTP启用成功');
             await this.loadInfo();
             this.setState({
@@ -96,7 +96,7 @@ class Info extends Component {
 
     resetTOTP = async () => {
         let result = await request.get('/reload-totp');
-        if (result.code === 1) {
+        if (result.code === 200) {
             this.setState({
                 qr: result.data.qr,
                 secret: result.data.secret,
@@ -186,7 +186,7 @@ class Info extends Component {
                                                     cancelText: '取消',
                                                     onOk: async () => {
                                                         let result = await request.post('/reset-totp');
-                                                        if (result.code === 1) {
+                                                        if (result.code === 200) {
                                                             message.success('双因素认证解除成功');
                                                             await this.loadInfo();
                                                         } else {

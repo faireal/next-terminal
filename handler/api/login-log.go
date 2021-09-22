@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
 	ntcache "next-terminal/pkg/cache"
@@ -15,17 +16,17 @@ func LoginLogPagingEndpoint(c *gin.Context) {
 	userId := c.Query("userId")
 	clientIp := c.Query("clientIp")
 
-	items, total, err := loginLogRepository.Find(pageIndex, pageSize, userId, clientIp)
+	items, total, err := logsRepository.Find(pageIndex, pageSize, userId, clientIp)
 
 	if err != nil {
 		errors.Dangerous(err)
 		return
 	}
 
-	Success(c, H{
+	exgin.GinsData(c, H{
 		"total": total,
 		"items": items,
-	})
+	}, nil)
 }
 
 func LoginLogDeleteEndpoint(c *gin.Context) {
@@ -38,10 +39,10 @@ func LoginLogDeleteEndpoint(c *gin.Context) {
 			zlog.Error("Cache Delete Failed")
 		}
 	}
-	if err := loginLogRepository.DeleteByIdIn(split); err != nil {
+	if err := logsRepository.DeleteByIdIn(split); err != nil {
 		errors.Dangerous(err)
 		return
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }

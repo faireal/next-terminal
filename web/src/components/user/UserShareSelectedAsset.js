@@ -71,13 +71,13 @@ class UserShareSelectedAsset extends Component {
         let r1 = await q1;
         let r2 = await q2;
 
-        if (r1['code'] === 1) {
+        if (r1['code'] === 200) {
             this.setState({
                 tags: r1['data']
             })
         }
 
-        if (r2['code'] === 1) {
+        if (r2['code'] === 200) {
             this.setState({
                 totalSelectedRows: r2['data']['items']
             })
@@ -102,7 +102,7 @@ class UserShareSelectedAsset extends Component {
 
         try {
             let result = await request.get('/apis/assets/paging?' + paramsStr);
-            if (result['code'] === 1) {
+            if (result['code'] === 200) {
                 data = result['data'];
             } else {
                 message.error(result['message']);
@@ -198,7 +198,7 @@ class UserShareSelectedAsset extends Component {
             resourceType: 'asset',
             resourceIds: [assetId]
         });
-        if (result['code'] === 1) {
+        if (result['code'] === 200) {
             message.success('操作成功', 3);
         } else {
             message.error(result['message'], 10);
@@ -439,7 +439,7 @@ class UserShareSelectedAsset extends Component {
                                                         resourceType: 'asset',
                                                         resourceIds: newRowKeys
                                                     });
-                                                    if (result['code'] === 1) {
+                                                    if (result['code'] === 200) {
                                                         message.success('操作成功', 3);
                                                         this.setState({
                                                             totalSelectedRows: totalSelectedRows

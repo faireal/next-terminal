@@ -10,11 +10,11 @@ import (
 
 type UserService struct {
 	userRepository     *repository.UserRepository
-	loginLogRepository *repository.LoginLogRepository
+	logsRepository *repository.LogsRepository
 }
 
-func NewUserService(userRepository *repository.UserRepository, loginLogRepository *repository.LoginLogRepository) *UserService {
-	return &UserService{userRepository: userRepository, loginLogRepository: loginLogRepository}
+func NewUserService(userRepository *repository.UserRepository, logsRepository *repository.LogsRepository) *UserService {
+	return &UserService{userRepository: userRepository, logsRepository: logsRepository}
 }
 
 func (r UserService) InitUser() (err error) {
@@ -65,7 +65,7 @@ func (r UserService) FixUserOnlineState() error {
 	}
 	if len(onlineUsers) > 0 {
 		for i := range onlineUsers {
-			logs, err := r.loginLogRepository.FindAliveLoginLogsByUserId(onlineUsers[i].ID)
+			logs, err := r.logsRepository.FindAliveLoginLogsByUserId(onlineUsers[i].ID)
 			if err != nil {
 				return err
 			}
@@ -81,19 +81,19 @@ func (r UserService) FixUserOnlineState() error {
 
 func (r UserService) Logout(token string) (err error) {
 
-	loginLog, err := r.loginLogRepository.FindById(token)
+	loginLog, err := r.logsRepository.FindById(token)
 	if err != nil {
 		zlog.Warn("登录日志「%v」获取失败", token)
 		return
 	}
 
-	loginLogForUpdate := &models.LoginLog{ID: token}
-	err = r.loginLogRepository.Update(loginLogForUpdate)
+	loginLogForUpdate := &models.Logs{ID: token}
+	err = r.logsRepository.Update(loginLogForUpdate)
 	if err != nil {
 		return err
 	}
 
-	loginLogs, err := r.loginLogRepository.FindAliveLoginLogsByUserId(loginLog.UserId)
+	loginLogs, err := r.logsRepository.FindAliveLoginLogsByUserId(loginLog.UserId)
 	if err != nil {
 		return
 	}

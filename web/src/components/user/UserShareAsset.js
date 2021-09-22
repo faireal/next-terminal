@@ -68,7 +68,7 @@ class UserShareAsset extends Component {
         this.loadTableData({sharer: sharer, userGroupId: userGroupId});
 
         let result = await request.get('/apis/tags');
-        if (result['code'] === 1) {
+        if (result['code'] === 200) {
             this.setState({
                 tags: result['data']
             })
@@ -92,7 +92,7 @@ class UserShareAsset extends Component {
 
         try {
             let result = await request.get('/apis/assets/paging?' + paramsStr);
-            if (result['code'] === 1) {
+            if (result['code'] === 200) {
                 data = result['data'];
             } else {
                 message.error(result['message']);
@@ -371,7 +371,7 @@ class UserShareAsset extends Component {
                                                                 resourceType: 'asset',
                                                                 resourceIds: this.state.selectedRowKeys
                                                             });
-                                                            if (result['code'] === 1) {
+                                                            if (result['code'] === 200) {
                                                                 message.success('操作成功', 3);
                                                                 this.setState({
                                                                     selectedRowKeys: []

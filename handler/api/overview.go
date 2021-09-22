@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
 	"github.com/gin-gonic/gin"
 	"next-terminal/constants"
 	"next-terminal/repository"
@@ -41,7 +42,7 @@ func OverviewCounterEndPoint(c *gin.Context) {
 		Asset:         asset,
 	}
 
-	Success(c, counter)
+	exgin.GinsData(c, counter, nil)
 }
 
 func OverviewSessionPoint(c *gin.Context) {
@@ -57,5 +58,5 @@ func OverviewSessionPoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, results)
+	exgin.GinsData(c, results, nil)
 }

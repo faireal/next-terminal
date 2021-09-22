@@ -45,7 +45,7 @@ import {message} from "antd/es";
 import Setting from "./components/setting/Setting";
 import BatchCommand from "./components/command/BatchCommand";
 import {isEmpty, NT_PACKAGE} from "./utils/utils";
-import {getCurrentUser, isAdmin} from "./service/permission";
+import {getCurrentUser, isAdmin, allowview} from "./service/permission";
 import UserGroup from "./components/user/UserGroup";
 import LoginLog from "./components/devops/LoginLog";
 import Term from "./components/access/Term";
@@ -90,7 +90,7 @@ class App extends Component {
     async getInfo() {
 
         let result = await request.get('/apis/info');
-        if (result['code'] === 1) {
+        if (result['code'] === 200) {
             sessionStorage.setItem('user', JSON.stringify(result['data']));
             this.setState({
                 user: result['data'],
@@ -123,7 +123,7 @@ class App extends Component {
 
     confirm = async (e) => {
         let result = await request.post('/logout');
-        if (result['code'] !== 1) {
+        if (result['code'] !== 200) {
             message.error(result['message']);
         } else {
             message.success('退出登录成功，即将跳转至登录页面。');
@@ -220,13 +220,18 @@ class App extends Component {
                                             </Link>
                                         </Menu.Item>
                                     </SubMenu>
-                                    <SubMenu key='cloudnative' title='云原生管理' icon={<DatabaseOutlined/>}>
-                                        <Menu.Item key="cluster" icon={<DesktopOutlined/>}>
-                                            <Link to={'/cluster'}>
-                                                集群列表
-                                            </Link>
-                                        </Menu.Item>
-                                    </SubMenu>
+                                    {
+                                        allowview("cluster") ? (
+                                            <SubMenu key='cloudnative' title='云原生管理' icon={<DatabaseOutlined/>}>
+                                                <Menu.Item key="cluster" icon={<DesktopOutlined/>}>
+                                                    <Link to={'/cluster'}>
+                                                        集群列表
+                                                    </Link>
+                                                </Menu.Item>
+                                            </SubMenu>
+                                        ): null
+                                    }
+                                    
                                 </SubMenu>
 
                                 {/* <SubMenu key='command-manage' title='指令管理' icon={<CodeOutlined/>}>

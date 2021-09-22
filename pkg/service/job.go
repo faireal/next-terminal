@@ -112,9 +112,9 @@ func (r CheckAssetStatusJob) Run() {
 
 	_ = r.jobService.jobRepository.UpdateLastUpdatedById(r.ID)
 	jobLog := models.JobLog{
-		ID:        utils.UUID(),
-		JobId:     r.ID,
-		Message:   message,
+		ID:      utils.UUID(),
+		JobId:   r.ID,
+		Message: message,
 	}
 
 	_ = r.jobService.jobLogRepository.Create(&jobLog)
@@ -214,9 +214,9 @@ func (r ShellJob) Run() {
 
 	_ = r.jobService.jobRepository.UpdateLastUpdatedById(r.ID)
 	jobLog := models.JobLog{
-		ID:        utils.UUID(),
-		JobId:     r.ID,
-		Message:   message,
+		ID:      utils.UUID(),
+		JobId:   r.ID,
+		Message: message,
 	}
 
 	_ = r.jobService.jobLogRepository.Create(&jobLog)
@@ -258,12 +258,12 @@ func (r JobService) LoadJobs() error {
 	jobs, _ := r.jobRepository.FindByFunc(constants.FuncCheckAssetStatusJob)
 	if len(jobs) == 0 {
 		job := models.Job{
-			ID:      utils.UUID(),
-			Name:    "资产状态检测",
-			Func:    constants.FuncCheckAssetStatusJob,
-			Cron:    "@every 3m",
-			Mode:    constants.JobModeAll,
-			Status:  constants.JobStatusRunning,
+			ID:     utils.UUID(),
+			Name:   "资产状态检测",
+			Func:   constants.FuncCheckAssetStatusJob,
+			Cron:   "@every 3m",
+			Mode:   constants.JobModeAll,
+			Status: constants.JobStatusRunning,
 		}
 		if err := r.jobRepository.Create(&job); err != nil {
 			return err

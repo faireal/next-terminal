@@ -35,7 +35,7 @@ func AssetCreateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, item)
+	exgin.GinsData(c, item, nil)
 }
 
 func AssetImportEndpoint(c *gin.Context) {
@@ -110,11 +110,11 @@ func AssetImportEndpoint(c *gin.Context) {
 		}
 	}
 
-	Success(c, map[string]interface{}{
+	exgin.GinsData(c, map[string]interface{}{
 		"successCount": successCount,
 		"errorCount":   errorCount,
 		"data":         m,
-	})
+	}, nil)
 }
 
 func AssetPagingEndpoint(c *gin.Context) {
@@ -138,17 +138,17 @@ func AssetPagingEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, H{
+	exgin.GinsData(c, H{
 		"total": total,
 		"items": items,
-	})
+	}, nil)
 }
 
 func AssetAllEndpoint(c *gin.Context) {
 	protocol := c.Query("protocol")
 	account, _ := GetCurrentAccount(c)
 	items, _ := assetRepository.FindByProtocolAndUser(protocol, account)
-	Success(c, items)
+	exgin.GinsData(c, items, nil)
 }
 
 func AssetUpdateEndpoint(c *gin.Context) {
@@ -210,7 +210,7 @@ func AssetUpdateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func AssetDeleteEndpoint(c *gin.Context) {
@@ -232,7 +232,7 @@ func AssetDeleteEndpoint(c *gin.Context) {
 		}
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func AssetGetEndpoint(c *gin.Context) {
@@ -258,7 +258,7 @@ func AssetGetEndpoint(c *gin.Context) {
 		itemMap[key] = attributeMap[key]
 	}
 
-	Success(c, itemMap)
+	exgin.GinsData(c, itemMap, nil)
 }
 
 func AssetTcpingEndpoint(c *gin.Context) {
@@ -280,7 +280,7 @@ func AssetTcpingEndpoint(c *gin.Context) {
 		}
 	}
 
-	Success(c, active)
+	exgin.GinsData(c, active, nil)
 }
 
 func AssetTagsEndpoint(c *gin.Context) {
@@ -290,7 +290,7 @@ func AssetTagsEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, items)
+	exgin.GinsData(c, items, nil)
 }
 
 func AssetChangeOwnerEndpoint(c *gin.Context) {
@@ -306,7 +306,7 @@ func AssetChangeOwnerEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func PreCheckAssetPermission(c *gin.Context, id string) error {

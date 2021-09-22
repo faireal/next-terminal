@@ -80,7 +80,7 @@ class OnlineSession extends Component {
 
         try {
             let result = await request.get('/apis/sessions/paging?' + paramsStr);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 data = result.data;
             } else {
                 message.error(result.message);
@@ -134,7 +134,7 @@ class OnlineSession extends Component {
 
     handleSearchByNickname = async nickname => {
         const result = await request.get(`/apis/users/paging?pageIndex=1&pageSize=100&nickname=${nickname}`);
-        if (result.code !== 1) {
+        if (result.code !== 200) {
             message.error(result.message, 10);
             return;
         }
@@ -156,7 +156,7 @@ class OnlineSession extends Component {
 
     handleSearchByAssetName = async assetName => {
         const result = await request.get(`/apis/assets/paging?pageIndex=1&pageSize=100&name=${assetName}`);
-        if (result.code !== 1) {
+        if (result.code !== 200) {
             message.error(result.message, 10);
             return;
         }
@@ -182,7 +182,7 @@ class OnlineSession extends Component {
         })
         try {
             let result = await request.post('/apis/sessions/' + this.state.selectedRowKeys.join(',') + '/disconnect');
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('操作成功', 3);
                 this.setState({
                     selectedRowKeys: []
@@ -287,7 +287,7 @@ class OnlineSession extends Component {
 
                                 const dis = async (id) => {
                                     const result = await request.post(`/apis/sessions/${id}/disconnect`);
-                                    if (result.code === 1) {
+                                    if (result.code === 200) {
                                         notification['success']({
                                             message: '提示',
                                             description: '断开成功',

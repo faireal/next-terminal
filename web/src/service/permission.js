@@ -1,4 +1,5 @@
 import {isEmpty} from "../utils/utils";
+import request from "../common/request";
 
 export function hasPermission(owner) {
     let userJsonStr = sessionStorage.getItem('user');
@@ -20,6 +21,21 @@ export function isAdmin() {
     }
     let user = JSON.parse(userJsonStr);
     return user['type'] === 'admin';
+}
+
+export async function allowview(name) {
+    let ntcfgJsonStr = sessionStorage.getItem('ntcfg');
+    if (isEmpty(ntcfgJsonStr)) {
+        let result = await request.get('/showcfg');
+        console.log(result['code'])
+        if (result['code'] === 200) {
+            sessionStorage.setItem('ntcfg', JSON.stringify(result['data']))
+            return result['data'][name]
+        }
+        return false
+    }
+    let ntcfg = JSON.parse(ntcfgJsonStr);
+    return ntcfg[name]
 }
 
 export function getCurrentUser() {

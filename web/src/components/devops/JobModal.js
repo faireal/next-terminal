@@ -22,7 +22,7 @@ const JobModal = ({title, visible, handleOk, handleCancel, confirmLoading, model
         const fetchData = async () => {
             setResourcesLoading(true);
             let result = await request.get('/apis/assets?protocol=ssh');
-            if (result['code'] === 1) {
+            if (result['code'] === 200) {
                 setResources(result['data']);
             } else {
                 message.error(result['message'], 10);

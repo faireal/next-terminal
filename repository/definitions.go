@@ -13,5 +13,5 @@ var (
 	accessSecurityRepository *AccessSecurityRepository
 	jobRepository            *JobRepository
 	jobLogRepository         *JobLogRepository
-	loginLogRepository       *LoginLogRepository
+	logsRepository       *LogsRepository
 )

@@ -74,7 +74,7 @@ class User extends Component {
 
     async delete(id) {
         let result = await request.delete('/apis/users/' + id);
-        if (result.code === 1) {
+        if (result.code === 200) {
             message.success('操作成功', 3);
             await this.loadTableData(this.state.queryParams);
         } else {
@@ -98,7 +98,7 @@ class User extends Component {
 
         try {
             let result = await request.get('/apis/users/paging?' + paramsStr);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 data = result.data;
             } else {
                 message.error(result.message, 10);
@@ -170,7 +170,7 @@ class User extends Component {
         if (formData.id) {
             // 向后台提交数据
             const result = await request.put('/apis/users/' + formData.id, formData);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('操作成功', 3);
 
                 this.setState({
@@ -183,7 +183,7 @@ class User extends Component {
         } else {
             // 向后台提交数据
             const result = await request.post('/apis/users', formData);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('操作成功', 3);
 
                 this.setState({
@@ -239,7 +239,7 @@ class User extends Component {
         })
         try {
             let result = await request.delete('/apis/users/' + this.state.selectedRowKeys.join(','));
-            if (result['code'] === 1) {
+            if (result['code'] === 200) {
                 message.success('操作成功', 3);
                 this.setState({
                     selectedRowKeys: []
@@ -268,7 +268,7 @@ class User extends Component {
         })
 
         let result = await request.post(`/apis/users/${this.state.selectedRow['id']}/change-password?password=${values['password']}`);
-        if (result['code'] === 1) {
+        if (result['code'] === 200) {
             message.success('操作成功', 3);
         } else {
             message.error(result['message'], 10);
@@ -309,7 +309,7 @@ class User extends Component {
                     <Button type="link" size='small'
                             onClick={async () => {
                                 let result = await request.get(`/apis/users/${record['id']}`);
-                                if (result['code'] !== 1) {
+                                if (result['code'] !== 200) {
                                     message.error(result['message']);
                                     return;
                                 }
@@ -422,7 +422,7 @@ class User extends Component {
                                                 cancelText: '取消',
                                                 onOk: async () => {
                                                     let result = await request.post(`/apis/users/${record['id']}/reset-totp`);
-                                                    if (result['code'] === 1) {
+                                                    if (result['code'] === 200) {
                                                         message.success('操作成功', 3);
                                                         this.loadTableData();
                                                     } else {
@@ -447,7 +447,7 @@ class User extends Component {
                             <Button type="link" size='small'
                                     onClick={async () => {
                                         let result = await request.get(`/apis/users/${record['id']}`);
-                                        if (result['code'] !== 1) {
+                                        if (result['code'] !== 200) {
                                             message.error(result['message']);
                                             return;
                                         }

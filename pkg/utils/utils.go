@@ -10,10 +10,10 @@ import (
 	"encoding/base64"
 	"fmt"
 	"github.com/spf13/viper"
-	mathrand "math/rand"
 	"golang.org/x/crypto/pbkdf2"
 	"image"
 	"image/png"
+	mathrand "math/rand"
 	"net"
 	"os"
 	"path/filepath"
@@ -335,4 +335,3 @@ const (
 	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
 	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
 )
-

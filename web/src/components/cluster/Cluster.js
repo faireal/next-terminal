@@ -93,7 +93,7 @@ class Cluster extends Component {
         this.loadTableData();
 
         let result = await request.get('/apis/tags');
-        if (result['code'] === 1) {
+        if (result['code'] === 200) {
             this.setState({
                 tags: result['data']
             })
@@ -102,7 +102,7 @@ class Cluster extends Component {
 
     async delete(id) {
         const result = await request.delete('/apis/assets/' + id);
-        if (result['code'] === 1) {
+        if (result['code'] === 200) {
             message.success('删除成功');
             await this.loadTableData(this.state.queryParams);
         } else {
@@ -128,7 +128,7 @@ class Cluster extends Component {
 
         try {
             let result = await request.get('/apis/assets/paging?' + paramsStr);
-            if (result['code'] === 1) {
+            if (result['code'] === 200) {
                 data = result['data'];
             } else {
                 message.error(result['message']);
@@ -222,7 +222,7 @@ class Cluster extends Component {
 
     async update(id) {
         let result = await request.get(`/apis/assets/${id}`);
-        if (result.code !== 1) {
+        if (result.code !== 200) {
             message.error(result.message, 10);
             return;
         }
@@ -231,7 +231,7 @@ class Cluster extends Component {
 
     async copy(id) {
         let result = await request.get(`/apis/assets/${id}`);
-        if (result.code !== 1) {
+        if (result.code !== 200) {
             message.error(result.message, 10);
             return;
         }
@@ -250,11 +250,11 @@ class Cluster extends Component {
         let r1 = await getCredentials;
         let r2 = await getTags;
 
-        if (r1['code'] === 1) {
+        if (r1['code'] === 200) {
             credentials = r1['data'];
         }
 
-        if (r2['code'] === 1) {
+        if (r2['code'] === 200) {
             tags = r2['data'];
         }
 
@@ -304,7 +304,7 @@ class Cluster extends Component {
         if (formData.id) {
             // 向后台提交数据
             const result = await request.put('/apis/assets/' + formData.id, formData);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('操作成功', 3);
 
                 this.setState({
@@ -317,7 +317,7 @@ class Cluster extends Component {
         } else {
             // 向后台提交数据
             const result = await request.post('/apis/assets', formData);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('操作成功', 3);
 
                 this.setState({
@@ -342,7 +342,7 @@ class Cluster extends Component {
 
         message.loading({content: '正在检测资产是否在线...', key: id});
         let result = await request.post(`/apis/assets/${id}/tcping`);
-        if (result.code === 1) {
+        if (result.code === 200) {
             if (result.data === true) {
                 message.success({content: '检测完成，您访问的资产在线，即将打开窗口进行访问。', key: id, duration: 3});
                 if (protocol === 'ssh' && sshMode === 'naive') {
@@ -365,7 +365,7 @@ class Cluster extends Component {
         })
         try {
             let result = await request.delete('/apis/assets/' + this.state.selectedRowKeys.join(','));
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('操作成功', 3);
                 this.setState({
                     selectedRowKeys: []
@@ -383,7 +383,7 @@ class Cluster extends Component {
 
     handleSearchByNickname = async nickname => {
         const result = await request.get(`/apis/users/paging?pageIndex=1&pageSize=100&nickname=${nickname}`);
-        if (result.code !== 1) {
+        if (result.code !== 200) {
             message.error(result.message, 10);
             return;
         }
@@ -411,7 +411,7 @@ class Cluster extends Component {
         let result = await r2;
 
         let selectedSharers = [];
-        if (result['code'] !== 1) {
+        if (result['code'] !== 200) {
             message.error(result['message']);
         } else {
             selectedSharers = result['data'];
@@ -839,7 +839,7 @@ class Cluster extends Component {
                                                    importModalVisible: false
                                                })
                                                let result = resp.data;
-                                               if (result['code'] === 1) {
+                                               if (result['code'] === 200) {
                                                    let data = result['data'];
                                                    let successCount = data['successCount'];
                                                    let errorCount = data['errorCount'];
@@ -930,7 +930,7 @@ class Cluster extends Component {
                                    .validateFields()
                                    .then(async values => {
                                        let result = await request.post(`/apis/assets/${this.state.selected['id']}/change-owner?owner=${values['owner']}`);
-                                       if (result['code'] === 1) {
+                                       if (result['code'] === 200) {
                                            message.success('操作成功');
                                            this.loadTableData();
                                        } else {
@@ -994,7 +994,7 @@ class Cluster extends Component {
                                            resourceType: 'asset',
                                            userIds: this.state.selectedSharers
                                        });
-                                       if (result['code'] === 1) {
+                                       if (result['code'] === 200) {
                                            message.success('操作成功');
                                            this.loadTableData();
                                        } else {

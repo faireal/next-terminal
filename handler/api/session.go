@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/ergoapi/errors"
+	"github.com/ergoapi/exgin"
 	"github.com/ergoapi/util/file"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
@@ -65,10 +66,10 @@ func SessionPagingEndpoint(c *gin.Context) {
 		}
 	}
 
-	Success(c, H{
+	exgin.GinsData(c, H{
 		"total": total,
 		"items": items,
-	})
+	}, nil)
 }
 
 func SessionDeleteEndpoint(c *gin.Context) {
@@ -80,7 +81,7 @@ func SessionDeleteEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func SessionConnectEndpoint(c *gin.Context) {
@@ -95,7 +96,7 @@ func SessionConnectEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func SessionDisconnectEndpoint(c *gin.Context) {
@@ -105,7 +106,7 @@ func SessionDisconnectEndpoint(c *gin.Context) {
 	for i := range split {
 		CloseSessionById(split[i], ForcedDisconnect, "管理员强制关闭了此会话")
 	}
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 var mutex sync.Mutex
@@ -170,7 +171,7 @@ func SessionResizeEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func SessionCreateEndpoint(c *gin.Context) {
@@ -243,7 +244,7 @@ func SessionCreateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, map[string]interface{}{"id": session.ID})
+	exgin.GinsData(c, map[string]interface{}{"id": session.ID}, nil)
 }
 
 func SessionUploadEndpoint(c *gin.Context) {
@@ -295,7 +296,7 @@ func SessionUploadEndpoint(c *gin.Context) {
 			}
 			_, _ = dstFile.Write(buf[:n])
 		}
-		Success(c, nil)
+		exgin.GinsData(c, nil, nil)
 		return
 	} else if "rdp" == session.Protocol {
 
@@ -324,7 +325,7 @@ func SessionUploadEndpoint(c *gin.Context) {
 			errors.Dangerous(err)
 			return
 		}
-		Success(c, nil)
+		exgin.GinsData(c, nil, nil)
 		return
 	}
 
@@ -383,13 +384,13 @@ func SessionDownloadEndpoint(c *gin.Context) {
 }
 
 type File struct {
-	Name    string         `json:"name"`
-	Path    string         `json:"path"`
-	IsDir   bool           `json:"isDir"`
-	Mode    string         `json:"mode"`
-	IsLink  bool           `json:"isLink"`
+	Name    string    `json:"name"`
+	Path    string    `json:"path"`
+	IsDir   bool      `json:"isDir"`
+	Mode    string    `json:"mode"`
+	IsLink  bool      `json:"isLink"`
 	ModTime null.Time `json:"modTime"`
-	Size    int64          `json:"size"`
+	Size    int64     `json:"size"`
 }
 
 func SessionLsEndpoint(c *gin.Context) {
@@ -453,7 +454,7 @@ func SessionLsEndpoint(c *gin.Context) {
 			files = append(files, file)
 		}
 
-		Success(c, files)
+		exgin.GinsData(c, files, nil)
 		return
 	} else if "rdp" == session.Protocol {
 		if strings.Contains(remoteDir, "../") {
@@ -487,7 +488,7 @@ func SessionLsEndpoint(c *gin.Context) {
 			files = append(files, file)
 		}
 
-		Success(c, files)
+		exgin.GinsData(c, files, nil)
 		return
 	}
 	errors.Dangerous("当前协议不支持此操作")
@@ -523,7 +524,7 @@ func SessionMkDirEndpoint(c *gin.Context) {
 			errors.Dangerous(err)
 			return
 		}
-		Success(c, nil)
+		exgin.GinsData(c, nil, nil)
 		return
 	} else if "rdp" == session.Protocol {
 		if strings.Contains(remoteDir, "../") {
@@ -541,7 +542,7 @@ func SessionMkDirEndpoint(c *gin.Context) {
 			errors.Dangerous(err)
 			return
 		}
-		Success(c, nil)
+		exgin.GinsData(c, nil, nil)
 		return
 	}
 
@@ -596,7 +597,7 @@ func SessionRmEndpoint(c *gin.Context) {
 			}
 		}
 
-		Success(c, nil)
+		exgin.GinsData(c, nil, nil)
 		return
 	} else if "rdp" == session.Protocol {
 		if strings.Contains(key, "../") {
@@ -615,7 +616,7 @@ func SessionRmEndpoint(c *gin.Context) {
 			return
 		}
 
-		Success(c, nil)
+		exgin.GinsData(c, nil, nil)
 		return
 	}
 
@@ -645,7 +646,7 @@ func SessionRenameEndpoint(c *gin.Context) {
 			return
 		}
 
-		Success(c, nil)
+		exgin.GinsData(c, nil, nil)
 		return
 	} else if "rdp" == session.Protocol {
 		if strings.Contains(oldName, "../") {
@@ -664,7 +665,7 @@ func SessionRenameEndpoint(c *gin.Context) {
 			return
 		}
 
-		Success(c, nil)
+		exgin.GinsData(c, nil, nil)
 		return
 	}
 	errors.Dangerous("当前协议不支持此操作")

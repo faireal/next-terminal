@@ -24,13 +24,13 @@ func FailWithData(c *gin.Context, code int, message string, data interface{}) {
 	})
 }
 
-func Success(c *gin.Context, data interface{}) {
-	c.JSON(200, H{
-		"code":    1,
-		"message": "success",
-		"data":    data,
-	})
-}
+//func Success(c *gin.Context, data interface{}) {
+//	c.JSON(200, H{
+//		"code":    1,
+//		"message": "success",
+//		"data":    data,
+//	})
+//}
 
 func NotFound(c *gin.Context, message string) {
 	c.JSON(200, H{

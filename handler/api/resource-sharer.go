@@ -26,7 +26,7 @@ func RSGetSharersEndPoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, userIds)
+	exgin.GinsData(c, userIds, nil)
 }
 
 func RSOverwriteSharersEndPoint(c *gin.Context) {
@@ -38,7 +38,7 @@ func RSOverwriteSharersEndPoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func ResourceRemoveByUserIdAssignEndPoint(c *gin.Context) {
@@ -50,7 +50,7 @@ func ResourceRemoveByUserIdAssignEndPoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func ResourceAddByUserIdAssignEndPoint(c *gin.Context) {
@@ -61,5 +61,5 @@ func ResourceAddByUserIdAssignEndPoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }

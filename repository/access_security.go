@@ -1,8 +1,10 @@
 package repository
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 	"next-terminal/models"
+	"strings"
 )
 
 type AccessSecurityRepository struct {
@@ -62,6 +64,9 @@ func (r AccessSecurityRepository) Find(pageIndex, pageSize int, ip, rule, order,
 }
 
 func (r AccessSecurityRepository) Create(o *models.AccessSecurity) error {
+	if strings.HasPrefix(o.IP, "127.") {
+		return fmt.Errorf("本地测试127.0.0.0/8禁止添加ip黑名单")
+	}
 	return r.DB.Create(o).Error
 }
 

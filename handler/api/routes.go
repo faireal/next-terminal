@@ -33,7 +33,7 @@ var (
 	accessSecurityRepository *repository.AccessSecurityRepository
 	jobRepository            *repository.JobRepository
 	jobLogRepository         *repository.JobLogRepository
-	loginLogRepository       *repository.LoginLogRepository
+	logsRepository       *repository.LogsRepository
 
 	jobService        *service.JobService
 	configsService    *service.ConfigsService
@@ -89,6 +89,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	e.GET("/ssh", SSHEndpoint)
 
 	e.POST("/logout", LogoutEndpoint)
+	e.GET("/showcfg", ShowCfg)
 	e.POST("/apis/change-password", ChangePasswordEndpoint)
 	e.GET("/apis/reload-totp", ReloadTOTPEndpoint)
 	e.POST("/apis/reset-totp", ResetTOTPEndpoint)
@@ -245,13 +246,13 @@ func InitRepository(db *gorm.DB) {
 	accessSecurityRepository = repository.NewAccessSecurityRepository(db)
 	jobRepository = repository.NewJobRepository(db)
 	jobLogRepository = repository.NewJobLogRepository(db)
-	loginLogRepository = repository.NewLoginLogRepository(db)
+	logsRepository = repository.NewLogsRepository(db)
 }
 
 func InitService() {
 	jobService = service.NewJobService(jobRepository, jobLogRepository, assetRepository, credentialRepository)
 	configsService = service.NewConfigsService(configsRepository)
-	userService = service.NewUserService(userRepository, loginLogRepository)
+	userService = service.NewUserService(userRepository, logsRepository)
 	sessionService = service.NewSessionService(sessionRepository)
 	mailService = service.NewMailService(configsRepository)
 	numService = service.NewNumService(numRepository)
@@ -259,7 +260,7 @@ func InitService() {
 	credentialService = service.NewCredentialService(credentialRepository)
 }
 
-func LoadJobs()  {
+func LoadJobs() {
 	if err := jobService.LoadJobs(); err != nil {
 		zlog.Error("load job err: %v", err)
 		return

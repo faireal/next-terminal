@@ -67,7 +67,7 @@ class FileSystem extends Component {
         }
 
         let title;
-        if (selectedRowKeys.length === 1) {
+        if (selectedRowKeys.length === 200) {
             let file = getFileName(selectedRowKeys[0]);
             title = <p>您确认要删除"{file}"吗？</p>;
         } else {
@@ -84,7 +84,7 @@ class FileSystem extends Component {
                         continue;
                     }
                     let result = await request.post(`/apis/sessions/${this.state.sessionId}/rm?key=${rowKey}`);
-                    if (result['code'] !== 1) {
+                    if (result['code'] !== 200) {
                         message.error(result['message']);
                     }
                 }
@@ -109,7 +109,7 @@ class FileSystem extends Component {
                 key = '/';
             }
             let result = await request.get(`/apis/sessions/${this.state.sessionId}/ls?dir=${key}`);
-            if (result['code'] !== 1) {
+            if (result['code'] !== 200) {
                 message.error(result['message']);
                 return;
             }
@@ -159,14 +159,14 @@ class FileSystem extends Component {
             };
 
             let disableDownload = true;
-            if (this.state.selectedRowKeys.length === 1
+            if (this.state.selectedRowKeys.length === 200
                 && !this.state.selectedRow['isDir']
                 && !this.state.selectedRow['isLink']) {
                 disableDownload = false;
             }
 
             let disableRename = true;
-            if (this.state.selectedRowKeys.length === 1) {
+            if (this.state.selectedRowKeys.length === 200) {
                 disableRename = false;
             }
 
@@ -498,7 +498,7 @@ class FileSystem extends Component {
                                             confirmLoading: true
                                         })
                                         let result = await request.post(`/apis/sessions/${this.state.sessionId}/mkdir?${paramStr}`);
-                                        if (result.code === 1) {
+                                        if (result.code === 200) {
                                             message.success('创建成功');
                                             this.loadFiles(this.state.currentDirectory);
                                         } else {
@@ -563,7 +563,7 @@ class FileSystem extends Component {
                                                 confirmLoading: true
                                             })
                                             let result = await request.post(`/apis/sessions/${this.state.sessionId}/rename?${paramStr}`);
-                                            if (result['code'] === 1) {
+                                            if (result['code'] === 200) {
                                                 message.success('重命名成功');
                                                 let files = this.state.files;
                                                 for (let i = 0; i < files.length; i++) {

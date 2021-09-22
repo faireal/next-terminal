@@ -36,7 +36,7 @@ func UserCreateEndpoint(c *gin.Context) {
 	if item.Mail != "" {
 		go mailService.SendMail(item.Mail, "[Next Terminal] 注册通知", "你好，"+item.Nickname+"。管理员为你注册了账号："+item.Username+" 密码："+password)
 	}
-	Success(c, item)
+	exgin.GinsData(c, item, nil)
 }
 
 func UserPagingEndpoint(c *gin.Context) {
@@ -56,10 +56,10 @@ func UserPagingEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, H{
+	exgin.GinsData(c, H{
 		"total": total,
 		"items": items,
-	})
+	}, nil)
 }
 
 func UserUpdateEndpoint(c *gin.Context) {
@@ -74,7 +74,7 @@ func UserUpdateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func UserDeleteEndpoint(c *gin.Context) {
@@ -92,7 +92,7 @@ func UserDeleteEndpoint(c *gin.Context) {
 			return
 		}
 		// 将用户强制下线
-		loginLogs, err := loginLogRepository.FindAliveLoginLogsByUserId(userId)
+		loginLogs, err := logsRepository.FindAliveLoginLogsByUserId(userId)
 		if err != nil {
 			errors.Dangerous(err)
 			return
@@ -114,7 +114,7 @@ func UserDeleteEndpoint(c *gin.Context) {
 		}
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func UserGetEndpoint(c *gin.Context) {
@@ -125,7 +125,7 @@ func UserGetEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, item)
+	exgin.GinsData(c, item, nil)
 }
 
 func UserChangePasswordEndpoint(c *gin.Context) {
@@ -160,7 +160,7 @@ func UserChangePasswordEndpoint(c *gin.Context) {
 		go mailService.SendMail(user.Mail, "[Next Terminal] 密码修改通知", "你好，"+user.Nickname+"。管理员已将你的密码修改为："+password)
 	}
 
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func UserResetTotpEndpoint(c *gin.Context) {
@@ -177,11 +177,11 @@ func UserResetTotpEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func ReloadToken() error {
-	loginLogs, err := loginLogRepository.FindAliveLoginLogs()
+	loginLogs, err := logsRepository.FindAliveLoginLogs()
 	if err != nil {
 		return err
 	}

@@ -12,7 +12,7 @@ import (
 
 func PropertyGetEndpoint(c *gin.Context) {
 	properties := configsRepository.FindAllMap()
-	Success(c, properties)
+	exgin.GinsData(c, properties, nil)
 }
 
 func PropertyUpdateEndpoint(c *gin.Context) {
@@ -43,5 +43,11 @@ func PropertyUpdateEndpoint(c *gin.Context) {
 			}
 		}
 	}
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
+}
+
+func ShowCfg(c *gin.Context)  {
+	cfg := map[string]interface{}{}
+	cfg["cluster"] = true
+	exgin.GinsData(c, cfg , nil)
 }

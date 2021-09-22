@@ -162,7 +162,7 @@ class Term extends Component {
 
     async createSession(assetsId) {
         let result = await request.post(`/apis/sessions?assetId=${assetsId}&mode=naive`);
-        if (result['code'] !== 1) {
+        if (result['code'] !== 200) {
             this.showMessage(result['message']);
             return null;
         }
@@ -171,7 +171,7 @@ class Term extends Component {
 
     updateSessionStatus = async (sessionId) => {
         let result = await request.post(`/apis/sessions/${sessionId}/connect`);
-        if (result['code'] !== 1) {
+        if (result['code'] !== 200) {
             message.error(result['message']);
         }
     }

@@ -16,7 +16,7 @@ import (
 func CredentialAllEndpoint(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 	items, _ := credentialRepository.FindByUser(account)
-	Success(c, items)
+	exgin.GinsData(c, items, nil)
 }
 func CredentialCreateEndpoint(c *gin.Context) {
 	var item models.Credential
@@ -58,7 +58,7 @@ func CredentialCreateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, item)
+	exgin.GinsData(c, item, nil)
 }
 
 func CredentialPagingEndpoint(c *gin.Context) {
@@ -76,10 +76,10 @@ func CredentialPagingEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, H{
+	exgin.GinsData(c, H{
 		"total": total,
 		"items": items,
-	})
+	}, nil)
 }
 
 func CredentialUpdateEndpoint(c *gin.Context) {
@@ -149,7 +149,7 @@ func CredentialUpdateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func CredentialDeleteEndpoint(c *gin.Context) {
@@ -171,7 +171,7 @@ func CredentialDeleteEndpoint(c *gin.Context) {
 		}
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func CredentialGetEndpoint(c *gin.Context) {
@@ -192,7 +192,7 @@ func CredentialGetEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, item)
+	exgin.GinsData(c, item, nil)
 }
 
 func CredentialChangeOwnerEndpoint(c *gin.Context) {
@@ -208,7 +208,7 @@ func CredentialChangeOwnerEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func PreCheckCredentialPermission(c *gin.Context, id string) error {

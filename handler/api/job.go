@@ -19,7 +19,7 @@ func JobCreateEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func JobPagingEndpoint(c *gin.Context) {
@@ -37,10 +37,10 @@ func JobPagingEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, H{
+	exgin.GinsData(c, H{
 		"total": total,
 		"items": items,
-	})
+	}, nil)
 }
 
 func JobUpdateEndpoint(c *gin.Context) {
@@ -54,7 +54,7 @@ func JobUpdateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func JobChangeStatusEndpoint(c *gin.Context) {
@@ -64,7 +64,7 @@ func JobChangeStatusEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func JobExecEndpoint(c *gin.Context) {
@@ -73,7 +73,7 @@ func JobExecEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func JobDeleteEndpoint(c *gin.Context) {
@@ -88,7 +88,7 @@ func JobDeleteEndpoint(c *gin.Context) {
 		}
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func JobGetEndpoint(c *gin.Context) {
@@ -100,7 +100,7 @@ func JobGetEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, item)
+	exgin.GinsData(c, item, nil)
 }
 
 func JobGetLogsEndpoint(c *gin.Context) {
@@ -112,7 +112,7 @@ func JobGetLogsEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, items)
+	exgin.GinsData(c, items, nil)
 }
 
 func JobDeleteLogsEndpoint(c *gin.Context) {
@@ -121,5 +121,5 @@ func JobDeleteLogsEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }

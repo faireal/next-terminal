@@ -81,7 +81,7 @@ class OfflineSession extends Component {
 
         try {
             let result = await request.get('/apis/sessions/paging?' + paramsStr);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 data = result.data;
             } else {
                 message.error(result.message);
@@ -149,7 +149,7 @@ class OfflineSession extends Component {
 
     handleSearchByNickname = async nickname => {
         const result = await request.get(`/apis/users/paging?pageIndex=1&pageSize=1000&nickname=${nickname}`);
-        if (result.code !== 1) {
+        if (result.code !== 200) {
             message.error(result.message, 10);
             return;
         }
@@ -171,7 +171,7 @@ class OfflineSession extends Component {
 
     handleSearchByAssetName = async assetName => {
         const result = await request.get(`/apis/assets/paging?pageIndex=1&pageSize=100&name=${assetName}`);
-        if (result.code !== 1) {
+        if (result.code !== 200) {
             message.error(result.message, 10);
             return;
         }
@@ -197,7 +197,7 @@ class OfflineSession extends Component {
         })
         try {
             let result = await request.delete('/apis/sessions/' + this.state.selectedRowKeys.join(','));
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('操作成功', 3);
                 this.setState({
                     selectedRowKeys: []
@@ -295,7 +295,7 @@ class OfflineSession extends Component {
                                                     priority: 99,
                                                 }
                                                 const result = await request.post('/apis/securities', formData);
-                                                if (result.code === 1) {
+                                                if (result.code === 200) {
                                                     message.success('禁用成功');
                                                 } else {
                                                     message.error('禁用失败 :( ' + result.message, 10);
@@ -317,7 +317,7 @@ class OfflineSession extends Component {
 
                                 const del = async (id) => {
                                     const result = await request.delete(`/apis/sessions/${id}`);
-                                    if (result.code === 1) {
+                                    if (result.code === 200) {
                                         notification['success']({
                                             message: '提示',
                                             description: '删除成功',

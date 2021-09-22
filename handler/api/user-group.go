@@ -21,15 +21,15 @@ func UserGroupCreateEndpoint(c *gin.Context) {
 	exgin.Bind(c, &item)
 
 	userGroup := models.UserGroup{
-		ID:      utils.UUID(),
-		Name:    item.Name,
+		ID:   utils.UUID(),
+		Name: item.Name,
 	}
 
 	if err := userGroupRepository.Create(&userGroup, item.Members); err != nil {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, item)
+	exgin.GinsData(c, item, nil)
 }
 
 func UserGroupPagingEndpoint(c *gin.Context) {
@@ -46,10 +46,10 @@ func UserGroupPagingEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, H{
+	exgin.GinsData(c, H{
 		"total": total,
 		"items": items,
-	})
+	}, nil)
 }
 
 func UserGroupUpdateEndpoint(c *gin.Context) {
@@ -66,7 +66,7 @@ func UserGroupUpdateEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func UserGroupDeleteEndpoint(c *gin.Context) {
@@ -80,7 +80,7 @@ func UserGroupDeleteEndpoint(c *gin.Context) {
 		}
 	}
 
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func UserGroupGetEndpoint(c *gin.Context) {
@@ -104,5 +104,5 @@ func UserGroupGetEndpoint(c *gin.Context) {
 		Members: members,
 	}
 
-	Success(c, userGroup)
+	exgin.GinsData(c, userGroup, nil)
 }

@@ -68,7 +68,7 @@ class LoginLog extends Component {
 
         try {
             let result = await request.get('/apis/login-logs/paging?' + paramsStr);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 data = result.data;
             } else {
                 message.error(result.message);
@@ -122,7 +122,7 @@ class LoginLog extends Component {
 
     handleSearchByNickname = async nickname => {
         const result = await request.get(`/apis/users/paging?pageIndex=1&pageSize=1000&nickname=${nickname}`);
-        if (result.code !== 1) {
+        if (result.code !== 200) {
             message.error(result.message, 10);
             return;
         }
@@ -148,7 +148,7 @@ class LoginLog extends Component {
         })
         try {
             let result = await request.delete('/apis/login-logs/' + this.state.selectedRowKeys.join(','));
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('操作成功', 3);
                 this.setState({
                     selectedRowKeys: []
@@ -234,7 +234,7 @@ class LoginLog extends Component {
 
                                 const del = async (id) => {
                                     const result = await request.delete(`/apis/login-logs/${id}`);
-                                    if (result.code === 1) {
+                                    if (result.code === 200) {
                                         notification['success']({
                                             message: '提示',
                                             description: '删除成功',

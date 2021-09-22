@@ -36,7 +36,7 @@ func SecurityCreateEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, "")
+	exgin.GinsData(c, "", nil)
 }
 
 func ReloadAccessSecurity() error {
@@ -73,10 +73,10 @@ func SecurityPagingEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, H{
+	exgin.GinsData(c, H{
 		"total": total,
 		"items": items,
-	})
+	}, nil)
 }
 
 func SecurityUpdateEndpoint(c *gin.Context) {
@@ -101,7 +101,7 @@ func SecurityUpdateEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func SecurityDeleteEndpoint(c *gin.Context) {
@@ -120,7 +120,7 @@ func SecurityDeleteEndpoint(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	Success(c, nil)
+	exgin.GinsData(c, nil, nil)
 }
 
 func SecurityGetEndpoint(c *gin.Context) {
@@ -132,5 +132,5 @@ func SecurityGetEndpoint(c *gin.Context) {
 		return
 	}
 
-	Success(c, item)
+	exgin.GinsData(c, item, nil)
 }

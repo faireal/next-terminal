@@ -66,7 +66,7 @@ class Job extends Component {
 
     async delete(id) {
         const result = await request.delete('/apis/jobs/' + id);
-        if (result.code === 1) {
+        if (result.code === 200) {
             message.success('删除成功');
             this.loadTableData(this.state.queryParams);
         } else {
@@ -92,7 +92,7 @@ class Job extends Component {
 
         try {
             let result = await request.get('/apis/jobs/paging?' + paramsStr);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 data = result.data;
             } else {
                 message.error(result.message);
@@ -193,7 +193,7 @@ class Job extends Component {
         if (formData.id) {
             // 向后台提交数据
             const result = await request.put('/apis/jobs/' + formData.id, formData);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('更新成功');
 
                 this.setState({
@@ -206,7 +206,7 @@ class Job extends Component {
         } else {
             // 向后台提交数据
             const result = await request.post('/apis/jobs', formData);
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('新增成功');
 
                 this.setState({
@@ -229,7 +229,7 @@ class Job extends Component {
         })
         try {
             let result = await request.delete('/apis/jobs/' + this.state.selectedRowKeys.join(','));
-            if (result.code === 1) {
+            if (result.code === 200) {
                 message.success('操作成功', 3);
                 this.setState({
                     selectedRowKeys: []
@@ -289,7 +289,7 @@ class Job extends Component {
                                onChange={async (checked) => {
                                    let jobStatus = checked ? 'running' : 'not-running';
                                    let result = await request.post(`/apis/jobs/${record['id']}/change-status?status=${jobStatus}`);
-                                   if (result['code'] === 1) {
+                                   if (result['code'] === 200) {
                                        message.success('操作成功');
                                        await this.loadTableData();
                                    } else {
@@ -364,7 +364,7 @@ class Job extends Component {
                                         })
 
                                         let result = await request.get(`/apis/jobs/${record['id']}/logs`);
-                                        if (result['code'] === 1) {
+                                        if (result['code'] === 200) {
                                             this.setState({
                                                 logPending: false,
                                                 logs: result['data'],
@@ -394,7 +394,7 @@ class Job extends Component {
                                     });
 
                                     let result = await request.post(`/apis/jobs/${record['id']}/exec`);
-                                    if (result['code'] === 1) {
+                                    if (result['code'] === 200) {
                                         message.success('执行成功');
                                         await this.loadTableData();
                                     } else {
@@ -545,7 +545,7 @@ class Job extends Component {
 
                                 onOk={async () => {
                                     let result = await request.delete(`/apis/jobs/${this.state.selectedRow['id']}/logs`);
-                                    if (result['code'] === 1) {
+                                    if (result['code'] === 200) {
                                         this.setState({
                                             logVisible: false,
                                             selectedRow: undefined
