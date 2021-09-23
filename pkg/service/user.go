@@ -22,7 +22,7 @@ func (r UserService) InitUser() (err error) {
 	users := r.userRepository.FindAll()
 
 	if len(users) == 0 {
-		initPassword := "admin"
+		initPassword := utils.GetKeyFromYaml("core.admin.password", "admin")
 		var pass []byte
 		if pass, err = utils.Encoder.Encode([]byte(initPassword)); err != nil {
 			return err
@@ -30,7 +30,7 @@ func (r UserService) InitUser() (err error) {
 
 		user := models.User{
 			ID:       utils.UUID(),
-			Username: "admin",
+			Username: utils.GetKeyFromYaml("core.admin.username", "admin"),
 			Password: string(pass),
 			Nickname: "超级管理员",
 			Role:     constants.RoleAdmin,
@@ -41,16 +41,16 @@ func (r UserService) InitUser() (err error) {
 		zlog.Info("初始用户创建成功，账号：「%v」密码：「%v」", user.Username, initPassword)
 	} else {
 		for i := range users {
-			// 修正默认用户类型为管理员
+			// 修正默认用户类型为普通用户
 			if users[i].Role == "" {
 				user := models.User{
-					Role: constants.RoleAdmin,
+					Role: constants.RoleDefault,
 					ID:   users[i].ID,
 				}
 				if err := r.userRepository.Update(user); err != nil {
 					return err
 				}
-				zlog.Info("自动修正用户「%v」ID「%v」类型为管理员", users[i].Nickname, users[i].ID)
+				zlog.Info("自动修正用户「%v」ID「%v」类型为普通用户", users[i].Nickname, users[i].ID)
 			}
 		}
 	}

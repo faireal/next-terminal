@@ -315,9 +315,9 @@ func getRedirectURL(c *gin.Context) string {
 func Oauth2login(c *gin.Context) {
 	state := utils.RandStringBytesMaskImprSrcUnsafe(6)
 	ntcache.MemCache.Set(fmt.Sprintf("%s%s", constants.CacheKeyOauth2State, c.ClientIP()), state, 0)
-	authtype := viper.GetString("core.login.oauth2.type")
-	authid := viper.GetString("core.login.oauth2.id")
-	authsecret := viper.GetString("core.login.oauth2.secret")
+	authtype := viper.GetString("oauth2.type")
+	authid := viper.GetString("oauth2.id")
+	authsecret := viper.GetString("oauth2.secret")
 
 	url := getCommonOauth2Config(c, authtype, authid, authsecret).AuthCodeURL(state, oauth2.AccessTypeOnline)
 	c.Redirect(http.StatusFound, url)
@@ -325,9 +325,9 @@ func Oauth2login(c *gin.Context) {
 
 func Oauth2Callback(c *gin.Context) {
 	var err error
-	authtype := viper.GetString("core.login.oauth2.type")
-	authid := viper.GetString("core.login.oauth2.id")
-	authsecret := viper.GetString("core.login.oauth2.secret")
+	authtype := viper.GetString("oauth2.type")
+	authid := viper.GetString("oauth2.id")
+	authsecret := viper.GetString("oauth2.secret")
 	// 验证登录跳转时的 State
 	state, ok := ntcache.MemCache.Get(fmt.Sprintf("%s%s", constants.CacheKeyOauth2State, c.ClientIP()))
 	if !ok || state.(string) != c.Query("state") {
@@ -413,7 +413,7 @@ func LogoutEndpoint(c *gin.Context) {
 }
 
 func ConfirmTOTPEndpoint(c *gin.Context) {
-	if viper.GetBool("mode.demo") {
+	if viper.GetBool("demo") {
 		Fail(c, 0, "演示模式禁止开启两步验证")
 		return
 	}
@@ -483,7 +483,7 @@ func ResetTOTPEndpoint(c *gin.Context) {
 }
 
 func ChangePasswordEndpoint(c *gin.Context) {
-	if viper.GetBool("mode.demo") {
+	if viper.GetBool("demo") {
 		Fail(c, 0, "演示模式禁止修改密码")
 		return
 	}

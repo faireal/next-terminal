@@ -20,7 +20,7 @@ func SecurityCreateEndpoint(c *gin.Context) {
 	item.ID = utils.UUID()
 	item.Source = "管理员添加"
 
-	if viper.GetBool("mode.demo") {
+	if viper.GetBool("demo") {
 		if strings.Contains(item.IP, "/") && !strings.Contains(item.IP, "/32") {
 			errors.Dangerous("演示模式下, 仅允许操作单ip")
 			return
@@ -85,7 +85,7 @@ func SecurityUpdateEndpoint(c *gin.Context) {
 	var item models.AccessSecurity
 	exgin.Bind(c, &item)
 
-	if viper.GetBool("mode.demo") {
+	if viper.GetBool("demo") {
 		if strings.Contains(item.IP, "/") && !strings.Contains(item.IP, "/32") {
 			errors.Dangerous("演示模式下, 仅允许操作单ip")
 			return

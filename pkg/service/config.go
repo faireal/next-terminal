@@ -41,7 +41,7 @@ func (c ConfigsService) InitConfigs() error {
 	if len(propertyMap[guacd.Host]) == 0 {
 		property := models.Configs{
 			Ckey: guacd.Host,
-			Cval: utils.GetKeyFromYaml("terminal.guacd.host", "127.0.0.1"),
+			Cval: utils.GetKeyFromYaml("vm.terminal.guacd.host", "127.0.0.1"),
 		}
 		if err := c.configsRepository.Create(&property); err != nil {
 			return err
@@ -51,7 +51,7 @@ func (c ConfigsService) InitConfigs() error {
 	if len(propertyMap[guacd.Port]) == 0 {
 		property := models.Configs{
 			Ckey: guacd.Port,
-			Cval: utils.GetKeyFromYaml("terminal.guacd.port", "4822"),
+			Cval: utils.GetKeyFromYaml("vm.terminal.guacd.port", "4822"),
 		}
 		if err := c.configsRepository.Create(&property); err != nil {
 			return err

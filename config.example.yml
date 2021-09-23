@@ -1,22 +1,26 @@
-mode:
-  debug: true
-  demo: true
-terminal:
-  guacd:
-    host: 192.168.31.242
-    port: 4822
+demo: true
 core:
+  admin:
+    username: admin
+    password: admin
+  debug: true
   encryptionkey: ""
   http: 0.0.0.0:8080
   login:
-    oauth2:
-      enable: false
-      type: github
-      id: ""
-      secret: ""
+    oauth2: false
     ladp: false
     trynum: 3
     exp: 86400 #1d
+vm:
+  terminal:
+    guacd:
+      host: 192.168.31.242
+      port: 4822
+
+oauth2:
+  type: github
+  id: ""
+  secret: ""
 
 ldap:
   domain: ysicing

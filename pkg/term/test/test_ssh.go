@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/ergoapi/zlog"
 	"io"
 	"os"
 	"time"
-
-	"next-terminal/pkg/log"
 
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/terminal"
@@ -31,7 +30,7 @@ func main() {
 
 	client, err := ssh.Dial("tcp", "172.16.101.32:22", sshConfig)
 	if err != nil {
-		log.Error(err)
+		zlog.Error("err: %v", err)
 	}
 	defer client.Close()
 
@@ -88,9 +87,9 @@ func (t *SSHTerminal) interactiveSession() error {
 
 	defer func() {
 		if t.exitMsg == "" {
-			log.Info(os.Stdout, "the connection was closed on the remote side on ", time.Now().Format(time.RFC822))
+			zlog.Info("the connection was closed on the remote side on %v", time.Now().Format(time.RFC822))
 		} else {
-			log.Info(os.Stdout, t.exitMsg)
+			zlog.Info("exit msg: %v", t.exitMsg)
 		}
 	}()
 

@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"github.com/ergoapi/zlog"
 	"gorm.io/gorm"
 	"next-terminal/constants"
 	"next-terminal/models"
@@ -98,7 +97,6 @@ func (r UserRepository) FindOnlineUsers() (o []models.User, err error) {
 }
 
 func (r UserRepository) Create(o *models.User) error {
-	zlog.Debug(o.Username, o.Password)
 	return r.DB.Create(o).Error
 }
 
