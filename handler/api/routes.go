@@ -136,6 +136,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	clusters := e.Group("/apis/clusters")
 	{
 		clusters.GET("", ClusterGetAll)
+		clusters.POST("", ClusterCreate)
 		clusters.GET("/paging", ClusterPagingEndpoint)
 	}
 

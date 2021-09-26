@@ -47,7 +47,7 @@ docker: ## 构建镜像
 	docker push ${IMAGE}/next-terminal
 	docker push ${IMAGE}/next-terminal:${BUILD_VERSION}
 	docker push ${IMAGE}/next-terminal:${RELEASEV}
-	docker run --rm ghcr.io/ysicing/httpie http https://tags.external.ysicing.net/external/api/v1/tags service=next-terminal image=next-terminal tag=${RELEASEV} --ignore-stdin
+	# docker run --rm ghcr.io/ysicing/httpie http https://tags.external.ysicing.net/external/api/v1/tags service=next-terminal image=next-terminal tag=${RELEASEV} --ignore-stdin
 
 release: static docker ## Release
 

@@ -4,9 +4,12 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
+	"github.com/ergoapi/util/zos"
 	"github.com/gin-gonic/gin"
+	"next-terminal/models"
 	"strconv"
 )
 
@@ -15,6 +18,30 @@ func ClusterGetAll(c *gin.Context) {
 	account, _ := GetCurrentAccount(c)
 	items, _ := clusterRepository.FindByProtocolAndUser(account)
 	exgin.GinsData(c, items, nil)
+}
+
+// ClusterCreate 新增集群
+func ClusterCreate(c *gin.Context) {
+	m := map[string]interface{}{}
+	exgin.Bind(c, &m)
+
+	data, _ := json.Marshal(m)
+	var item models.Cluster
+	if err := json.Unmarshal(data, &item); err != nil {
+		errors.Dangerous(err)
+		return
+	}
+
+	account, _ := GetCurrentAccount(c)
+	item.Owner = account.ID
+	item.ID = zos.GenUUID()
+
+	if err := clusterRepository.InitCluster(&item, m); err != nil {
+		errors.Dangerous(err)
+		return
+	}
+
+	exgin.GinsData(c, item, nil)
 }
 
 // ClusterPagingEndpoint cluster

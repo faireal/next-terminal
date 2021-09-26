@@ -7,6 +7,7 @@ type Cluster struct {
 	Model
 	ID          string `gorm:"primary_key " json:"id"`
 	Name        string `json:"name"`
+	Authtype    string `json:"authtype"`
 	Mode        string `json:"mode"`
 	Description string `json:"description,omitempty"`
 	Status      bool   `json:"status"`
@@ -15,6 +16,8 @@ type Cluster struct {
 	Region      string `json:"region,omitempty"`
 	Owner       string `json:"owner"`
 	OwnerName   string `json:"ownerName"`
+	Kubeconfig  string `json:"kubeconfig"`
+	Encrypted   bool   `json:"encrypted"`
 }
 
 func (c *Cluster) TableName() string {

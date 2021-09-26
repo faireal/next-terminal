@@ -25,14 +25,10 @@ const {Panel} = Collapse;
 // Ant form create 表单内置方法
 
 const protocolMapping = {
-    'ssh': [
-        {text: '密码', value: 'custom'},
-        {text: '密钥', value: 'private-key'},
-        {text: '授权凭证', value: 'credential'},
+    'default': [
+        {text: 'kubeconfig', value: 'kubeconfig'},
+        {text: 'token', value: 'token'},
     ],
-    'rdp': [{text: '密码', value: 'custom'}, {text: '授权凭证', value: 'credential'}],
-    'vnc': [{text: '密码', value: 'custom'}, {text: '授权凭证', value: 'credential'}],
-    'telnet': [{text: '密码', value: 'custom'}, {text: '授权凭证', value: 'credential'}]
 }
 
 const formLayout = {
@@ -49,19 +45,17 @@ const ClusterModal = function ({title, visible, handleOk, handleCancel, confirmL
 
     const [form] = Form.useForm();
 
-    if (model.accountType === undefined) {
-        model.accountType = 'rdp';
+    if (model.authtype === undefined) {
+        model.authtype = 'kubeconfig';
     }
 
-    let [accountType, setAccountType] = useState(model.accountType);
-    let [protocol, setProtocol] = useState(model.protocol);
+    let [authtype, setauthtype] = useState(model.authtype);
+    let [protocol, setProtocol] = useState(model.mode);
     let [sshMode, setSshMode] = useState(model['ssh-mode']);
 
-    let initAccountTypes = []
-    if (model.protocol) {
-        initAccountTypes = protocolMapping[model.protocol];
-    }
-    let [accountTypes, setAccountTypes] = useState(initAccountTypes);
+    let initauthtypes = []
+    initauthtypes = protocolMapping["default"];
+    let [authtypes, setauthtypes] = useState(initauthtypes);
     let [useSSL, setUseSSL] = useState(model['use-ssl']);
 
     for (let key in model) {
@@ -72,57 +66,9 @@ const ClusterModal = function ({title, visible, handleOk, handleCancel, confirmL
         }
     }
 
-    const handleProtocolChange = e => {
-        setProtocol(e.target.value)
-        let port;
-        switch (e.target.value) {
-            case 'ssh':
-                port = 22;
-                setAccountTypes(protocolMapping['ssh']);
-                form.setFieldsValue({
-                    accountType: 'custom',
-                });
-                handleAccountTypeChange('custom');
-                break;
-            case 'rdp':
-                port = 3389;
-                setAccountTypes(protocolMapping['rdp']);
-                form.setFieldsValue({
-                    accountType: 'custom',
-                });
-                handleAccountTypeChange('custom');
-                break;
-            case 'vnc':
-                port = 5900;
-                setAccountTypes(protocolMapping['vnc']);
-                form.setFieldsValue({
-                    accountType: 'custom',
-                });
-                handleAccountTypeChange('custom');
-                break;
-            case 'telnet':
-                port = 23;
-                setAccountTypes(protocolMapping['telnet']);
-                form.setFieldsValue({
-                    accountType: 'custom',
-                });
-                handleAccountTypeChange('custom');
-                break;
-            case 'kubernetes':
-                port = 6443;
-                break
-            default:
-                port = 65535;
-        }
-
-        form.setFieldsValue({
-            port: port,
-        });
-    };
-
-    const handleAccountTypeChange = v => {
-        setAccountType(v);
-        model.accountType = v;
+    const handleauthtypeChange = v => {
+        setauthtype(v);
+        model.authtype = v;
     }
 
     return (
@@ -159,87 +105,36 @@ const ClusterModal = function ({title, visible, handleOk, handleCancel, confirmL
                             <Input placeholder="集群名称"/>
                         </Form.Item>
 
-                        <Form.Item label="主机" name='ip' rules={[{required: true, message: '请输入资产的主机名称或者IP地址'}]}>
-                            <Input placeholder="资产的主机名称或者IP地址"/>
-                        </Form.Item>
-
-                        <Form.Item label="接入协议" name='protocol' rules={[{required: true, message: '请选择接入协议'}]}>
-                            <Radio.Group onChange={handleProtocolChange}>
-                                <Radio value="rdp">RDP</Radio>
-                                <Radio value="ssh">SSH</Radio>
-                                <Radio value="vnc">VNC</Radio>
-                                <Radio value="telnet">Telnet</Radio>
-                                <Radio value="kubernetes">Kubernetes</Radio>
+                        <Form.Item label="集群类型" name='mode' rules={[{required: false, message: '请选择接入类型'}]}>
+                            <Radio.Group>
+                                <Radio value="share">共享</Radio>
                             </Radio.Group>
                         </Form.Item>
 
-                        <Form.Item label="端口号" name='port' rules={[{required: true, message: '请输入资产端口'}]}>
-                            <InputNumber min={1} max={65535} placeholder='TCP端口'/>
-                        </Form.Item>
-
                         {
-                            protocol === 'kubernetes' ? <>
-                                <Form.Item
-                                    name="namespace"
-                                    label="命名空间"
-                                >
-                                    <Input type='text' placeholder="为空时默认使用default命名空间"/>
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="pod"
-                                    label="pod"
-                                    rules={[{required: true, message: '请输入Pod名称'}]}
-                                >
-                                    <Input type='text' placeholder="Kubernetes Pod的名称，其中包含与之相连的容器。"/>
-                                </Form.Item>
-
-                                <Form.Item
-                                    name="container"
-                                    label="容器"
-                                >
-                                    <Input type='text' placeholder="为空时默认使用第一个容器"/>
-                                </Form.Item>
-                            </> : <>
-                                <Form.Item label="账户类型" name='accountType'
-                                           rules={[{required: true, message: '请选择接账户类型'}]}>
-                                    <Select onChange={handleAccountTypeChange}>
-                                        {accountTypes.map(item => {
+                            protocol === 'kubernetes' ? <></> : <>
+                                <Form.Item label="授权类型" name='authtype'
+                                           rules={[{required: true, message: '请选择接授权类型'}]}>
+                                    <Select onChange={handleauthtypeChange}>
+                                        {authtypes.map(item => {
+                                            if (item.value === "token") {
+                                                return  (<Option key={item.value} value={item.value} disabled>{item.text}</Option>)
+                                            }
                                             return (<Option key={item.value} value={item.value}>{item.text}</Option>)
                                         })}
                                     </Select>
                                 </Form.Item>
 
-
                                 {
-                                    accountType === 'credential' ?
-                                        <Form.Item label="授权凭证" name='credentialId'
-                                                   rules={[{required: true, message: '请选择授权凭证'}]}>
-                                            <Select onChange={() => null}>
-                                                {credentials.map(item => {
-                                                    return (
-                                                        <Option key={item.id} value={item.id}>
-                                                            <Tooltip placement="topLeft" title={item.name}>
-                                                                {item.name}
-                                                            </Tooltip>
-                                                        </Option>
-                                                    );
-                                                })}
-                                            </Select>
-                                        </Form.Item>
-                                        : null
-                                }
-
-                                {
-                                    accountType === 'custom' ?
+                                    authtype === 'token' ?
                                         <>
                                             <Form.Item label="授权账户" name='username'
-                                                       noStyle={!(accountType === 'custom')}>
+                                                       noStyle={!(authtype === 'custom')}>
                                                 <Input placeholder="输入授权账户"/>
                                             </Form.Item>
 
                                             <Form.Item label="授权密码" name='password'
-                                                       noStyle={!(accountType === 'custom')}>
+                                                       noStyle={!(authtype === 'custom')}>
                                                 <Input.Password placeholder="输入授权密码"/>
                                             </Form.Item>
                                         </>
@@ -247,18 +142,11 @@ const ClusterModal = function ({title, visible, handleOk, handleCancel, confirmL
                                 }
 
                                 {
-                                    accountType === 'private-key' ?
+                                    authtype === 'kubeconfig' ?
                                         <>
-                                            <Form.Item label="授权账户" name='username'>
-                                                <Input placeholder="输入授权账户"/>
-                                            </Form.Item>
-
-                                            <Form.Item label="私钥" name='privateKey'
-                                                       rules={[{required: true, message: '请输入私钥'}]}>
+                                            <Form.Item label="kubecfg" name='kubeconfig'
+                                                       rules={[{required: true, message: '请输入kubeconfig'}]}>
                                                 <TextArea rows={4}/>
-                                            </Form.Item>
-                                            <Form.Item label="私钥密码" name='passphrase'>
-                                                <TextArea rows={1}/>
                                             </Form.Item>
                                         </>
                                         : null

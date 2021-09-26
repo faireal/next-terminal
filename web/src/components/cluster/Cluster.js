@@ -310,7 +310,7 @@ class Cluster extends Component {
             }
         } else {
             // 向后台提交数据
-            const result = await request.post('/apis/assets', formData);
+            const result = await request.post('/apis/clusters', formData);
             if (result.code === 200) {
                 message.success('操作成功', 3);
 
@@ -571,13 +571,13 @@ class Cluster extends Component {
                                         onClick={() => this.update(record.id)}>编辑</Button>
                             </Menu.Item>
 
-                            <Menu.Item key="2">
+                            {/* <Menu.Item key="2">
                                 <Button type="text" size='small'
                                         disabled={!hasPermission(record['owner'])}
                                         onClick={() => this.copy(record.id)}>复制</Button>
-                            </Menu.Item>
+                            </Menu.Item> */}
 
-                            {isAdmin() ?
+                            {/* {isAdmin() ?
                                 <Menu.Item key="4">
                                     <Button type="text" size='small'
                                             disabled={!hasPermission(record['owner'])}
@@ -606,7 +606,7 @@ class Cluster extends Component {
                                         onClick={async () => {
                                             await this.handleShowSharer(record);
                                         }}>更新授权人</Button>
-                            </Menu.Item>
+                            </Menu.Item> */}
 
                             <Menu.Divider/>
                             <Menu.Item key="6">
@@ -620,7 +620,7 @@ class Cluster extends Component {
                     return (
                         <div>
                             <Button type="link" size='small'
-                                    onClick={() => this.access(record)}>接入</Button>
+                                    onClick={() => this.access(record)}>详情</Button>
 
                             <Dropdown overlay={menu}>
                                 <Button type="link" size='small'>
