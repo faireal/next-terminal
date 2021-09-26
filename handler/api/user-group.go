@@ -3,9 +3,9 @@ package api
 import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
+	"github.com/ergoapi/util/zos"
 	"github.com/gin-gonic/gin"
 	"next-terminal/models"
-	"next-terminal/pkg/utils"
 	"strconv"
 	"strings"
 )
@@ -21,7 +21,7 @@ func UserGroupCreateEndpoint(c *gin.Context) {
 	exgin.Bind(c, &item)
 
 	userGroup := models.UserGroup{
-		ID:   utils.UUID(),
+		ID:   zos.GenUUID(),
 		Name: item.Name,
 	}
 

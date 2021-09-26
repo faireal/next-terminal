@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
+	"github.com/ergoapi/util/zos"
 	"github.com/gin-gonic/gin"
 	"next-terminal/constants"
 	"next-terminal/models"
@@ -28,7 +29,7 @@ func AssetCreateEndpoint(c *gin.Context) {
 
 	account, _ := GetCurrentAccount(c)
 	item.Owner = account.ID
-	item.ID = utils.UUID()
+	item.ID = zos.GenUUID()
 
 	if err := assetRepository.InitAsset(&item, m); err != nil {
 		errors.Dangerous(err)
@@ -76,7 +77,7 @@ func AssetImportEndpoint(c *gin.Context) {
 		if len(record) >= 9 {
 			port, _ := strconv.Atoi(record[3])
 			asset := models.Asset{
-				ID:          utils.UUID(),
+				ID:          zos.GenUUID(),
 				Name:        record[0],
 				Protocol:    record[1],
 				IP:          record[2],

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
+	"github.com/ergoapi/util/zos"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"golang.org/x/oauth2"
@@ -13,6 +14,7 @@ import (
 	"net/http"
 	"next-terminal/constants"
 	"next-terminal/models"
+	"next-terminal/pkg/jwt"
 	"next-terminal/pkg/ldap"
 	"next-terminal/pkg/utils"
 	"strings"
@@ -23,11 +25,6 @@ import (
 	GitHubAPI "github.com/google/go-github/github"
 	GitHubOauth2 "golang.org/x/oauth2/github"
 	ntcache "next-terminal/pkg/cache"
-)
-
-const (
-	RememberEffectiveTime    = time.Hour * time.Duration(24*14)
-	NotRememberEffectiveTime = time.Hour * time.Duration(2)
 )
 
 type LoginAccount struct {
@@ -94,7 +91,7 @@ func LoginEndpoint(c *gin.Context) {
 	}
 
 	if user.TOTPSecret != "" && user.TOTPSecret != "-" {
-		Fail(c, 0, "")
+		exgin.GinsAbortWithCode(c, 0, "")
 		return
 	}
 
@@ -144,7 +141,7 @@ func LdapLoginEndpoint(c *gin.Context) {
 	if err == gorm.ErrRecordNotFound {
 		// 创建用户
 		u = &models.User{
-			ID:         utils.UUID(),
+			ID:         zos.GenUUID(),
 			Username:   ldapuser.Username,
 			Nickname:   ldapuser.Nickname,
 			Role:       constants.RoleDefault,
@@ -179,8 +176,17 @@ func LdapLoginEndpoint(c *gin.Context) {
 }
 
 func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user *models.User, logintype string) (token string, err error) {
-	token = strings.Join([]string{utils.UUID(), utils.UUID(), utils.UUID(), utils.UUID()}, "")
-
+	// 默认1d
+	exp := constants.NotRememberEffectiveTime
+	if loginAccount.Remember {
+		// 记住登录有效期7d
+		exp = constants.RememberEffectiveTime
+	}
+	// TODO token
+	token, err = jwt.JwtGen(loginAccount.Username, exp)
+	if err != nil {
+		return token, err
+	}
 	authorization := Authorization{
 		Token:    token,
 		Remember: loginAccount.Remember,
@@ -188,14 +194,7 @@ func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user *models.User, 
 	}
 
 	cacheKey := BuildCacheKeyByToken(token)
-
-	if authorization.Remember {
-		// 记住登录有效期两周
-		ntcache.MemCache.Set(cacheKey, authorization, RememberEffectiveTime)
-	} else {
-		ntcache.MemCache.Set(cacheKey, authorization, NotRememberEffectiveTime)
-	}
-
+	ntcache.MemCache.Set(cacheKey, authorization, exp)
 	// 保存登录日志
 	loginLog := models.Logs{
 		ID:              token,
@@ -203,7 +202,7 @@ func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user *models.User, 
 		ClientIP:        c.ClientIP(),
 		ClientUserAgent: c.Request.UserAgent(),
 		LoginTime:       null.TimeFrom(time.Now()),
-		Remember:        authorization.Remember,
+		Remember:        loginAccount.Remember,
 	}
 
 	if logsRepository.Create(&loginLog) != nil {
@@ -221,7 +220,6 @@ func LoginSuccess(c *gin.Context, loginAccount LoginAccount, user *models.User, 
 	u.Online = true
 	u.ID = user.ID
 	err = userRepository.Update(u)
-
 	return token, err
 }
 
@@ -365,7 +363,7 @@ func Oauth2Callback(c *gin.Context) {
 	if err == gorm.ErrRecordNotFound {
 		// 创建用户
 		u = &models.User{
-			ID:       utils.UUID(),
+			ID:       zos.GenUUID(),
 			Username: *gu.Login,
 			Nickname: *gu.Name,
 			Role:     constants.RoleDefault,

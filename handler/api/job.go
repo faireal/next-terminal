@@ -3,9 +3,9 @@ package api
 import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
+	"github.com/ergoapi/util/zos"
 	"github.com/gin-gonic/gin"
 	"next-terminal/models"
-	"next-terminal/pkg/utils"
 	"strconv"
 	"strings"
 )
@@ -13,7 +13,7 @@ import (
 func JobCreateEndpoint(c *gin.Context) {
 	var item models.Job
 	exgin.Bind(c, &item)
-	item.ID = utils.UUID()
+	item.ID = zos.GenUUID()
 
 	if err := jobService.Create(&item); err != nil {
 		errors.Dangerous(err)

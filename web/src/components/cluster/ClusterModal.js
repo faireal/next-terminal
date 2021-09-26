@@ -45,7 +45,7 @@ const TELENETFormItemLayout = {
     wrapperCol: {span: 16},
 };
 
-const AssetModal = function ({title, visible, handleOk, handleCancel, confirmLoading, credentials, tags, model}) {
+const ClusterModal = function ({title, visible, handleOk, handleCancel, confirmLoading, credentials, tags, model}) {
 
     const [form] = Form.useForm();
 
@@ -155,8 +155,8 @@ const AssetModal = function ({title, visible, handleOk, handleCancel, confirmLoa
                             <Input hidden={true}/>
                         </Form.Item>
 
-                        <Form.Item label="资产名称" name='name' rules={[{required: true, message: "请输入资产名称"}]}>
-                            <Input placeholder="资产名称"/>
+                        <Form.Item label="集群名称" name='name' rules={[{required: true, message: "请输入集群名称"}]}>
+                            <Input placeholder="集群名称"/>
                         </Form.Item>
 
                         <Form.Item label="主机" name='ip' rules={[{required: true, message: '请输入资产的主机名称或者IP地址'}]}>
@@ -683,4 +683,4 @@ Windows需要对远程应用程序的名称使用特殊的符号。
     )
 }
 
-export default AssetModal;
+export default ClusterModal;

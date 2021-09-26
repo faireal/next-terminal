@@ -6,33 +6,20 @@ package jwt
 import (
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/ergoapi/zlog"
-	"github.com/spf13/viper"
 	"time"
 )
 
 var jwtSecret []byte
 
-func getdefaultexp() int64 {
-	exp := viper.GetInt64("core.login.exp")
-	if exp > 0 {
-		return exp
-	}
-	return 86400 // 1d 86400s 60 * 60 * 24
-}
-
 // JwtGen jwt auth
-func JwtGen(username string, role string) (t string, err error) {
+func JwtGen(username string, exp time.Duration) (t string, err error) {
 	now := time.Now()
 
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["username"] = username
 
-	expSecond := getdefaultexp()
-	zlog.Debug("load token default exp: %v", expSecond)
-
-	claims["exp"] = now.Add(time.Duration(expSecond) * time.Second).Unix()
+	claims["exp"] = now.Add(exp * time.Second).Unix()
 	t, err = token.SignedString(jwtSecret)
 	if err != nil {
 		return "", fmt.Errorf("JWT Generate Failure")

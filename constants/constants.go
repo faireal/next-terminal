@@ -6,6 +6,7 @@ package constants
 import (
 	"fmt"
 	"next-terminal/pkg/guacd"
+	"time"
 )
 
 var (
@@ -68,4 +69,9 @@ const CacheKeyOauth2State = "p:a:state"
 const (
 	ConfigTypeGitHub = "github"
 	ConfigTypeGitee  = "gitee"
+)
+
+const (
+	RememberEffectiveTime    = time.Hour * time.Duration(24)
+	NotRememberEffectiveTime = time.Hour * time.Duration(2)
 )

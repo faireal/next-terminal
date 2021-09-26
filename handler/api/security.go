@@ -3,10 +3,10 @@ package api
 import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
+	"github.com/ergoapi/util/zos"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"next-terminal/models"
-	"next-terminal/pkg/utils"
 	"strconv"
 	"strings"
 
@@ -17,7 +17,7 @@ func SecurityCreateEndpoint(c *gin.Context) {
 	var item models.AccessSecurity
 	exgin.Bind(c, &item)
 
-	item.ID = utils.UUID()
+	item.ID = zos.GenUUID()
 	item.Source = "管理员添加"
 
 	if viper.GetBool("demo") {

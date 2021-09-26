@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
+	"github.com/ergoapi/util/zos"
 	"github.com/gin-gonic/gin"
 	"next-terminal/models"
-	"next-terminal/pkg/utils"
 	"strconv"
 	"strings"
 )
@@ -16,7 +16,7 @@ func CommandCreateEndpoint(c *gin.Context) {
 	exgin.Bind(c, &item)
 	account, _ := GetCurrentAccount(c)
 	item.Owner = account.ID
-	item.ID = utils.UUID()
+	item.ID = zos.GenUUID()
 
 	if err := commandRepository.Create(&item); err != nil {
 		errors.Dangerous(err)

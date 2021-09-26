@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
+	"github.com/ergoapi/util/zos"
 	"github.com/gin-gonic/gin"
 	"next-terminal/constants"
 	"next-terminal/models"
@@ -24,7 +25,7 @@ func CredentialCreateEndpoint(c *gin.Context) {
 
 	account, _ := GetCurrentAccount(c)
 	item.Owner = account.ID
-	item.ID = utils.UUID()
+	item.ID = zos.GenUUID()
 
 	switch item.Type {
 	case constants.Custom:

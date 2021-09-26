@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/ergoapi/util/zos"
 	"next-terminal/models"
 	"next-terminal/pkg/utils"
 	"next-terminal/repository"
@@ -41,7 +42,7 @@ func (r AssetService) InitDemoVM() error {
 		return err
 	}
 	debian := models.Asset{}
-	debian.ID = utils.UUID()
+	debian.ID = zos.GenUUID()
 	debian.Name = "debian"
 	debian.Protocol = "ssh"
 	debian.IP = "debian.ysicing.svc"
@@ -61,7 +62,7 @@ func (r AssetService) InitDemoVM() error {
 		return err
 	}
 	centos := models.Asset{}
-	centos.ID = utils.UUID()
+	centos.ID = zos.GenUUID()
 	centos.Name = "centos"
 	centos.Protocol = "ssh"
 	centos.IP = "centos.ysicing.svc"

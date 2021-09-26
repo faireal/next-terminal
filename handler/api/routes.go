@@ -25,6 +25,8 @@ var (
 	userGroupRepository      *repository.UserGroupRepository
 	resourceSharerRepository *repository.ResourceSharerRepository
 	assetRepository          *repository.AssetRepository
+	clusterRepository        *repository.ClusterRepository
+
 	credentialRepository     *repository.CredentialRepository
 	configsRepository        *repository.ConfigsRepository
 	commandRepository        *repository.CommandRepository
@@ -129,6 +131,12 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		assets.DELETE("/:id", AssetDeleteEndpoint)
 		assets.GET("/:id", AssetGetEndpoint)
 		assets.POST("/:id/change-owner", AssetChangeOwnerEndpoint, Admin())
+	}
+
+	clusters := e.Group("/apis/clusters")
+	{
+		clusters.GET("", ClusterGetAll)
+		clusters.GET("/paging", ClusterPagingEndpoint)
 	}
 
 	e.GET("/apis/tags", AssetTagsEndpoint)
@@ -238,6 +246,7 @@ func InitRepository(db *gorm.DB) {
 	userGroupRepository = repository.NewUserGroupRepository(db)
 	resourceSharerRepository = repository.NewResourceSharerRepository(db)
 	assetRepository = repository.NewAssetRepository(db)
+	clusterRepository = repository.NewClusterRepository(db)
 	credentialRepository = repository.NewCredentialRepository(db)
 	configsRepository = repository.NewConfigsRepository(db)
 	commandRepository = repository.NewCommandRepository(db)

@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ergoapi/util/zos"
 	"next-terminal/constants"
 	"next-terminal/models"
 	"next-terminal/pkg/utils"
@@ -112,7 +113,7 @@ func (r CheckAssetStatusJob) Run() {
 
 	_ = r.jobService.jobRepository.UpdateLastUpdatedById(r.ID)
 	jobLog := models.JobLog{
-		ID:      utils.UUID(),
+		ID:      zos.GenUUID(),
 		JobId:   r.ID,
 		Message: message,
 	}
@@ -214,7 +215,7 @@ func (r ShellJob) Run() {
 
 	_ = r.jobService.jobRepository.UpdateLastUpdatedById(r.ID)
 	jobLog := models.JobLog{
-		ID:      utils.UUID(),
+		ID:      zos.GenUUID(),
 		JobId:   r.ID,
 		Message: message,
 	}
@@ -258,7 +259,7 @@ func (r JobService) LoadJobs() error {
 	jobs, _ := r.jobRepository.FindByFunc(constants.FuncCheckAssetStatusJob)
 	if len(jobs) == 0 {
 		job := models.Job{
-			ID:     utils.UUID(),
+			ID:     zos.GenUUID(),
 			Name:   "资产状态检测",
 			Func:   constants.FuncCheckAssetStatusJob,
 			Cron:   "@every 3m",

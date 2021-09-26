@@ -3,9 +3,11 @@ package api
 import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
+	"github.com/ergoapi/util/zos"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"next-terminal/constants"
 	"next-terminal/models"
 	ntcache "next-terminal/pkg/cache"
 	"next-terminal/pkg/utils"
@@ -26,7 +28,7 @@ func UserCreateEndpoint(c *gin.Context) {
 	}
 	item.Password = string(pass)
 
-	item.ID = utils.UUID()
+	item.ID = zos.GenUUID()
 
 	if err := userRepository.Create(&item); err != nil {
 		errors.Dangerous(err)
@@ -215,9 +217,9 @@ func ReloadToken() error {
 
 		if authorization.Remember {
 			// 记住登录有效期两周
-			ntcache.MemCache.Set(cacheKey, authorization, RememberEffectiveTime)
+			ntcache.MemCache.Set(cacheKey, authorization, constants.RememberEffectiveTime)
 		} else {
-			ntcache.MemCache.Set(cacheKey, authorization, NotRememberEffectiveTime)
+			ntcache.MemCache.Set(cacheKey, authorization, constants.NotRememberEffectiveTime)
 		}
 		zlog.Debug("重新加载用户「%v」授权Token「%v」到缓存", user.Nickname, token)
 	}

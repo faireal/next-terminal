@@ -12,7 +12,6 @@ import {
     Layout,
     Menu,
     Modal,
-    notification,
     Row,
     Select,
     Space,
@@ -26,24 +25,19 @@ import qs from "qs";
 import ClusterModal from "./ClusterModal";
 import request from "../../common/request";
 import {message} from "antd/es";
-import {getHeaders, isEmpty} from "../../utils/utils";
+import {isEmpty} from "../../utils/utils";
 import dayjs from 'dayjs';
 import {
     DeleteOutlined,
     DownOutlined,
     ExclamationCircleOutlined,
-    ImportOutlined,
     PlusOutlined,
     SyncOutlined,
     UndoOutlined,
-    UploadOutlined
 } from '@ant-design/icons';
 import {PROTOCOL_COLORS} from "../../common/constants";
 
 import {hasPermission, isAdmin} from "../../service/permission";
-import Upload from "antd/es/upload";
-import axios from "axios";
-import {server} from "../../common/env";
 
 
 const confirm = Modal.confirm;
@@ -127,7 +121,7 @@ class Cluster extends Component {
         };
 
         try {
-            let result = await request.get('/apis/assets/paging?' + paramsStr);
+            let result = await request.get('/apis/clusters/paging?' + paramsStr);
             if (result['code'] === 200) {
                 data = result['data'];
             } else {
@@ -462,7 +456,7 @@ class Cluster extends Component {
                 return index + 1;
             }
         }, {
-            title: '资产名称',
+            title: '集群名称',
             dataIndex: 'name',
             key: 'name',
             render: (name, record) => {
@@ -489,9 +483,9 @@ class Cluster extends Component {
             },
             sorter: true,
         }, {
-            title: '连接协议',
-            dataIndex: 'protocol',
-            key: 'protocol',
+            title: '类型',
+            dataIndex: 'type',
+            key: 'type',
             render: (text, record) => {
                 const title = `${record['ip'] + ':' + record['port']}`
                 return (
@@ -639,19 +633,6 @@ class Cluster extends Component {
             }
         ];
 
-        if (isAdmin()) {
-            columns.splice(6, 0, {
-                title: '授权人数',
-                dataIndex: 'sharerCount',
-                key: 'sharerCount',
-                render: (text, record, index) => {
-                    return <Button type='link' onClick={async () => {
-                        await this.handleShowSharer(record, true);
-                    }}>{text}</Button>
-                }
-            });
-        }
-
         const selectedRowKeys = this.state.selectedRowKeys;
         const rowSelection = {
             selectedRowKeys: this.state.selectedRowKeys,
@@ -667,31 +648,23 @@ class Cluster extends Component {
                     <div style={{marginBottom: 20}}>
                         <Row justify="space-around" align="middle" gutter={24}>
                             <Col span={4} key={1}>
-                                <Title level={3}>资产列表</Title>
+                                <Title level={3}>集群列表</Title>
                             </Col>
                             <Col span={20} key={2} style={{textAlign: 'right'}}>
                                 <Space>
 
                                     <Search
                                         ref={this.inputRefOfName}
-                                        placeholder="资产名称"
+                                        placeholder="集群名称"
                                         allowClear
                                         onSearch={this.handleSearchByName}
-                                        style={{width: 200}}
-                                    />
-
-                                    <Search
-                                        ref={this.inputRefOfIp}
-                                        placeholder="资产IP"
-                                        allowClear
-                                        onSearch={this.handleSearchByIp}
                                         style={{width: 200}}
                                     />
 
                                     <Select mode="multiple"
                                             allowClear
                                             value={this.state.selectedTags}
-                                            placeholder="资产标签" onChange={this.handleTagsChange}
+                                            placeholder="集群标签" onChange={this.handleTagsChange}
                                             style={{minWidth: 150}}>
                                         {this.state.tags.map(tag => {
                                             if (tag === '-') {
@@ -699,17 +672,6 @@ class Cluster extends Component {
                                             }
                                             return (<Select.Option key={tag}>{tag}</Select.Option>)
                                         })}
-                                    </Select>
-
-                                    <Select onChange={this.handleSearchByProtocol}
-                                            value={this.state.queryParams.protocol ? this.state.queryParams.protocol : ''}
-                                            style={{width: 100}}>
-                                        <Select.Option value="">全部协议</Select.Option>
-                                        <Select.Option value="rdp">rdp</Select.Option>
-                                        <Select.Option value="ssh">ssh</Select.Option>
-                                        <Select.Option value="vnc">vnc</Select.Option>
-                                        <Select.Option value="telnet">telnet</Select.Option>
-                                        <Select.Option value="kubernetes">kubernetes</Select.Option>
                                     </Select>
 
                                     <Tooltip title='重置查询'>
@@ -728,23 +690,10 @@ class Cluster extends Component {
 
                                     <Divider type="vertical"/>
 
-                                    {isAdmin() ?
-                                        <Tooltip title="批量导入">
-                                            <Button type="dashed" icon={<ImportOutlined/>}
-                                                    onClick={() => {
-                                                        this.setState({
-                                                            importModalVisible: true
-                                                        })
-                                                    }}>
-
-                                            </Button>
-                                        </Tooltip> : undefined
-                                    }
-
 
                                     <Tooltip title="新增">
                                         <Button type="dashed" icon={<PlusOutlined/>}
-                                                onClick={() => this.showModal('新增资产', {})}>
+                                                onClick={() => this.showModal('新增集群', {})}>
 
                                         </Button>
                                     </Tooltip>
@@ -817,101 +766,6 @@ class Cluster extends Component {
                                 model={this.state.model}
                             />
                             : null
-                    }
-
-                    {
-                        this.state.importModalVisible ?
-                            <Modal title="资产导入" visible={true}
-                                   onOk={() => {
-                                       const formData = new FormData();
-                                       formData.append("file", this.state.fileList[0]);
-
-                                       let headers = getHeaders();
-                                       headers['Content-Type'] = 'multipart/form-data';
-
-                                       axios
-                                           .post(server + "/apis/assets/import", formData, {
-                                               headers: headers
-                                           })
-                                           .then((resp) => {
-                                               console.log("上传成功", resp);
-                                               this.setState({
-                                                   importModalVisible: false
-                                               })
-                                               let result = resp.data;
-                                               if (result['code'] === 200) {
-                                                   let data = result['data'];
-                                                   let successCount = data['successCount'];
-                                                   let errorCount = data['errorCount'];
-                                                   if (errorCount === 0) {
-                                                       notification['success']({
-                                                           message: '导入资产成功',
-                                                           description: '共导入成功' + successCount + '条资产。',
-                                                       });
-                                                   } else {
-                                                       notification['info']({
-                                                           message: '导入资产完成',
-                                                           description: `共导入成功${successCount}条资产，失败${errorCount}条资产。`,
-                                                       });
-                                                   }
-                                               } else {
-                                                   notification['error']({
-                                                       message: '导入资产失败',
-                                                       description: result['message'],
-                                                   });
-                                               }
-                                               this.loadTableData();
-                                           });
-                                   }}
-                                   onCancel={() => {
-                                       this.setState({
-                                           importModalVisible: false
-                                       })
-                                   }}
-                                   okButtonProps={{
-                                       disabled: this.state.fileList.length === 0
-                                   }}
-                            >
-                                <Space>
-                                    <Upload
-                                        maxCount={1}
-                                        onRemove={file => {
-                                            this.setState(state => {
-                                                const index = state.fileList.indexOf(file);
-                                                const newFileList = state.fileList.slice();
-                                                newFileList.splice(index, 1);
-                                                return {
-                                                    fileList: newFileList,
-                                                };
-                                            });
-                                        }}
-                                        beforeUpload={(file) => {
-                                            this.setState(state => ({
-                                                fileList: [file],
-                                            }));
-                                            return false;
-                                        }}
-                                        fileList={this.state.fileList}
-                                    >
-                                        <Button icon={<UploadOutlined/>}>选择csv文件</Button>
-                                    </Upload>
-
-                                    <Button type="primary" onClick={() => {
-
-                                        let csvString = 'name,ssh,127.0.0.1,22,username,password,privateKey,passphrase,description,tag1|tag2|tag3';
-                                        //前置的"\uFEFF"为“零宽不换行空格”，可处理中文乱码问题
-                                        const blob = new Blob(["\uFEFF" + csvString], {type: 'text/csv;charset=gb2312;'});
-                                        let a = document.createElement('a');
-                                        a.download = 'sample.csv';
-                                        a.href = URL.createObjectURL(blob);
-                                        a.click();
-                                    }}>
-                                        下载样本文件
-                                    </Button>
-                                </Space>
-
-                            </Modal>
-                            : undefined
                     }
 
                     <Modal title={<Text>更换资源「<strong style={{color: '#1890ff'}}>{this.state.selected['name']}</strong>」的所有者

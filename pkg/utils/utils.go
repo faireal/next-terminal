@@ -24,7 +24,6 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -102,10 +101,10 @@ var Encoder = Bcrypt{
 	cost: bcrypt.DefaultCost,
 }
 
-func UUID() string {
-	v4, _ := uuid.NewV4()
-	return v4.String()
-}
+//func UUID() string {
+//	v4, _ := uuid.NewV4()
+//	return v4.String()
+//}
 
 func Tcping(ip string, port int) bool {
 	var (

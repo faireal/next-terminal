@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/ergoapi/util/zos"
 	"github.com/ergoapi/zlog"
 	"next-terminal/constants"
 	"next-terminal/models"
@@ -29,7 +30,7 @@ func (r UserService) InitUser() (err error) {
 		}
 
 		user := models.User{
-			ID:       utils.UUID(),
+			ID:       zos.GenUUID(),
 			Username: utils.GetKeyFromYaml("core.admin.username", "admin"),
 			Password: string(pass),
 			Nickname: "超级管理员",

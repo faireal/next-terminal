@@ -6,6 +6,7 @@ import (
 	"github.com/ergoapi/errors"
 	"github.com/ergoapi/exgin"
 	"github.com/ergoapi/util/file"
+	"github.com/ergoapi/util/zos"
 	"github.com/ergoapi/zlog"
 	"github.com/gin-gonic/gin"
 	"gopkg.in/guregu/null.v3"
@@ -207,7 +208,7 @@ func SessionCreateEndpoint(c *gin.Context) {
 	}
 
 	session := &models.Session{
-		ID:         utils.UUID(),
+		ID:         zos.GenUUID(),
 		AssetId:    asset.ID,
 		Username:   asset.Username,
 		Password:   asset.Password,
@@ -497,7 +498,7 @@ func SessionLsEndpoint(c *gin.Context) {
 func SafetyRuleTrigger(c *gin.Context) {
 	zlog.Warn("IP %v 尝试进行攻击，请ban掉此IP", c.ClientIP())
 	security := models.AccessSecurity{
-		ID:     utils.UUID(),
+		ID:     zos.GenUUID(),
 		Source: "安全规则触发",
 		IP:     c.ClientIP(),
 		Rule:   constants.AccessRuleReject,
