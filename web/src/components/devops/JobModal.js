@@ -74,7 +74,8 @@ const JobModal = ({title, visible, handleOk, handleCancel, confirmLoading, model
                         setFunc(value);
                     }}>
                         <Select.Option value="shell-job">Shell脚本</Select.Option>
-                        <Select.Option value="check-asset-status-job">资产状态检测</Select.Option>
+                        <Select.Option value="check-asset-status-job">虚拟机状态检测</Select.Option>
+                        <Select.Option value="check-cluster-status-job">集群状态检测</Select.Option>
                     </Select>
                 </Form.Item>
 

@@ -5,6 +5,7 @@ import {
     Form,
     Input,
     InputNumber,
+    message,
     Modal,
     Radio,
     Row,
@@ -15,11 +16,14 @@ import {
 } from "antd/lib/index";
 import {ExclamationCircleOutlined} from "@ant-design/icons";
 import {isEmpty} from "../../utils/utils";
+import { Controlled as CodeMirror } from "react-codemirror2";
+import CodeMirrorWrapper from './codemirror';
 
 const {TextArea} = Input;
 const {Option} = Select;
 const {Text} = Typography;
 const {Panel} = Collapse;
+const getYAMLJS = require('yamljs');
 
 // 子级页面
 // Ant form create 表单内置方法
@@ -69,6 +73,19 @@ const ClusterModal = function ({title, visible, handleOk, handleCancel, confirmL
     const handleauthtypeChange = v => {
         setauthtype(v);
         model.authtype = v;
+    }
+
+    const changeyaml = (CodeMirror, changeobj, value) => {
+        if (!value) return;
+        const { onChange } = this.props;
+        let obj = null;
+        try {
+            obj = getYAMLJS.parse(value);
+            onChange && onChange(obj, true)
+        } catch {
+            message.error('请检查是否为yaml格式')
+            CodeMirror.doc.setValue("")
+        }
     }
 
     return (
@@ -144,9 +161,10 @@ const ClusterModal = function ({title, visible, handleOk, handleCancel, confirmL
                                 {
                                     authtype === 'kubeconfig' ?
                                         <>
-                                            <Form.Item label="kubecfg" name='kubeconfig'
+                                            <Form.Item label="kubeconfig" name='kubeconfig'
                                                        rules={[{required: true, message: '请输入kubeconfig'}]}>
-                                                <TextArea rows={4}/>
+                                                {/* <TextArea rows={4}/> */}
+                                                <CodeMirrorWrapper />
                                             </Form.Item>
                                         </>
                                         : null

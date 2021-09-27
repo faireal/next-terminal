@@ -5,6 +5,7 @@ import (
 	"next-terminal/constants"
 	"next-terminal/models"
 	ntcache "next-terminal/pkg/cache"
+	"strings"
 )
 
 type H map[string]interface{}
@@ -41,8 +42,12 @@ func NotFound(c *gin.Context, message string) {
 
 func GetToken(c *gin.Context) string {
 	// 1. Authorization JWT Token 临时有效token
+	token := c.Request.Header.Get("Authorization")
+	if len(token) > 0 {
+		return strings.Split(token, " ")[1]
+	}
 	// 2. Token 永久token
-	token := c.Request.Header.Get(constants.Token)
+	token = c.Request.Header.Get(constants.Token)
 	if len(token) > 0 {
 		return token
 	}

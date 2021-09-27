@@ -137,6 +137,9 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	{
 		clusters.GET("", ClusterGetAll)
 		clusters.POST("", ClusterCreate)
+		clusters.GET("/:id", ClusterGet)
+		clusters.PUT("/:id", ClusterUpdate)
+		clusters.POST("/:id/tcping", ClusterPingEndpoint)
 		clusters.GET("/paging", ClusterPagingEndpoint)
 	}
 
@@ -260,7 +263,7 @@ func InitRepository(db *gorm.DB) {
 }
 
 func InitService() {
-	jobService = service.NewJobService(jobRepository, jobLogRepository, assetRepository, credentialRepository)
+	jobService = service.NewJobService(jobRepository, jobLogRepository, assetRepository, clusterRepository, credentialRepository)
 	configsService = service.NewConfigsService(configsRepository)
 	userService = service.NewUserService(userRepository, logsRepository)
 	sessionService = service.NewSessionService(sessionRepository)

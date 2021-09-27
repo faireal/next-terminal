@@ -16,17 +16,17 @@ func NewLogsRepository(db *gorm.DB) *LogsRepository {
 
 func (r LogsRepository) Find(pageIndex, pageSize int, userId, clientIp string) (o []models.LogsForPage, total int64, err error) {
 
-	db := r.DB.Table("login_logs").Select("login_logs.id,login_logs.user_id,login_logs.client_ip,login_logs.client_user_agent,login_logs.login_time, login_logs.logout_time, users.nickname as user_name").Joins("left join users on login_logs.user_id = users.id")
-	dbCounter := r.DB.Table("login_logs").Select("DISTINCT login_logs.id")
+	db := r.DB.Table("logs").Select("logs.*, users.nickname as user_name").Joins("left join users on logs.user_id = users.id")
+	dbCounter := r.DB.Table("logs").Select("DISTINCT logs.id")
 
 	if userId != "" {
-		db = db.Where("login_logs.user_id = ?", userId)
-		dbCounter = dbCounter.Where("login_logs.user_id = ?", userId)
+		db = db.Where("logs.user_id = ?", userId)
+		dbCounter = dbCounter.Where("logs.user_id = ?", userId)
 	}
 
 	if clientIp != "" {
-		db = db.Where("login_logs.client_ip like ?", "%"+clientIp+"%")
-		dbCounter = dbCounter.Where("login_logs.client_ip like ?", "%"+clientIp+"%")
+		db = db.Where("logs.client_ip like ?", "%"+clientIp+"%")
+		dbCounter = dbCounter.Where("logs.client_ip like ?", "%"+clientIp+"%")
 	}
 
 	err = dbCounter.Count(&total).Error
@@ -34,7 +34,7 @@ func (r LogsRepository) Find(pageIndex, pageSize int, userId, clientIp string) (
 		return nil, 0, err
 	}
 
-	err = db.Order("login_logs.login_time desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&o).Error
+	err = db.Order("logs.login_time desc").Offset((pageIndex - 1) * pageSize).Limit(pageSize).Find(&o).Error
 	if o == nil {
 		o = make([]models.LogsForPage, 0)
 	}

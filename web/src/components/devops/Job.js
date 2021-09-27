@@ -305,7 +305,9 @@ class Job extends Component {
             render: (func, record) => {
                 switch (func) {
                     case "check-asset-status-job":
-                        return <Tag color="green">资产状态检测</Tag>;
+                        return <Tag color="green">虚拟机状态检测</Tag>;
+                    case "check-cluster-status-job":
+                            return <Tag color="blue">集群状态检测</Tag>;    
                     case "shell-job":
                         return <Tag color="volcano">Shell脚本</Tag>;
                     default:

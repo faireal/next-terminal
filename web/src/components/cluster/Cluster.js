@@ -215,7 +215,7 @@ class Cluster extends Component {
     };
 
     async update(id) {
-        let result = await request.get(`/apis/assets/${id}`);
+        let result = await request.get(`/apis/clusters/${id}`);
         if (result.code !== 200) {
             message.error(result.message, 10);
             return;
@@ -235,18 +235,12 @@ class Cluster extends Component {
 
     async showModal(title, asset = {}) {
         // 并行请求
-        let getCredentials = request.get('/apis/credentials');
         let getTags = request.get('/apis/tags');
 
         let credentials = [];
         let tags = [];
 
-        let r1 = await getCredentials;
         let r2 = await getTags;
-
-        if (r1['code'] === 200) {
-            credentials = r1['data'];
-        }
 
         if (r2['code'] === 200) {
             tags = r2['data'];
@@ -297,7 +291,7 @@ class Cluster extends Component {
 
         if (formData.id) {
             // 向后台提交数据
-            const result = await request.put('/apis/assets/' + formData.id, formData);
+            const result = await request.put('/apis/clusters/' + formData.id, formData);
             if (result.code === 200) {
                 message.success('操作成功', 3);
 
@@ -335,7 +329,7 @@ class Cluster extends Component {
         const sshMode = record['sshMode'];
 
         message.loading({content: '正在检测资产是否在线...', key: id});
-        let result = await request.post(`/apis/assets/${id}/tcping`);
+        let result = await request.post(`/apis/clusters/${id}/tcping`);
         if (result.code === 200) {
             if (result.data === true) {
                 message.success({content: '检测完成，您访问的资产在线，即将打开窗口进行访问。', key: id, duration: 3});

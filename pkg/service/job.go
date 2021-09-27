@@ -21,11 +21,16 @@ type JobService struct {
 	jobRepository        *repository.JobRepository
 	jobLogRepository     *repository.JobLogRepository
 	assetRepository      *repository.AssetRepository
+	clusterRepository    *repository.ClusterRepository
 	credentialRepository *repository.CredentialRepository
 }
 
-func NewJobService(jobRepository *repository.JobRepository, jobLogRepository *repository.JobLogRepository, assetRepository *repository.AssetRepository, credentialRepository *repository.CredentialRepository) *JobService {
-	return &JobService{jobRepository: jobRepository, jobLogRepository: jobLogRepository, assetRepository: assetRepository, credentialRepository: credentialRepository}
+func NewJobService(jobRepository *repository.JobRepository, jobLogRepository *repository.JobLogRepository,
+	assetRepository *repository.AssetRepository, clusterRepository *repository.ClusterRepository,
+	credentialRepository *repository.CredentialRepository) *JobService {
+	return &JobService{jobRepository: jobRepository, jobLogRepository: jobLogRepository,
+		assetRepository: assetRepository, clusterRepository: clusterRepository,
+		credentialRepository: credentialRepository}
 }
 
 func (r JobService) ChangeStatusById(id, status string) error {
@@ -59,6 +64,8 @@ func getJob(j *models.Job, jobService *JobService) (job cron.Job, err error) {
 	switch j.Func {
 	case constants.FuncCheckAssetStatusJob:
 		job = CheckAssetStatusJob{ID: j.ID, Mode: j.Mode, ResourceIds: j.ResourceIds, Metadata: j.Metadata, jobService: jobService}
+	case constants.FuncCheckClusterStatusJob:
+		job = CheckClusterStatusJob{ID: j.ID, Mode: j.Mode, ResourceIds: j.ResourceIds, Metadata: j.Metadata, jobService: jobService}
 	case constants.FuncShellJob:
 		job = ShellJob{ID: j.ID, Mode: j.Mode, ResourceIds: j.ResourceIds, Metadata: j.Metadata, jobService: jobService}
 	default:
@@ -118,6 +125,57 @@ func (r CheckAssetStatusJob) Run() {
 		Message: message,
 	}
 
+	_ = r.jobService.jobLogRepository.Create(&jobLog)
+}
+
+type CheckClusterStatusJob struct {
+	ID          string
+	Mode        string
+	ResourceIds string
+	Metadata    string
+	jobService  *JobService
+}
+
+func (r CheckClusterStatusJob) Run() {
+	if r.ID == "" {
+		return
+	}
+
+	var clusters []models.Cluster
+	if r.Mode == constants.JobModeAll {
+		clusters, _ = r.jobService.clusterRepository.Gets("")
+	} else {
+		clusters, _ = r.jobService.clusterRepository.FindByID(strings.Split(r.ResourceIds, ","))
+	}
+
+	if len(clusters) == 0 {
+		return
+	}
+
+	msgChan := make(chan string)
+	for i := range clusters {
+		cluster := clusters[i]
+		go func() {
+			t1 := time.Now()
+			active := utils.KubePing(cluster.Kubeconfig, cluster.ID)
+			elapsed := time.Since(t1)
+			msg := fmt.Sprintf("集群「%v(%v)」存活状态检测完成，存活「%v」，耗时「%v」", cluster.Name, cluster.ID, active, elapsed)
+			_ = r.jobService.clusterRepository.UpdateStatusByID(active, cluster.ID)
+			zlog.Info(msg)
+			msgChan <- msg
+		}()
+	}
+
+	var message = ""
+	for i := 0; i < len(clusters); i++ {
+		message += <-msgChan + "\n"
+	}
+	_ = r.jobService.jobRepository.UpdateLastUpdatedById(r.ID)
+	jobLog := models.JobLog{
+		ID:      zos.GenUUID(),
+		JobId:   r.ID,
+		Message: message,
+	}
 	_ = r.jobService.jobLogRepository.Create(&jobLog)
 }
 
@@ -258,18 +316,30 @@ func (r JobService) ExecJobById(id string) (err error) {
 func (r JobService) LoadJobs() error {
 	jobs, _ := r.jobRepository.FindByFunc(constants.FuncCheckAssetStatusJob)
 	if len(jobs) == 0 {
-		job := models.Job{
+		jobvm := models.Job{
 			ID:     zos.GenUUID(),
-			Name:   "资产状态检测",
+			Name:   "虚拟机状态检测",
 			Func:   constants.FuncCheckAssetStatusJob,
 			Cron:   "@every 3m",
 			Mode:   constants.JobModeAll,
 			Status: constants.JobStatusRunning,
 		}
-		if err := r.jobRepository.Create(&job); err != nil {
+		if err := r.jobRepository.Create(&jobvm); err != nil {
 			return err
 		}
-		zlog.Debug("创建计划任务「%v」cron「%v」", job.Name, job.Cron)
+		zlog.Debug("创建计划任务「%v」cron「%v」", jobvm.Name, jobvm.Cron)
+		jobcluster := models.Job{
+			ID:     zos.GenUUID(),
+			Name:   "集群状态检测",
+			Func:   constants.FuncCheckClusterStatusJob,
+			Cron:   "@every 3m",
+			Mode:   constants.JobModeAll,
+			Status: constants.JobStatusRunning,
+		}
+		if err := r.jobRepository.Create(&jobcluster); err != nil {
+			return err
+		}
+		zlog.Debug("创建计划任务「%v」cron「%v」", jobcluster.Name, jobcluster.Cron)
 	} else {
 		for i := range jobs {
 			if jobs[i].Status == constants.JobStatusRunning {

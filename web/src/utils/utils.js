@@ -10,7 +10,7 @@ export const getToken = function () {
 }
 
 export const getHeaders = function () {
-    return {'X-Auth-Token': getToken()};
+    return {'Authorization': "Bearer " + getToken()};
 }
 
 export const itemRender = function (route, params, routes, paths) {

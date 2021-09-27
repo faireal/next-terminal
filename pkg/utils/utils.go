@@ -9,12 +9,15 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
+	"github.com/ergoapi/util/file"
+	"github.com/ergoapi/zlog"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/pbkdf2"
 	"image"
 	"image/png"
 	mathrand "math/rand"
 	"net"
+	"next-terminal/internal/kube"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -125,6 +128,24 @@ func Tcping(ip string, port int) bool {
 	defer func() {
 		_ = conn.Close()
 	}()
+	return true
+}
+
+func KubePing(kubecfg, idfile string) bool {
+	idfile = fmt.Sprintf("/tmp/%v", idfile)
+	defer func() {
+		file.RemoveFiles(idfile)
+	}()
+	file.Writefile(idfile, kubecfg)
+	k, err := kube.NewFromConfig(idfile)
+	if err != nil {
+		return false
+	}
+	v, err := k.Discovery().ServerVersion()
+	if err != nil {
+		return false
+	}
+	zlog.Debug("kube ping: %v", v.String())
 	return true
 }
 

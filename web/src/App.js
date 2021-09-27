@@ -38,6 +38,7 @@ import {
     MenuFoldOutlined,
     DatabaseOutlined,
     MessageOutlined,
+    EyeOutlined,
 } from '@ant-design/icons';
 import Info from "./components/user/Info";
 import request from "./common/request";
@@ -48,6 +49,8 @@ import {isEmpty, NT_PACKAGE} from "./utils/utils";
 import {getCurrentUser, isAdmin, allowview} from "./service/permission";
 import UserGroup from "./components/user/UserGroup";
 import LoginLog from "./components/devops/LoginLog";
+import ActionLog from "./components/devops/ActionLog";
+
 import Term from "./components/access/Term";
 import Job from "./components/devops/Job";
 import {Header} from "antd/es/layout/layout";
@@ -262,6 +265,11 @@ class App extends Component {
                                                         登录日志
                                                     </Link>
                                                 </Menu.Item>
+                                                <Menu.Item key="action-log" icon={<EyeOutlined />}>
+                                                    <Link to={'/action-log'}>
+                                                        操作日志
+                                                    </Link>
+                                                </Menu.Item>
                                                 <Menu.Item key="access-security" icon={<SafetyCertificateOutlined/>}>
                                                     <Link to={'/access-security'}>
                                                         访问安全
@@ -375,6 +383,7 @@ class App extends Component {
                             <Route path="/online-session" component={OnlineSession}/>
                             <Route path="/offline-session" component={OfflineSession}/>
                             <Route path="/login-log" component={LoginLog}/>
+                            <Route path="/action-log" component={ActionLog}/>
                             <Route path="/info" component={Info}/>
                             <Route path="/setting/:id" component={Setting}/>
                             <Route path="/job" component={Job}/>

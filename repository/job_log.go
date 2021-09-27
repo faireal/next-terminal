@@ -19,7 +19,7 @@ func (r JobLogRepository) Create(o *models.JobLog) error {
 }
 
 func (r JobLogRepository) FindByJobId(jobId string) (o []models.JobLog, err error) {
-	err = r.DB.Where("job_id = ?", jobId).Order("created_at asc").Find(&o).Error
+	err = r.DB.Where("job_id = ?", jobId).Order("created_at desc").Find(&o).Error
 	return
 }
 

@@ -6,10 +6,12 @@
     "@ant-design/icons": "^4.3.0",
     "antd": "^4.8.4",
     "axios": "^0.21.1",
+    "codemirror": "^5.63.0",
     "dayjs": "^1.10.4",
     "guacamole-common-js": "^1.2.0",
     "qs": "^6.9.4",
     "react": "^16.14.0",
+    "react-codemirror2": "^7.2.1",
     "react-contexify": "^4.1.1",
     "react-dom": "^16.14.0",
     "react-draggable": "^4.4.3",
@@ -19,7 +21,8 @@
     "typescript": "^3.9.7",
     "xterm": "^4.9.0",
     "xterm-addon-fit": "^0.4.0",
-    "xterm-addon-web-links": "^0.4.0"
+    "xterm-addon-web-links": "^0.4.0",
+    "yamljs": "^0.3.0"
   },
   "scripts": {
     "start": "react-scripts start",

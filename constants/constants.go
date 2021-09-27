@@ -39,12 +39,13 @@ const (
 	Custom     = "custom"      // 密码
 	PrivateKey = "private-key" // 密钥
 
-	JobStatusRunning        = "running"                // 计划任务运行状态
-	JobStatusNotRunning     = "not-running"            // 计划任务未运行状态
-	FuncCheckAssetStatusJob = "check-asset-status-job" // 检测资产是否在线
-	FuncShellJob            = "shell-job"              // 执行Shell脚本
-	JobModeAll              = "all"                    // 全部资产
-	JobModeCustom           = "custom"                 // 自定义选择资产
+	JobStatusRunning          = "running"                  // 计划任务运行状态
+	JobStatusNotRunning       = "not-running"              // 计划任务未运行状态
+	FuncCheckAssetStatusJob   = "check-asset-status-job"   // 检测资产是否在线
+	FuncCheckClusterStatusJob = "check-cluster-status-job" // 检测集群是否在线
+	FuncShellJob              = "shell-job"                // 执行Shell脚本
+	JobModeAll                = "all"                      // 全部资产
+	JobModeCustom             = "custom"                   // 自定义选择资产
 
 	SshMode      = "ssh-mode"      // ssh模式
 	MailHost     = "mail-host"     // 邮件服务器地址

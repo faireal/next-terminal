@@ -146,9 +146,8 @@ func (c ClusterRepository) UpdateStatusByID(active bool, id string) error {
 }
 
 func (c ClusterRepository) InitCluster(item *models.Cluster, m map[string]interface{}) error {
-	// TODO已存在集群跳过
-	exist, _ := c.Get("name = ?", item.Name)
-	if exist != nil {
+	_, err := c.Get("name = ?", item.Name)
+	if err == nil {
 		zlog.Info("已存在集群 %v 忽略", item.Name)
 		return nil
 	}
@@ -158,8 +157,10 @@ func (c ClusterRepository) InitCluster(item *models.Cluster, m map[string]interf
 
 	// 创建后检测集群是否可用
 	go func() {
-		active := false // utils.Tcping(item.IP, item.Port)
-		_ = c.UpdateStatusByID(active, item.ID)
+		active := utils.KubePing(item.Kubeconfig, item.ID)
+		if err := c.UpdateStatusByID(active, item.ID); err != nil {
+			zlog.Error("update cluster [%v] err: %v", item.ID, active)
+		}
 	}()
 	return nil
 }
@@ -167,8 +168,45 @@ func (c ClusterRepository) InitCluster(item *models.Cluster, m map[string]interf
 func (c ClusterRepository) Get(where string, args ...interface{}) (*models.Cluster, error) {
 	var u models.Cluster
 	err := c.DB.Model(models.Cluster{}).Where(where, args...).Last(&u).Error
+	if err == nil {
+		err = c.Decrypt(&u, utils.Encryption())
+	}
+	return &u, err
+}
+
+func (c ClusterRepository) Gets(where string, args ...interface{}) ([]models.Cluster, error) {
+	var u []models.Cluster
+	err := c.DB.Model(models.Cluster{}).Where(where, args...).Find(&u).Error
 	if err != nil {
 		return nil, err
 	}
-	return &u, nil
+	var us []models.Cluster
+	for _, x := range u {
+		if x.Encrypted {
+			c.Decrypt(&x, utils.Encryption())
+		}
+		us = append(us, x)
+	}
+	return us, nil
+}
+
+func (c ClusterRepository) Update(o *models.Cluster, id string) error {
+	o.ID = id
+	return c.DB.Updates(o).Error
+}
+
+func (c ClusterRepository) FindByID(cid []string) (o []models.Cluster, err error) {
+	var cs []models.Cluster
+	err = c.DB.Where("id in ?", cid).Find(&cs).Error
+	if err != nil {
+		return nil, err
+	}
+
+	for _, x := range cs {
+		if x.Encrypted {
+			c.Decrypt(&x, utils.Encryption())
+		}
+		o = append(o, x)
+	}
+	return
 }

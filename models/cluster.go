@@ -9,11 +9,11 @@ type Cluster struct {
 	Name        string `json:"name"`
 	Authtype    string `json:"authtype"`
 	Mode        string `json:"mode"`
-	Description string `json:"description,omitempty"`
+	Description string `json:"description"`
 	Status      bool   `json:"status"`
-	Tags        string `json:"tags,omitempty"`
-	Provider    string `json:"provider,omitempty"`
-	Region      string `json:"region,omitempty"`
+	Tags        string `json:"tags"`
+	Provider    string `json:"provider"`
+	Region      string `json:"region"`
 	Owner       string `json:"owner"`
 	OwnerName   string `json:"ownerName"`
 	Kubeconfig  string `json:"kubeconfig"`
