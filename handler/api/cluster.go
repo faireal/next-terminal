@@ -13,6 +13,7 @@ import (
 	"next-terminal/models"
 	"next-terminal/pkg/utils"
 	"strconv"
+	"strings"
 )
 
 // ClusterGetAll 获取集群列表
@@ -156,4 +157,23 @@ func ClusterPingEndpoint(c *gin.Context) {
 	}
 
 	exgin.GinsData(c, active, nil)
+}
+
+func ClusterDelete(c *gin.Context) {
+	id := c.Param("id")
+	split := strings.Split(id, ",")
+	for i := range split {
+		if err := PreCheckClusterPermission(c, split[i]); err != nil {
+			errors.Dangerous(err)
+			return
+		}
+		if err := clusterRepository.DeleteByID(split[i]); err != nil {
+			errors.Dangerous(err)
+			return
+		}
+		// 删除资产与用户的关系
+		// TODO
+	}
+
+	exgin.GinsData(c, nil, nil)
 }

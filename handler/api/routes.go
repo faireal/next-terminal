@@ -8,8 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
+	"k8s.io/apimachinery/pkg/util/wait"
 	"next-terminal/constants"
 	"next-terminal/models"
+	"next-terminal/pkg/client"
 	"next-terminal/pkg/utils"
 	"next-terminal/repository"
 	"strings"
@@ -53,6 +55,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 	InitService()
 
 	LoadJobs()
+	InitKubeClient()
 
 	if err := InitDBData(); err != nil {
 		zlog.Panic("初始化数据异常: %v", err)
@@ -141,6 +144,7 @@ func SetupRoutes(db *gorm.DB) *gin.Engine {
 		clusters.PUT("/:id", ClusterUpdate)
 		clusters.POST("/:id/tcping", ClusterPingEndpoint)
 		clusters.GET("/paging", ClusterPagingEndpoint)
+		clusters.DELETE("/:id", ClusterDelete)
 	}
 
 	e.GET("/apis/tags", AssetTagsEndpoint)
@@ -271,6 +275,11 @@ func InitService() {
 	numService = service.NewNumService(numRepository)
 	assetService = service.NewAssetService(assetRepository, userRepository)
 	credentialService = service.NewCredentialService(credentialRepository)
+}
+
+func InitKubeClient() {
+	// 定期更新client
+	go wait.Forever(client.BuildApiserverClient, 30*time.Second)
 }
 
 func LoadJobs() {

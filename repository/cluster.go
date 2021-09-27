@@ -19,11 +19,11 @@ type ClusterRepository struct {
 }
 
 func NewClusterRepository(db *gorm.DB) *ClusterRepository {
-	clusterRepository = &ClusterRepository{DB: db}
-	return clusterRepository
+	GClusterRepository = &ClusterRepository{DB: db}
+	return GClusterRepository
 }
 
-func (c ClusterRepository) FindAll() (o []models.Cloud, err error) {
+func (c ClusterRepository) FindAll() (o []models.Cluster, err error) {
 	err = c.DB.Find(&o).Error
 	return
 }
@@ -209,4 +209,8 @@ func (c ClusterRepository) FindByID(cid []string) (o []models.Cluster, err error
 		o = append(o, x)
 	}
 	return
+}
+
+func (c ClusterRepository) DeleteByID(id string) error {
+	return c.DB.Where("id = ?", id).Delete(&models.Cluster{}).Error
 }

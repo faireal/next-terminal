@@ -5,7 +5,7 @@ var (
 	userGroupRepository      *UserGroupRepository
 	resourceSharerRepository *ResourceSharerRepository
 	assetRepository          *AssetRepository
-	clusterRepository        *ClusterRepository
+	GClusterRepository       *ClusterRepository
 	credentialRepository     *CredentialRepository
 	configsRepository        *ConfigsRepository
 	commandRepository        *CommandRepository

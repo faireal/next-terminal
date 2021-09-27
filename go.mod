@@ -14,7 +14,7 @@ require (
 	github.com/ergoapi/exgin v1.0.3-0.20210912083449-5bdfadf06043
 	github.com/ergoapi/glog v0.0.1
 	github.com/ergoapi/ldap v0.0.1
-	github.com/ergoapi/util v0.0.6
+	github.com/ergoapi/util v0.0.7
 	github.com/ergoapi/zlog v0.0.1
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/gin-contrib/sse v0.1.0 // indirect

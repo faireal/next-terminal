@@ -95,7 +95,7 @@ class Cluster extends Component {
     }
 
     async delete(id) {
-        const result = await request.delete('/apis/assets/' + id);
+        const result = await request.delete('/apis/clusters/' + id);
         if (result['code'] === 200) {
             message.success('删除成功');
             await this.loadTableData(this.state.queryParams);
@@ -352,7 +352,7 @@ class Cluster extends Component {
             delBtnLoading: true
         })
         try {
-            let result = await request.delete('/apis/assets/' + this.state.selectedRowKeys.join(','));
+            let result = await request.delete('/apis/clusters/' + this.state.selectedRowKeys.join(','));
             if (result.code === 200) {
                 message.success('操作成功', 3);
                 this.setState({
