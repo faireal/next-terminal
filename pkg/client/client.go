@@ -25,7 +25,7 @@ type ClusterManager struct {
 }
 
 func BuildApiserverClient() {
-	newCLusters, err := repository.GClusterRepository.FindAll()
+	newCLusters, err := repository.GClusterRepository.Gets("")
 	if err != nil {
 		zlog.Error("list k8s client err: %v", err)
 		return
