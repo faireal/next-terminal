@@ -368,6 +368,10 @@ class Credential extends Component {
                     return (
                         <Tag color="green">密钥</Tag>
                     );
+                } else if (type === 'access-key') {
+                    return (
+                        <Tag color="blue">云服务商密钥</Tag>
+                    );
                 } else {
                     return (
                         <Tag color="red">密码</Tag>
@@ -424,21 +428,15 @@ class Credential extends Component {
                                 </Menu.Item> : undefined
                             }
 
-
-                            <Menu.Item key="2">
-                                <Button type="text" size='small'
-                                        disabled={!hasPermission(record['owner'])}
-                                        onClick={async () => {
-                                            await this.handleShowSharer(record);
-                                        }}>更新授权人</Button>
-                            </Menu.Item>
-
-                            <Menu.Divider/>
-                            <Menu.Item key="3">
-                                <Button type="text" size='small' danger
-                                        disabled={!hasPermission(record['owner'])}
-                                        onClick={() => this.showDeleteConfirm(record.id, record.name)}>删除</Button>
-                            </Menu.Item>
+                                <Menu.Item key="2">
+                                    <Button type="text" size='small' disabled={!hasPermission(record['owner'])}
+                                    onClick={async () => {
+                                        await this.handleShowSharer(record);
+                                    }}>更新授权人</Button>
+                                </Menu.Item>
+                                
+                        
+                            {/* <Menu.Divider/> */}
                         </Menu>
                     );
 
@@ -447,11 +445,16 @@ class Credential extends Component {
                             <Button type="link" size='small' loading={this.state.items[index].updateBtnLoading}
                                     disabled={!hasPermission(record['owner'])}
                                     onClick={() => this.showModal('更新凭证', record.id, index)}>编辑</Button>
-                            <Dropdown overlay={menu}>
+                            <Button type="text" size='small' danger
+                                        disabled={!hasPermission(record['owner'])}
+                                        onClick={() => this.showDeleteConfirm(record.id, record.name)}>删除</Button>
+                            { record.type !== "access-key" ? (
+                                <Dropdown overlay={menu}>
                                 <Button type="link" size='small'>
                                     更多 <DownOutlined/>
                                 </Button>
                             </Dropdown>
+                            ):null }            
                         </div>
                     )
                 },

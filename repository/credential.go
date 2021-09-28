@@ -23,7 +23,9 @@ func (r CredentialRepository) FindByUser(account models.User) (o []models.Creden
 	if account.Role == constants.RoleDefault {
 		db = db.Where("credentials.owner = ? or resource_sharers.user_id = ?", account.ID, account.ID)
 	}
-	err = db.Find(&o).Error
+	// 过滤资产凭证
+	db = db.Where("credentials.type != ?", constants.CredentialAccessKey)
+	err = db.Order("credentials.created_at desc").Find(&o).Error
 	return
 }
 
@@ -103,6 +105,13 @@ func (r CredentialRepository) Encrypt(item *models.Credential, password []byte) 
 		}
 		item.Passphrase = base64.StdEncoding.EncodeToString(encryptedCBC)
 	}
+	if item.AccessSecret != "" {
+		encryptedCBC, err := utils.AesEncryptCBC([]byte(item.AccessSecret), password)
+		if err != nil {
+			return err
+		}
+		item.AccessSecret = base64.StdEncoding.EncodeToString(encryptedCBC)
+	}
 	item.Encrypted = true
 	return nil
 }
@@ -141,6 +150,17 @@ func (r CredentialRepository) Decrypt(item *models.Credential, password []byte) 
 				return err
 			}
 			item.Passphrase = string(decryptedCBC)
+		}
+		if item.AccessSecret != "" {
+			origData, err := base64.StdEncoding.DecodeString(item.AccessSecret)
+			if err != nil {
+				return err
+			}
+			decryptedCBC, err := utils.AesDecryptCBC(origData, password)
+			if err != nil {
+				return err
+			}
+			item.AccessSecret = string(decryptedCBC)
 		}
 	}
 	return nil

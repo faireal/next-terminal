@@ -238,7 +238,7 @@ func (r ShellJob) Run() {
 				return
 			}
 
-			if credential.Type == constants.Custom {
+			if credential.Type == constants.CredentialCustom {
 				username = credential.Username
 				password = credential.Password
 			} else {

@@ -217,11 +217,7 @@ class App extends Component {
                                                 资产列表
                                             </Link>
                                         </Menu.Item>
-                                        <Menu.Item key="credential" icon={<IdcardOutlined/>}>
-                                            <Link to={'/credential'}>
-                                                授权凭证
-                                            </Link>
-                                        </Menu.Item>
+                                        
                                     </SubMenu>
                                     {
                                         allowview("cluster") ? (
@@ -232,8 +228,14 @@ class App extends Component {
                                                     </Link>
                                                 </Menu.Item>
                                             </SubMenu>
+
                                         ): null
                                     }
+                                    <Menu.Item key="credential" icon={<IdcardOutlined/>}>
+                                        <Link to={'/credential'}>
+                                            凭证管理
+                                        </Link>
+                                    </Menu.Item>
                                     
                                 </SubMenu>
 

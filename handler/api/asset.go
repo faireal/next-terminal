@@ -82,7 +82,7 @@ func AssetImportEndpoint(c *gin.Context) {
 				Protocol:    record[1],
 				IP:          record[2],
 				Port:        port,
-				AccountType: constants.Custom,
+				AccountType: constants.CredentialCustom,
 				Username:    record[4],
 				Password:    record[5],
 				PrivateKey:  record[6],

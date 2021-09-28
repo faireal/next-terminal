@@ -230,7 +230,7 @@ func SessionCreateEndpoint(c *gin.Context) {
 			return
 		}
 
-		if credential.Type == constants.Custom {
+		if credential.Type == constants.CredentialCustom {
 			session.Username = credential.Username
 			session.Password = credential.Password
 		} else {

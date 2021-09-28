@@ -28,7 +28,7 @@ func CredentialCreateEndpoint(c *gin.Context) {
 	item.ID = zos.GenUUID()
 
 	switch item.Type {
-	case constants.Custom:
+	case constants.CredentialCustom:
 		item.PrivateKey = "-"
 		item.Passphrase = "-"
 		if item.Username == "" {
@@ -37,7 +37,7 @@ func CredentialCreateEndpoint(c *gin.Context) {
 		if item.Password == "" {
 			item.Password = "-"
 		}
-	case constants.PrivateKey:
+	case constants.CredentialPrivateKey:
 		item.Password = "-"
 		if item.Username == "" {
 			item.Username = "-"
@@ -48,8 +48,13 @@ func CredentialCreateEndpoint(c *gin.Context) {
 		if item.Passphrase == "" {
 			item.Passphrase = "-"
 		}
+	case constants.CredentialAccessKey:
+		item.PrivateKey = "-"
+		item.Passphrase = "-"
+		item.Password = "-"
+		item.Username = "-"
 	default:
-		Fail(c, -1, "类型错误")
+		exgin.GinsData(c, nil, fmt.Errorf("类型错误，暂不支持: %v", item.Type))
 		return
 	}
 
@@ -95,7 +100,7 @@ func CredentialUpdateEndpoint(c *gin.Context) {
 	exgin.Bind(c, &item)
 
 	switch item.Type {
-	case constants.Custom:
+	case constants.CredentialCustom:
 		item.PrivateKey = "-"
 		item.Passphrase = "-"
 		if item.Username == "" {
@@ -112,7 +117,7 @@ func CredentialUpdateEndpoint(c *gin.Context) {
 			}
 			item.Password = base64.StdEncoding.EncodeToString(encryptedCBC)
 		}
-	case constants.PrivateKey:
+	case constants.CredentialPrivateKey:
 		item.Password = "-"
 		if item.Username == "" {
 			item.Username = "-"
@@ -139,8 +144,13 @@ func CredentialUpdateEndpoint(c *gin.Context) {
 			}
 			item.Passphrase = base64.StdEncoding.EncodeToString(encryptedCBC)
 		}
+	case constants.CredentialAccessKey:
+		item.PrivateKey = "-"
+		item.Passphrase = "-"
+		item.Password = "-"
+		item.Username = "-"
 	default:
-		Fail(c, -1, "类型错误")
+		exgin.GinsData(c, nil, fmt.Errorf("类型错误，暂不支持: %v", item.Type))
 		return
 	}
 	item.Encrypted = true

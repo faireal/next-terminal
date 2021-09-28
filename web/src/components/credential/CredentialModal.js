@@ -7,6 +7,12 @@ const {TextArea} = Input;
 const accountTypes = [
     {text: '密码', value: 'custom'},
     {text: '密钥', value: 'private-key'},
+    {text: '云服务商密钥', value: 'access-key'},
+];
+
+const cloudProvidersTypes = [
+    {text: '腾讯云', value: 'qcloud'},
+    {text: '阿里云', value: 'aliyun'},
 ];
 
 const CredentialModal = ({title, visible, handleOk, handleCancel, confirmLoading, model}) => {
@@ -39,6 +45,10 @@ const CredentialModal = ({title, visible, handleOk, handleCancel, confirmLoading
     const handleAccountTypeChange = v => {
         setType(v);
         model.type = v;
+    }
+
+    const handleCloudProviderTypeChange = v => {
+        model.provider = v;
     }
 
     return (
@@ -74,7 +84,7 @@ const CredentialModal = ({title, visible, handleOk, handleCancel, confirmLoading
                     <Input placeholder="请输入凭证名称"/>
                 </Form.Item>
 
-                <Form.Item label="账户类型" name='type' rules={[{required: true, message: '请选择接账户类型'}]}>
+                <Form.Item label="类型" name='type' rules={[{required: true, message: '请选择类型'}]}>
                     <Select onChange={handleAccountTypeChange}>
                         {accountTypes.map(item => {
                             return (<Select.Option key={item.value} value={item.value}>{item.text}</Select.Option>)
@@ -97,7 +107,28 @@ const CredentialModal = ({title, visible, handleOk, handleCancel, confirmLoading
                             </Form.Item>
                         </>
                         :
-                        <>
+                        ( type === "access-key" ? (
+                            <>
+                            {/* <Form.Item label="授权账户" name='username'>
+                                <Input placeholder="输入授权账户"/>
+                            </Form.Item> */}
+                            <Form.Item label="云服务商" name='provider' rules={[{required: true, message: '请选择云服务商'}]}>
+                                <Select onChange={handleCloudProviderTypeChange}>
+                                    {cloudProvidersTypes.map(item => {
+                                        return (<Select.Option key={item.value} value={item.value}>{item.text}</Select.Option>)
+                                    })}
+                                </Select>
+                            </Form.Item>
+                            <Form.Item label="ID" name='access_id'>
+                                <Input placeholder="输入AccessKey ID"/>
+                            </Form.Item>
+                            <Form.Item label="Secret" name='access_secret'>
+                                <Input.Password placeholder="输入AccessKey Secret"/>
+                            </Form.Item>
+                        </>
+
+                        ) : (
+                            <>
                             <Form.Item label="授权账户" name='username'>
                                 <Input placeholder="输入授权账户"/>
                             </Form.Item>
@@ -107,6 +138,8 @@ const CredentialModal = ({title, visible, handleOk, handleCancel, confirmLoading
                             </Form.Item>
                         </>
 
+                            ) )
+                        
                 }
 
             </Form>

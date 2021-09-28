@@ -36,8 +36,9 @@ const (
 	AccessRuleAllow  = "allow"  // 允许访问
 	AccessRuleReject = "reject" // 拒绝访问
 
-	Custom     = "custom"      // 密码
-	PrivateKey = "private-key" // 密钥
+	CredentialCustom     = "custom"      // 密码
+	CredentialPrivateKey = "private-key" // 密钥
+	CredentialAccessKey  = "access-key"  // 云服务商密钥
 
 	JobStatusRunning          = "running"                  // 计划任务运行状态
 	JobStatusNotRunning       = "not-running"              // 计划任务未运行状态

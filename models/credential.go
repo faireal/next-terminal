@@ -2,15 +2,18 @@ package models
 
 type Credential struct {
 	Model
-	ID         string `gorm:"primary_key" json:"id"`
-	Name       string `json:"name"`
-	Type       string `json:"type"`
-	Username   string `json:"username"`
-	Password   string `json:"password"`
-	PrivateKey string `json:"privateKey"`
-	Passphrase string `json:"passphrase"`
-	Owner      string `gorm:"index" json:"owner"`
-	Encrypted  bool   `json:"encrypted"`
+	ID           string `gorm:"primary_key" json:"id"`
+	Name         string `json:"name"`
+	Type         string `json:"type"`
+	Username     string `json:"username"`
+	Password     string `json:"password"`
+	PrivateKey   string `json:"privateKey"`
+	Passphrase   string `json:"passphrase"`
+	Owner        string `gorm:"index" json:"owner"`
+	Encrypted    bool   `json:"encrypted"`
+	Provider     string `json:"provider"`
+	AccessID     string `json:"access_id"`
+	AccessSecret string `json:"access_secret"`
 }
 
 func (r *Credential) TableName() string {
