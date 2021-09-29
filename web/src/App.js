@@ -55,6 +55,7 @@ import Term from "./components/access/Term";
 import Job from "./components/devops/Job";
 import {Header} from "antd/es/layout/layout";
 import Security from "./components/devops/Security";
+import Oauth2 from './components/oauth2/Oauth2';
 
 const {Footer, Sider} = Layout;
 
@@ -81,13 +82,20 @@ class App extends Component {
     };
 
     componentDidMount() {
-        let hash = window.location.hash;
-        let current = hash.replace('#/', '');
+        // let hash = window.location.hash;
+        // let current = hash.replace('#/', '');
+        let path = window.location.pathname;
+        let current = path.replace('/', '');
         if (isEmpty(current)) {
             current = 'dashboard';
         }
         this.setCurrent(current);
-        this.getInfo();
+        console.log(path, path.startsWith("/oauth2"))
+        if (path !== "/login") {
+            if (!path.startsWith("/oauth2")) {
+                this.getInfo();
+            }
+        }
     }
 
     async getInfo() {
@@ -176,6 +184,7 @@ class App extends Component {
         return (
 
             <Switch>
+                <Route path="/oauth2/:type"><Oauth2/></Route>
                 <Route path="/access" component={Access}/>
                 <Route path="/term" component={Term}/>
                 <Route path="/login"><Login updateUser={this.updateUser}/></Route>

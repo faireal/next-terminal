@@ -110,3 +110,40 @@ func buildClient(kubecfg, id string) (*kubernetes.Clientset, *rest.Config, error
 	}
 	return clientset, config, nil
 }
+
+func Client(clusterid string) (*kubernetes.Clientset, error) {
+	m, err := Manager(clusterid)
+	if err != nil {
+		return nil, err
+	}
+	return m.Clientset, nil
+}
+
+func Cluster(clusterid string) (*models.Cluster, error) {
+	m, err := Manager(clusterid)
+	if err != nil {
+		return nil, err
+	}
+	return m.Cluster, nil
+}
+
+func Manager(clusterid string) (*ClusterManager, error) {
+	mc, exist := clusterManagerSets.Load(clusterid)
+	if !exist {
+		// 不存在, 尝试再刷新一次
+		BuildApiserverClient()
+		mc, exist = clusterManagerSets.Load(clusterid)
+		if !exist {
+			return nil, fmt.Errorf("not exist [%s]", clusterid)
+		}
+	}
+	m := mc.(*ClusterManager)
+	if !m.Cluster.Status {
+		return nil, fmt.Errorf("cluster %s  offline", clusterid)
+	}
+	return m, nil
+}
+
+func Managers() *sync.Map {
+	return clusterManagerSets
+}

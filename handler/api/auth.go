@@ -11,7 +11,6 @@ import (
 	"golang.org/x/oauth2"
 	"gopkg.in/guregu/null.v3"
 	"gorm.io/gorm"
-	"net/http"
 	"next-terminal/constants"
 	"next-terminal/models"
 	"next-terminal/pkg/jwt"
@@ -318,7 +317,8 @@ func Oauth2login(c *gin.Context) {
 	authsecret := viper.GetString("oauth2.secret")
 
 	url := getCommonOauth2Config(c, authtype, authid, authsecret).AuthCodeURL(state, oauth2.AccessTypeOnline)
-	c.Redirect(http.StatusFound, url)
+	// c.Redirect(http.StatusFound, url)
+	exgin.GinsData(c, url, nil)
 }
 
 func Oauth2Callback(c *gin.Context) {
@@ -354,7 +354,7 @@ func Oauth2Callback(c *gin.Context) {
 		Fail(c, -1, fmt.Sprintf("登录失败，请联系管理员, 错误信息: %v", err))
 		return
 	}
-	u, err := userRepository.UserGet("username = ?", *gu.Name)
+	u, err := userRepository.UserGet("username = ?", *gu.Login)
 	if err != nil && err != gorm.ErrRecordNotFound {
 		errors.Dangerous(err)
 		return
@@ -392,10 +392,7 @@ func Oauth2Callback(c *gin.Context) {
 		errors.Dangerous(err)
 		return
 	}
-	//Success(c, token)
-	c.SetCookie("X-Auth-Token", token, 60*60*24, "", "", false, false)
-	c.Status(http.StatusOK)
-	c.Writer.WriteString("<script>window.location.href='/#/'</script>")
+	exgin.GinsData(c, token, nil)
 }
 
 func LogoutEndpoint(c *gin.Context) {

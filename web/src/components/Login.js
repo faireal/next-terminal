@@ -4,7 +4,7 @@ import './Login.css'
 import request from "../common/request";
 import {message} from "antd/es";
 import {withRouter} from "react-router-dom";
-import {LockOutlined, OneToOneOutlined, UserOutlined} from '@ant-design/icons';
+import {LockOutlined, OneToOneOutlined, UserOutlined, GithubOutlined} from '@ant-design/icons';
 
 const {Title} = Typography;
 
@@ -138,9 +138,9 @@ class LoginForm extends Component {
                             </Button>
                         </Form.Item>
                     </Form>
-                    {/* <Form>
-                        <a href="/oauth2/"><GithubOutlined key="GithubOutlined"/></a>
-                    </Form> */}
+                    <Form>
+                        <a href="/oauth2/github"><GithubOutlined key="GithubOutlined"/></a>
+                    </Form>
                 </Card>
 
                 <Modal title="双因素认证" visible={this.state.totpModalVisible} confirmLoading={this.state.confirmLoading}
