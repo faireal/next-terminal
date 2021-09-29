@@ -139,7 +139,7 @@ class LoginForm extends Component {
                         </Form.Item>
                     </Form>
                     <Form>
-                        <a href="/oauth2/github"><GithubOutlined key="GithubOutlined"/></a>
+                        <a href="/#/oauth2/github"><GithubOutlined key="GithubOutlined"/></a>
                     </Form>
                 </Card>
 

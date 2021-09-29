@@ -82,19 +82,17 @@ class App extends Component {
     };
 
     componentDidMount() {
-        // let hash = window.location.hash;
-        // let current = hash.replace('#/', '');
-        let path = window.location.pathname;
-        let current = path.replace('/', '');
+        let hash = window.location.hash;
+        let current = hash.replace('#/', '');
+        // let path = window.location.pathname;
+        // let current = path.replace('/', '');
         if (isEmpty(current)) {
             current = 'dashboard';
         }
         this.setCurrent(current);
-        console.log(path, path.startsWith("/oauth2"))
-        if (path !== "/login") {
-            if (!path.startsWith("/oauth2")) {
-                this.getInfo();
-            }
+        console.log("app route hash: ",hash)
+        if (hash !== "/login" && hash !== "#/login" && !hash.startsWith("/oauth2") && !hash.startsWith("#/oauth2")  ) {
+            this.getInfo();
         }
     }
 

@@ -1,10 +1,9 @@
 import React, {Component} from 'react';
-import {Button, Card, Checkbox, Form, Input, Modal, Typography} from "antd";
+import {Card, Typography} from "antd";
 import '../Login.css'
 import request from "../../common/request";
 import {message} from "antd/es";
 import {withRouter} from "react-router-dom";
-import {LockOutlined, OneToOneOutlined, UserOutlined} from '@ant-design/icons';
 
 const {Title} = Typography;
 
@@ -24,8 +23,8 @@ class Oauth2 extends Component {
 
     componentDidMount() {
         const m = this.props.match.params.type
-        const q = this.props.location.search
-        console.log(q)
+        const q = window.location.search
+        console.log(this.props.match, window.location.search)
         if ( m !== "callback" ) {
             this.autologin()
         } else {
@@ -52,7 +51,7 @@ class Oauth2 extends Component {
         let result = await request.get('/oauth2/callback' + value);
         if (result.code !== 200) {
             message.error(result.message)
-            window.location.href = "/login"
+            window.location.href = "/#/login"
             return
         }
 
