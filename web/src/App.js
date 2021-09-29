@@ -138,6 +138,8 @@ class App extends Component {
             message.error(result['message']);
         } else {
             message.success('退出登录成功，即将跳转至登录页面。');
+            localStorage.removeItem('X-Auth-Token')
+            sessionStorage.removeItem('user')
             window.location.reload();
         }
     }
